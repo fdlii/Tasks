@@ -1,8 +1,9 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class AssemblyLine implements IAssemblyLine {
-    private ArrayList<ILineStep> steps = new ArrayList<ILineStep>();
+    private List<ILineStep> steps = new ArrayList<>();
 
     public AssemblyLine(ILineStep... steps) {
         this.steps.addAll(Arrays.asList(steps));
@@ -10,13 +11,13 @@ public class AssemblyLine implements IAssemblyLine {
 
     @Override
     public IProduct assembleProduct(IProduct product) {
-        ArrayList<IProductPart> parts = new ArrayList<IProductPart>();
+        List<IProductPart> parts = new ArrayList<>();
         for (ILineStep step : steps) {
             parts.add(step.buildProductPart());
         }
-        product.InstallFirstPart(parts.get(0));
-        product.InstallSecondPart(parts.get(1));
-        product.InstallThirdPart(parts.get(2));
+        product.installFirstPart(parts.get(0));
+        product.installSecondPart(parts.get(1));
+        product.installThirdPart(parts.get(2));
         return product;
     }
 }

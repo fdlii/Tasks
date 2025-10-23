@@ -1,28 +1,29 @@
 import java.util.ArrayList;
+import java.util.List;
 
 public class LapTop implements IProduct {
     public String name;
-    public ArrayList<IProductPart> parts = new ArrayList<IProductPart>();
+    public List<IProductPart> parts = new ArrayList<>();
 
     public LapTop(String name) {
         this.name = name;
     }
 
     @Override
-    public void InstallFirstPart(IProductPart productPart) {
+    public void installFirstPart(IProductPart productPart) {
         parts.add(productPart);
-        System.out.println("1-я часть установлена в устройство.");
+        System.out.println("Корпус установлен в устройство.");
     }
 
     @Override
-    public void InstallSecondPart(IProductPart productPart) {
+    public void installSecondPart(IProductPart productPart) {
         parts.add(productPart);
-        System.out.println("2-я часть установлена в устройство.");
+        System.out.println("Монитор установлен в устройство.");
     }
 
     @Override
-    public void InstallThirdPart(IProductPart productPart) {
+    public void installThirdPart(IProductPart productPart) {
         parts.add(productPart);
-        System.out.println("3-я часть установлена в устройство.");
+        System.out.println("Материская плата установлена в устройство.");
     }
 }

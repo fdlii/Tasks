@@ -1,4 +1,4 @@
-public class Corpus implements IProductPart {
+public class Case implements IProductPart {
     private final String name = "Корпус";
 
     @Override

@@ -17,8 +17,8 @@ public class Bouquet {
 
     public double calculatePrice() {
         double sum = 0;
-        for(Flower f : flowers){
-            sum += f.getPrice();
+        for(Flower flower : flowers){
+            sum += flower.getPrice();
         }
         return sum;
     }

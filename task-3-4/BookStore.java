@@ -10,9 +10,9 @@ public class BookStore {
     }
 
     public void deleteBook(String bookName) {
-        for (Book b : books) {
-            if (b.getName().equals(bookName)) {
-                books.remove(b);
+        for (Book book : books) {
+            if (book.getName().equals(bookName)) {
+                books.remove(book);
                 break;
             }
         }
@@ -27,21 +27,21 @@ public class BookStore {
     }
 
     public void addInStock(String bookName, int count) {
-        for (Book b : books) {
-            if (b.getName().equals(bookName)) {
-                int sum = b.getCountInStock() + count;
-                b.setCountInStock(sum);
-                b.setInStock(true);
+        for (Book book : books) {
+            if (book.getName().equals(bookName)) {
+                int sum = book.getCountInStock() + count;
+                book.setCountInStock(sum);
+                book.setInStock(true);
 
-                for (Request r : b.getRequests()) {
-                    if (r.getCount() <= b.getCountInStock() && r.isOpen()) {
+                for (Request r : book.getRequests()) {
+                    if (r.getCount() <= book.getCountInStock() && r.isOpen()) {
                         r.setOpen(false);
-                        b.setCountInStock(b.getCountInStock() - r.getCount());
+                        book.setCountInStock(book.getCountInStock() - r.getCount());
                     }
                 }
 
-                if (b.getCountInStock() == 0) {
-                    b.setInStock(false);
+                if (book.getCountInStock() == 0) {
+                    book.setInStock(false);
                 }
 
                 break;
@@ -50,22 +50,22 @@ public class BookStore {
     }
 
     public void debitFromStock(String bookName) {
-        for (Book b : books) {
-            if (b.getName().equals(bookName)) {
-                b.setCountInStock(0);
-                b.setInStock(false);
+        for (Book book : books) {
+            if (book.getName().equals(bookName)) {
+                book.setCountInStock(0);
+                book.setInStock(false);
                 break;
             }
         }
     }
 
     public Order createOrder(String bookName, double discount) {
-        for (Book b : books) {
-            if (b.getName().equals(bookName)) {
-                Order order = new Order(b, discount);
+        for (Book book : books) {
+            if (book.getName().equals(bookName)) {
+                Order order = new Order(book, discount);
                 orders.add(order);
-                if (b.getCountInStock() == 0) {
-                    b.AddRequest(new Request(b, 1));
+                if (book.getCountInStock() == 0) {
+                    book.addRequest(new Request(book, 1));
                 }
                 return order;
             }
@@ -76,20 +76,20 @@ public class BookStore {
     public void cancelOrder(int orderId) {
         for (Order order : orders) {
             if (order.getId() == orderId) {
-                order.ChangeStatus(OrderStatus.CANCELLED);
+                order.changeStatus(OrderStatus.CANCELLED);
                 break;
             }
         }
     }
 
     public boolean makeRequest(String bookName, int count) {
-        for (Book b : books) {
-            if (b.getName().equals(bookName)) {
-                if (b.getCountInStock() != 0) {
+        for (Book book : books) {
+            if (book.getName().equals(bookName)) {
+                if (book.getCountInStock() != 0) {
                     return false;
                 }
-                Request request = new Request(b, count);
-                b.AddRequest(request);
+                Request request = new Request(book, count);
+                book.addRequest(request);
                 return true;
             }
         }
@@ -104,7 +104,7 @@ public class BookStore {
                         return false;
                     }
                 }
-                order.ChangeStatus(OrderStatus.COMPLETED);
+                order.changeStatus(OrderStatus.COMPLETED);
                 return true;
             }
         }

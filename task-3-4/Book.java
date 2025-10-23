@@ -76,14 +76,14 @@ public class Book {
         this.price = price;
     }
 
-    public void AddRequest(Request request) {
+    public void addRequest(Request request) {
         requests.add(request);
     }
 
-    public void ChangeRequest(int requestId, boolean status) {
-        for (Request r : requests) {
-            if (r.getId() == requestId) {
-                r.setOpen(status);
+    public void changeRequest(int requestId, boolean status) {
+        for (Request request : requests) {
+            if (request.getId() == requestId) {
+                request.setOpen(status);
                 break;
             }
         }

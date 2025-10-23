@@ -44,7 +44,7 @@ public class Order {
         this.book = book;
     }
 
-    public void ChangeStatus(OrderStatus orderStatus) {
+    public void changeStatus(OrderStatus orderStatus) {
         this.orderStatus = orderStatus;
     }
 }

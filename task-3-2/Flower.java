@@ -1,9 +1,9 @@
-public class Flower {
+public abstract class Flower {
     protected String name;
     protected String color;
     protected double price;
 
-    public Flower(String name, String color, double price){
+    protected Flower(String name, String color, double price){
         this.name = name;
         this.color = color;
         this.price = price;

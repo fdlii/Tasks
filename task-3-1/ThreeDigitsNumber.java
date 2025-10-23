@@ -2,9 +2,9 @@
 public class ThreeDigitsNumber {
     public static void main(String[] args) {
         java.util.Random random = new java.util.Random();
-        int a = random.nextInt(900) + 100;
-        int b = random.nextInt(900) + 100;
-        int c = random.nextInt(900) + 100;
+        int a = random.nextInt(100, 1000);
+        int b = random.nextInt(100, 1000);
+        int c = random.nextInt(100, 1000);
         System.out.println("Сгенерированные числа:");
         System.out.println(a);
         System.out.println(b);

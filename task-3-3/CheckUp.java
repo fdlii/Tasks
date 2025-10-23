@@ -2,9 +2,9 @@
 public class CheckUp {
     public static void main(String[] args) {
         IProduct lapTop = new LapTop("Ноутбук №1");
-        ILineStep firstStep = new FirstLineStep();
-        ILineStep secondStep = new SecondLineStep();
-        ILineStep thirdStep = new ThirdLineStep();
+        ILineStep firstStep = new CaseLineStep();
+        ILineStep secondStep = new MonitorLineStep();
+        ILineStep thirdStep = new MotherBoardLineStep();
         IAssemblyLine assemblyLine = new AssemblyLine(firstStep, secondStep, thirdStep);
 
         LapTop assembledLaptop = (LapTop) assemblyLine.assembleProduct(lapTop);

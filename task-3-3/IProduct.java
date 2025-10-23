@@ -1,5 +1,5 @@
 public interface IProduct {
-    void InstallFirstPart(IProductPart productPart);
-    void InstallSecondPart(IProductPart productPart);
-    void InstallThirdPart(IProductPart productPart);
+    void installFirstPart(IProductPart productPart);
+    void installSecondPart(IProductPart productPart);
+    void installThirdPart(IProductPart productPart);
 }
