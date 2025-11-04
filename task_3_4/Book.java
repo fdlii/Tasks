@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class Book {
     private String name;
@@ -8,7 +9,7 @@ public class Book {
     private Date published;
     private boolean inStock;
     private int countInStock;
-    private ArrayList<Request> requests = new ArrayList<Request>();
+    private List<Request> requests = new ArrayList<Request>();
     private double price;
 
     public Book(String name, String author, String description, Date published, double price) {
@@ -91,15 +92,12 @@ public class Book {
     }
 
     public void changeRequest(int requestId, boolean status) {
-        for (Request request : requests) {
-            if (request.getId() == requestId) {
-                request.setOpen(status);
-                break;
-            }
-        }
+        requests.stream()
+                .filter(request -> request.getId() == requestId)
+                .forEach(request -> request.setOpen(status));
     }
 
-    public ArrayList<Request> getRequests()
+    public List<Request> getRequests()
     {
         return requests;
     }

@@ -15,12 +15,9 @@ public class BookStore {
     }
 
     public void deleteBook(String bookName) {
-        for (Book book : books) {
-            if (book.getName().equals(bookName)) {
-                books.remove(book);
-                break;
-            }
-        }
+        books.stream()
+                .filter(book -> book.getName().equals(bookName))
+                .forEach(book -> books.remove(book));
     }
 
     public List<Book> getBooks() {
@@ -40,6 +37,7 @@ public class BookStore {
                 notStaledBooks.addAll(order.getBooks());
             }
         }
+        
         List<Book> staledBooks = new ArrayList<>();
         for (Book book : books) {
             boolean flag = false;
@@ -66,12 +64,10 @@ public class BookStore {
     }
 
     public Order getOrderById(int id) {
-        for (Order order : orders) {
-            if (order.getId() == id) {
-                return order;
-            }
-        }
-        return null;
+        return orders.stream()
+                .filter(order1 -> order1.getId() == id)
+                .findFirst()
+                .get();
     }
 
     public List<Client> getClients() {
@@ -155,13 +151,12 @@ public class BookStore {
     }
 
     public void debitFromStock(String bookName) {
-        for (Book book : books) {
-            if (book.getName().equals(bookName)) {
-                book.setCountInStock(0);
-                book.setInStock(false);
-                break;
-            }
-        }
+        books.stream()
+                .filter(book -> book.getName().equals(bookName))
+                .forEach(book -> {
+                    book.setCountInStock(0);
+                    book.setInStock(false);
+                });
     }
 
     public Order createOrder(double discount, Date executionDate, String clientName, String... bookNames) {
@@ -191,12 +186,9 @@ public class BookStore {
     }
 
     public void cancelOrder(int orderId) {
-        for (Order order : orders) {
-            if (order.getId() == orderId) {
-                order.changeStatus(OrderStatus.CANCELLED);
-                break;
-            }
-        }
+        orders.stream()
+                .filter(order -> order.getId() == orderId)
+                .forEach(order -> order.changeStatus(OrderStatus.CANCELLED));
     }
 
     public boolean makeRequest(String bookName, int count) {
@@ -230,15 +222,11 @@ public class BookStore {
         return false;
     }
 
-    public List<Request> getBookRequests(String bookName){
-        for (Book book : books) {
-            if (book.getName().equals(bookName)) {
-                List<Request> requests = new ArrayList<>();
-                requests = book.getRequests();
-                requests.sort(new RequestIdComparator());
-                return requests;
-            }
-        }
-        return null;
+    public List<Request> getBookRequests(String bookName) {
+        return books.stream()
+                .filter(book -> book.getName().equals(bookName))
+                .findFirst()
+                .get()
+                .getRequests();
     }
 }

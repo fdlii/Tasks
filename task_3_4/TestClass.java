@@ -1,5 +1,4 @@
 import java.util.Date;
-import java.util.Scanner;
 
 public class TestClass {
     public static void main(String[] args) {
@@ -15,8 +14,5 @@ public class TestClass {
         if (!result1 && result2 && result3 == 4) {
             System.out.println("Логика успешно реализована.");
         }
-
-        Scanner scanner = new Scanner(System.in);
-        scanner.nextLine();
     }
 }
