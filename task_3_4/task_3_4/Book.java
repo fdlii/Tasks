@@ -1,3 +1,5 @@
+package task_3_4;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -12,23 +14,19 @@ public class Book {
     private List<Request> requests = new ArrayList<Request>();
     private double price;
 
-    public Book(String name, String author, String description, Date published, double price) {
+    public Book(String name, String author, String description, Date published, double price, int countInStock) {
         this.name = name;
         this.author = author;
         this.description = description;
         this.published = published;
         this.price = price;
-        this.inStock = false;
-        this.countInStock = 0;
-    }
-
-    public Book(String name, String author, String description, Date published, double price, int countInStock) {
-        this.name = name;
-        this.author = author;
-        this.published = published;
-        this.price = price;
-        this.inStock = true;
         this.countInStock = countInStock;
+        if (countInStock > 0) {
+            this.inStock = true;
+        }
+        else {
+            this.inStock = false;
+        }
     }
 
     public String getName() {
