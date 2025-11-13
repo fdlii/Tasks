@@ -3,14 +3,15 @@ package task_3_4;
 import java.util.Random;
 
 public class Request {
-    private Random random = new Random();
+    private static int counter = 1;
+
     private int id;
     private Book book;
     private int count;
     private boolean isOpen;
 
     public Request(Book book, int count) {
-        this.id = random.nextInt(10000); // заглушка
+        this.id = counter++; // заглушка
         this.book = book;
         this.count = count;
         isOpen = true;

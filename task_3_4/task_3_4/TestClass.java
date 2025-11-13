@@ -1,19 +1,18 @@
 package task_3_4;
 
+import javax.imageio.IIOException;
+import java.io.IOException;
 import java.util.Date;
 
 public class TestClass {
-    public static void main(String[] args) {
-        BookStore.addClient("Никита", 20);
-        BookStore.addBook("Маленький принц", "А. Д. Экзюпери", "Книга о приключениях Маленького принца", new Date("12/04/2001"), 449.99, 0);
-        BookStore.createOrder(0.1, new Date("23/12/2025"), "Никита","Маленький принц");
-        boolean result1 = BookStore.completeOrder(BookStore.getOrders().get(0).getId());
-        BookStore.addInStock("Маленький принц", 5);
-        boolean result2 = BookStore.completeOrder(BookStore.getOrders().get(0).getId());
-        int result3 = BookStore.getBooks().get(0).getCountInStock();
+    public static void main(String[] args) throws IOException {
+        BookStore.importBooksFromCSVFile("task_6_1/Books.csv");
+        BookStore.importClientsFromCSVFile("task_6_1/Clients.csv");
+        BookStore.importOrdersFromCSVFile("task_6_1/Orders.csv");
 
-        if (!result1 && result2 && result3 == 4) {
-            System.out.println("Логика успешно реализована.");
-        }
+        BookStore.ExportBooksIntoCSVFile("task_6_1/OutBooks.csv");
+        BookStore.ExportOrdersIntoCSVFile("task_6_1/OutOrders.csv");
+        BookStore.ExportClientsIntoCSVFile("task_6_1/OutClients.csv");
+
     }
 }

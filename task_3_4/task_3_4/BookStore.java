@@ -1,5 +1,9 @@
 package task_3_4;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -13,6 +17,7 @@ public class BookStore {
     private static List<Book> books = new ArrayList<>();
     private static List<Order> orders = new ArrayList<>();
     private static List<Client> clients = new ArrayList<>();
+    private static List<Request> requests = new ArrayList<>();
 
     public static void addBook(String name, String author, String description, Date published, double price, int countInStock) {
         books.add(new Book(name, author, description, published, price, countInStock));
@@ -21,7 +26,12 @@ public class BookStore {
     public static void deleteBook(String bookName) {
         books.stream()
                 .filter(book -> book.getName().equals(bookName))
-                .forEach(book -> books.remove(book));
+                .forEach(book -> {
+                    for (Request r : book.getRequests()) {
+                        requests.remove(r);
+                    }
+                    books.remove(book);
+                });
     }
 
     public static List<Book> getBooks() {
@@ -180,7 +190,9 @@ public class BookStore {
                 if (book.getName().equals(bookName)) {
                     order.addBook(book);
                     if (book.getCountInStock() == 0) {
-                        book.addRequest(new Request(book, 1));
+                        Request request = new Request(book, 1);
+                        book.addRequest(request);
+                        requests.add(request);
                     }
                 }
             }
@@ -203,6 +215,7 @@ public class BookStore {
                 }
                 Request request = new Request(book, count);
                 book.addRequest(request);
+                requests.add(request);
                 return true;
             }
         }
@@ -232,5 +245,204 @@ public class BookStore {
                 .findFirst()
                 .get()
                 .getRequests();
+    }
+
+    public static void importBooksFromCSVFile(String filename) throws IOException {
+        List<String[]> records = parseCSV(filename);
+
+        for (String[] record : records) {
+            boolean bookFound = false;
+
+            for (Book b : books) {
+                if (b.getName().equals(record[0])) {
+                    b.setAuthor(record[1]);
+                    b.setDescription(record[2]);
+                    b.setPublished(new Date(record[3]));
+                    b.setPrice(Double.parseDouble(record[4]));
+                    b.setCountInStock(Integer.parseInt(record[5]));
+                    bookFound = true;
+                    break;
+                }
+            }
+
+            if (!bookFound) {
+                Book book = new Book(record[0],
+                        record[1],
+                        record[2],
+                        new Date(record[3]),
+                        Double.parseDouble(record[4]),
+                        Integer.parseInt(record[5]));
+
+                if (record.length > 6) {
+                    for (int i = 6; i < record.length; i++) {
+                        for (Request r : requests) {
+                            if (r.getId() == Integer.parseInt(record[i])) {
+                                book.addRequest(r);
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                books.add(book);
+            }
+        }
+    }
+
+    public static void importOrdersFromCSVFile(String filename) throws IOException {
+        List<String[]> records = parseCSV(filename);
+
+        for (String[] record : records) {
+            boolean orderFound = false;
+
+            boolean clientFound = false;
+            Client foundedClient = null;
+            for (Client c : clients) {
+                if (c.getName().equals(record[3])) {
+                    clientFound = true;
+                    foundedClient = c;
+                    break;
+                }
+            }
+            if (!clientFound) {
+                throw new RuntimeException();
+            }
+
+            for (Order o : orders) {
+                if (o.getId() == Integer.parseInt(record[0])) {
+                    o.setDiscount(Double.parseDouble(record[1]));
+                    o.setExecutionDate(new Date(record[2]));
+                    o.setClient(foundedClient);
+                    orderFound = true;
+                    break;
+                }
+            }
+
+            if (!orderFound) {
+                Order order = new Order(Double.parseDouble(record[1]),
+                        new Date(record[2]),
+                        foundedClient);
+
+                if (record.length > 4) {
+                    for (int i = 4; i < record.length; i++) {
+                        for (Book b : books) {
+                            if (b.getId() == Integer.parseInt(record[i])) {
+                                order.addBook(b);
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                foundedClient.addOrder(order);
+                orders.add(order);
+            }
+        }
+    }
+
+    public static void importClientsFromCSVFile(String filename) throws IOException {
+        List<String[]> records = parseCSV(filename);
+
+        for (String[] record : records) {
+            boolean clientFound = false;
+
+            for (Client c : clients) {
+                if (c.getName().equals(record[0])) {
+                    c.setAge(Integer.parseInt(record[1]));
+                    clientFound = true;
+                    break;
+                }
+            }
+
+            if (!clientFound) {
+                Client client = new Client(record[0], Integer.parseInt(record[1]));
+
+                if (record.length > 2) {
+                    for (int i = 2; i < record.length; i++) {
+                        for (Order o : orders) {
+                            if (o.getId() == Integer.parseInt(record[i])) {
+                                client.addOrder(o);
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                clients.add(client);
+            }
+        }
+    }
+
+    public static void ExportBooksIntoCSVFile(String fileName) throws IOException {
+        try (FileWriter writer = new FileWriter(fileName)) {
+            for (Book book : books) {
+                writer.append(book.getName()).append(",");
+                writer.append(book.getAuthor()).append(",");
+                writer.append(book.getDescription()).append(",");
+                writer.append(book.getPublished().toString()).append(",");
+                writer.append(String.valueOf(book.getPrice())).append(",");
+                writer.append(String.valueOf(book.getCountInStock())).append(",");
+
+                List<Request> requests = book.getRequests();
+                if (requests != null && !requests.isEmpty()) {
+                    for (int i = 0; i < requests.size(); i++) {
+                        if (i > 0) writer.append(",");
+                        writer.append(String.valueOf(requests.get(i).getId()));
+                    }
+                }
+                writer.append("\n");
+            }
+        }
+    }
+
+    public static void ExportOrdersIntoCSVFile(String fileName) throws IOException {
+        try (FileWriter writer = new FileWriter(fileName)) {
+            for (Order order : orders) {
+                writer.append(String.valueOf(order.getId())).append(",");
+                writer.append(String.valueOf(order.getDiscount())).append(",");
+                writer.append(String.valueOf(order.getExecutionDate())).append(",");
+                writer.append(String.valueOf(order.getClient().getName())).append(",");
+
+                List<Book> books = order.getBooks();
+                if (books != null && !books.isEmpty()) {
+                    for (int i = 0; i < books.size(); i++) {
+                        if (i > 0) writer.append(",");
+                        writer.append(String.valueOf(books.get(i).getId()));
+                    }
+                }
+                writer.append("\n");
+            }
+        }
+    }
+
+    public static void ExportClientsIntoCSVFile(String fileName) throws IOException{
+        try (FileWriter writer = new FileWriter(fileName)) {
+            for (Client client : clients) {
+                writer.append(client.getName()).append(",");
+                writer.append(String.valueOf(client.getAge())).append(",");
+
+                List<Order> orders = client.getOrders();
+                if (orders != null && !orders.isEmpty()) {
+                    for (int i = 0; i < orders.size(); i++) {
+                        if (i > 0) writer.append(",");
+                        writer.append(String.valueOf(orders.get(i).getId()));
+                    }
+                }
+                writer.append("\n");
+            }
+        }
+    }
+
+    private static List<String[]> parseCSV(String fileName) throws IOException {
+        List<String[]> records = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                records.add(values);
+            }
+        }
+        return records;
     }
 }
