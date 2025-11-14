@@ -1,9 +1,7 @@
 import actions.booksActions.*;
-import actions.clientsActions.AddClientAction;
-import actions.clientsActions.GetClientsAction;
+import actions.clientsActions.*;
 import actions.ordersActions.*;
-import actions.requestsActions.GetBookRequestsAction;
-import actions.requestsActions.MakeRequestAction;
+import actions.requestsActions.*;
 
 import java.util.Iterator;
 
@@ -31,11 +29,15 @@ public class Builder {
         innerMenu1.addItem("Удаление книги", new DeleteBookAction(), null);
         innerMenu1.addItem("Получение всех книг", new GetBooksAction(), null);
         innerMenu1.addItem("Получение залежавшихся книг", new GetStaledBooksAction(), null);
+        innerMenu1.addItem("Импорт книг", new ImportBooksFromCSVFileAction(), null);
+        innerMenu1.addItem("Экспорт книг", new ExportBooksFromCSVFileAction(), null);
 
         Menu innerMenu2 = menuIt.next().getNextMenu();
 
         innerMenu2.addItem("Добавление клиента", new AddClientAction(), null);
         innerMenu2.addItem("Получение всех клиентов", new GetClientsAction(), null);
+        innerMenu2.addItem("Импорт клиентов", new ImportClientsFromCSVFileAction(), null);
+        innerMenu2.addItem("Экспорт клиентов", new ExportClientsFromCSVFileAction(), null);
 
         Menu innerMenu3 = menuIt.next().getNextMenu();
 
@@ -47,11 +49,15 @@ public class Builder {
         innerMenu3.addItem("Получение суммы дохода за промежуток времени", new GetEarnedFundsForTimeSpanAction(), null);
         innerMenu3.addItem("Получение заказа по идентификатору", new GetOrderByIdAction(), null);
         innerMenu3.addItem("Получение всех заказов", new GetOrdersAction(), null);
+        innerMenu3.addItem("Импорт заказов", new ImportOrdersFromCSVFileAction(), null);
+        innerMenu3.addItem("Экспорт заказов", new ExportOrdersFromCSVFileAction(), null);
 
         Menu innerMenu4 = menuIt.next().getNextMenu();
 
         innerMenu4.addItem("Получение запросов у книги", new GetBookRequestsAction(), null);
         innerMenu4.addItem("Создание запроса", new MakeRequestAction(), null);
+        innerMenu4.addItem("Импорт запросов", new ImportRequestsFromCSVFileAction(), null);
+        innerMenu4.addItem("Экспорт запросов", new ExportRequestsFromCSVFileAction(), null);
 
         rootMenu = menu;
     }
