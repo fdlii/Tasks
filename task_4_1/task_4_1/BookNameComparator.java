@@ -1,3 +1,7 @@
+package task_4_1;
+
+import task_3_4.Book;
+
 import java.util.Comparator;
 
 public class BookNameComparator implements Comparator<Book> {

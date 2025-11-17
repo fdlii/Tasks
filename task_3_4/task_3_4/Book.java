@@ -1,5 +1,8 @@
+package task_3_4;
+
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class Book {
     private String name;
@@ -8,26 +11,22 @@ public class Book {
     private Date published;
     private boolean inStock;
     private int countInStock;
-    private ArrayList<Request> requests = new ArrayList<Request>();
+    private List<Request> requests = new ArrayList<Request>();
     private double price;
 
-    public Book(String name, String author, String description, Date published, double price) {
+    public Book(String name, String author, String description, Date published, double price, int countInStock) {
         this.name = name;
         this.author = author;
         this.description = description;
         this.published = published;
         this.price = price;
-        this.inStock = false;
-        this.countInStock = 0;
-    }
-
-    public Book(String name, String author, String description, Date published, double price, int countInStock) {
-        this.name = name;
-        this.author = author;
-        this.published = published;
-        this.price = price;
-        this.inStock = true;
         this.countInStock = countInStock;
+        if (countInStock > 0) {
+            this.inStock = true;
+        }
+        else {
+            this.inStock = false;
+        }
     }
 
     public String getName() {
@@ -91,15 +90,12 @@ public class Book {
     }
 
     public void changeRequest(int requestId, boolean status) {
-        for (Request request : requests) {
-            if (request.getId() == requestId) {
-                request.setOpen(status);
-                break;
-            }
-        }
+        requests.stream()
+                .filter(request -> request.getId() == requestId)
+                .forEach(request -> request.setOpen(status));
     }
 
-    public ArrayList<Request> getRequests()
+    public List<Request> getRequests()
     {
         return requests;
     }

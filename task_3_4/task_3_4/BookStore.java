@@ -1,29 +1,30 @@
+package task_3_4;
+
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import task_4_1.*;
+
 //книжный магазин
 public class BookStore {
-    private List<Book> books = new ArrayList<>();
-    private List<Order> orders = new ArrayList<>();
-    private List<Client> clients = new ArrayList<>();
+    private static List<Book> books = new ArrayList<>();
+    private static List<Order> orders = new ArrayList<>();
+    private static List<Client> clients = new ArrayList<>();
 
-    public void addBook(Book book) {
-        books.add(book);
+    public static void addBook(String name, String author, String description, Date published, double price, int countInStock) {
+        books.add(new Book(name, author, description, published, price, countInStock));
     }
 
-    public void deleteBook(String bookName) {
-        for (Book book : books) {
-            if (book.getName().equals(bookName)) {
-                books.remove(book);
-                break;
-            }
-        }
+    public static void deleteBook(String bookName) {
+        books.stream()
+                .filter(book -> book.getName().equals(bookName))
+                .forEach(book -> books.remove(book));
     }
 
-    public List<Book> getBooks() {
+    public static List<Book> getBooks() {
         books.sort(new BookNameComparator()
                 .thenComparing(new BookPublishedComparator()
                         .thenComparing(new BookPriceComparator()
@@ -31,7 +32,7 @@ public class BookStore {
         return books;
     }
 
-    public List<Book> getStaledBooks() {
+    public static List<Book> getStaledBooks() {
         List<Book> notStaledBooks = new ArrayList<>();
         for (Order order : orders) {
             if (ChronoUnit.MONTHS.between((new Date()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
@@ -40,6 +41,7 @@ public class BookStore {
                 notStaledBooks.addAll(order.getBooks());
             }
         }
+
         List<Book> staledBooks = new ArrayList<>();
         for (Book book : books) {
             boolean flag = false;
@@ -58,31 +60,29 @@ public class BookStore {
         return staledBooks;
     }
 
-    public List<Order> getOrders() {
+    public static List<Order> getOrders() {
         orders.sort(new OrderExecutionDateComparator()
                 .thenComparing(new OrderFinalPriceComparator()
                         .thenComparing(new OrderStatusComparator())));
         return orders;
     }
 
-    public Order getOrderById(int id) {
-        for (Order order : orders) {
-            if (order.getId() == id) {
-                return order;
-            }
-        }
-        return null;
+    public static Order getOrderById(int id) {
+        return orders.stream()
+                .filter(order1 -> order1.getId() == id)
+                .findFirst()
+                .get();
     }
 
-    public List<Client> getClients() {
+    public static List<Client> getClients() {
         return clients;
     }
 
-    public void addClient(String name, int age) {
+    public static void addClient(String name, int age) {
         clients.add(new Client(name, age));
     }
 
-    public double getEarnedFundsForTimeSpan(Date from, Date to) {
+    public static double getEarnedFundsForTimeSpan(Date from, Date to) {
         double sum = 0;
         for (Order order : orders) {
             if
@@ -98,7 +98,7 @@ public class BookStore {
         return sum;
     }
 
-    public int getCompletedOrdersCountForTimeSpan(Date from, Date to) {
+    public static int getCompletedOrdersCountForTimeSpan(Date from, Date to) {
         int count = 0;
         for (Order order : orders) {
             if
@@ -114,7 +114,7 @@ public class BookStore {
         return count;
     }
 
-    public List<Order> getCompletedOrdersForTimeSpan(Date from, Date to) {
+    public static List<Order> getCompletedOrdersForTimeSpan(Date from, Date to) {
         List<Order> validOrders = new ArrayList<>();
         for (Order order : orders) {
             if
@@ -131,7 +131,7 @@ public class BookStore {
         return validOrders;
     }
 
-    public void addInStock(String bookName, int count) {
+    public static void addInStock(String bookName, int count) {
         for (Book book : books) {
             if (book.getName().equals(bookName)) {
                 int sum = book.getCountInStock() + count;
@@ -154,17 +154,16 @@ public class BookStore {
         }
     }
 
-    public void debitFromStock(String bookName) {
-        for (Book book : books) {
-            if (book.getName().equals(bookName)) {
-                book.setCountInStock(0);
-                book.setInStock(false);
-                break;
-            }
-        }
+    public static void debitFromStock(String bookName) {
+        books.stream()
+                .filter(book -> book.getName().equals(bookName))
+                .forEach(book -> {
+                    book.setCountInStock(0);
+                    book.setInStock(false);
+                });
     }
 
-    public Order createOrder(double discount, Date executionDate, String clientName, String... bookNames) {
+    public static Order createOrder(double discount, Date executionDate, String clientName, String... bookNames) {
         Order order = null;
         boolean flag = false;
         for (Client client : clients) {
@@ -190,16 +189,13 @@ public class BookStore {
         return order;
     }
 
-    public void cancelOrder(int orderId) {
-        for (Order order : orders) {
-            if (order.getId() == orderId) {
-                order.changeStatus(OrderStatus.CANCELLED);
-                break;
-            }
-        }
+    public static void cancelOrder(int orderId) {
+        orders.stream()
+                .filter(order -> order.getId() == orderId)
+                .forEach(order -> order.changeStatus(OrderStatus.CANCELLED));
     }
 
-    public boolean makeRequest(String bookName, int count) {
+    public static boolean makeRequest(String bookName, int count) {
         for (Book book : books) {
             if (book.getName().equals(bookName)) {
                 if (book.getCountInStock() != 0) {
@@ -213,7 +209,7 @@ public class BookStore {
         return false;
     }
 
-    public boolean completeOrder(int orderId) {
+    public static boolean completeOrder(int orderId) {
         for (Order order : orders) {
             if (order.getId() == orderId) {
                 for (Book book : order.getBooks()) {
@@ -230,15 +226,11 @@ public class BookStore {
         return false;
     }
 
-    public List<Request> getBookRequests(String bookName){
-        for (Book book : books) {
-            if (book.getName().equals(bookName)) {
-                List<Request> requests = new ArrayList<>();
-                requests = book.getRequests();
-                requests.sort(new RequestIdComparator());
-                return requests;
-            }
-        }
-        return null;
+    public static List<Request> getBookRequests(String bookName) {
+        return books.stream()
+                .filter(book -> book.getName().equals(bookName))
+                .findFirst()
+                .get()
+                .getRequests();
     }
 }

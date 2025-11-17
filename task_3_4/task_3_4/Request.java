@@ -1,3 +1,5 @@
+package task_3_4;
+
 import java.util.Random;
 
 public class Request {

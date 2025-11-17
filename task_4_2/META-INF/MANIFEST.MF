@@ -1,3 +1,3 @@
 Manifest-Version: 1.0
-Main-Class: TestClass
+Main-Class: task_3_4.TestClass
 
