@@ -6,6 +6,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import task_4_1.*;
 
@@ -40,10 +41,23 @@ public class BookStore {
     }
 
     public static List<Book> getStaledBooks() {
+        int deadline = 0;
+        try (FileReader fileReader = new FileReader("task_7_1/Config.properties")) {
+            Properties props = new Properties();
+            props.load(fileReader);
+            deadline = Integer.parseInt(props.getProperty("StaledBooksDeadline"));
+        }
+        catch (FileNotFoundException ex) {
+            System.out.println("Не удалось найти указанный файл.");
+        }
+        catch (IOException ex) {
+            System.out.println("Ошибка при чтении файла");
+        }
+
         List<Book> notStaledBooks = new ArrayList<>();
         for (Order order : orders) {
             if (ChronoUnit.MONTHS.between((new Date()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
-                    order.getExecutionDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()) < 6)
+                    order.getExecutionDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()) < deadline)
             {
                 notStaledBooks.addAll(order.getBooks());
             }
@@ -139,23 +153,36 @@ public class BookStore {
     }
 
     public static void addInStock(String bookName, int count) {
+        boolean canComleteRequests = false;
+        try (FileReader fileReader = new FileReader("task_7_1/Config.properties")) {
+            Properties props = new Properties();
+            props.load(fileReader);
+            canComleteRequests = Boolean.parseBoolean(props.getProperty("CanCompleteRequest"));
+        }
+        catch (FileNotFoundException ex) {
+            System.out.println("Не удалось найти указанный файл.");
+        }
+        catch (IOException ex) {
+            System.out.println("Ошибка при чтении файла");
+        }
         for (Book book : books) {
             if (book.getName().equals(bookName)) {
                 int sum = book.getCountInStock() + count;
                 book.setCountInStock(sum);
                 book.setInStock(true);
 
-                for (Request r : book.getRequests()) {
-                    if (r.getCount() <= book.getCountInStock() && r.isOpen()) {
-                        r.setOpen(false);
-                        book.setCountInStock(book.getCountInStock() - r.getCount());
+                if (canComleteRequests) {
+                    for (Request r : book.getRequests()) {
+                        if (r.getCount() <= book.getCountInStock() && r.isOpen()) {
+                            r.setOpen(false);
+                            book.setCountInStock(book.getCountInStock() - r.getCount());
+                        }
+                    }
+
+                    if (book.getCountInStock() == 0) {
+                        book.setInStock(false);
                     }
                 }
-
-                if (book.getCountInStock() == 0) {
-                    book.setInStock(false);
-                }
-
                 break;
             }
         }
