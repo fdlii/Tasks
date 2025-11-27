@@ -1,6 +1,9 @@
 package task_3_4;
 
 import task_4_1.*;
+import task_8_1.Configuration;
+import task_8_1.Configurator;
+
 import java.io.*;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -15,6 +18,12 @@ public class BookStore {
     private static List<Order> orders = new ArrayList<>();
     private static List<Client> clients = new ArrayList<>();
     private static List<Request> requests = new ArrayList<>();
+    private static Configuration configuration;
+
+    public BookStore() {
+        Configurator configurator = new Configurator();
+        configuration = configurator.getConfiguration();
+    }
 
     public static void addBook(String name, String author, String description, Date published, double price, int countInStock) {
         books.add(new Book(name, author, description, published, price, countInStock));
@@ -40,23 +49,10 @@ public class BookStore {
     }
 
     public static List<Book> getStaledBooks() {
-        int deadline = 0;
-        try (FileReader fileReader = new FileReader("task_7_1/Config.properties")) {
-            Properties props = new Properties();
-            props.load(fileReader);
-            deadline = Integer.parseInt(props.getProperty("StaledBooksDeadline"));
-        }
-        catch (FileNotFoundException ex) {
-            System.out.println("Не удалось найти указанный файл.");
-        }
-        catch (IOException ex) {
-            System.out.println("Ошибка при чтении файла");
-        }
-
         List<Book> notStaledBooks = new ArrayList<>();
         for (Order order : orders) {
             if (ChronoUnit.MONTHS.between((new Date()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
-                    order.getExecutionDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()) < deadline)
+                    order.getExecutionDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()) < configuration.staledBooksDeadline)
             {
                 notStaledBooks.addAll(order.getBooks());
             }
@@ -152,25 +148,13 @@ public class BookStore {
     }
 
     public static void addInStock(String bookName, int count) {
-        boolean canComleteRequests = false;
-        try (FileReader fileReader = new FileReader("task_7_1/Config.properties")) {
-            Properties props = new Properties();
-            props.load(fileReader);
-            canComleteRequests = Boolean.parseBoolean(props.getProperty("CanCompleteRequest"));
-        }
-        catch (FileNotFoundException ex) {
-            System.out.println("Не удалось найти указанный файл.");
-        }
-        catch (IOException ex) {
-            System.out.println("Ошибка при чтении файла");
-        }
         for (Book book : books) {
             if (book.getName().equals(bookName)) {
                 int sum = book.getCountInStock() + count;
                 book.setCountInStock(sum);
                 book.setInStock(true);
 
-                if (canComleteRequests) {
+                if (configuration.canCompleteRequest) {
                     for (Request r : book.getRequests()) {
                         if (r.getCount() <= book.getCountInStock() && r.isOpen()) {
                             r.setOpen(false);
