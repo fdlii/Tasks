@@ -332,7 +332,8 @@ public class BookStore implements IBookStore {
 
 
         for (Book book : books) {
-            for (Request request1 : book.getRequests()) {
+            List<Request> requests1Copy = new ArrayList<>(book.getRequests());
+            for (Request request1 : requests1Copy) {
                 for (Request request2 : requests) {
                     if (request1.getId() == request2.getId()) {
                         book.deleteRequest(request1);
@@ -343,7 +344,8 @@ public class BookStore implements IBookStore {
         }
 
         for (Order order : orders) {
-            for (Book book1 : order.getBooks()) {
+            List<Book> books1Copy = new ArrayList<>(order.getBooks());
+            for (Book book1 : books1Copy) {
                 for (Book book2 : books) {
                     if (book1.getId() == book2.getId()) {
                         order.deleteBook(book1);
@@ -354,7 +356,8 @@ public class BookStore implements IBookStore {
         }
 
         for (Client client : clients) {
-            for (Order order1 : client.getOrders()) {
+            List<Order> orders1Copy = new ArrayList<>(client.getOrders());
+            for (Order order1 : orders1Copy) {
                 for (Order order2 : orders) {
                     if (order1.getId() == order2.getId()) {
                         client.deleteOrder(order1);

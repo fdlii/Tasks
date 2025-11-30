@@ -33,7 +33,7 @@ public class DIContainer {
             field.set(bean, instance.getBean(field.getType()));
         }
 
-        for (Method method : clazz.getDeclaredMethods()) {
+        for (Method method : bean.getClass().getDeclaredMethods()) {
             if (method.isAnnotationPresent(PostConstruct.class)) {
                 method.setAccessible(true);
                 method.invoke(bean);
