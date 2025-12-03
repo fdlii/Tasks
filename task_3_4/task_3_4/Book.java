@@ -3,8 +3,12 @@ package task_3_4;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 public class Book {
+    private static int counter = 1;
+
+    private int id;
     private String name;
     private String author;
     private String description;
@@ -15,6 +19,7 @@ public class Book {
     private double price;
 
     public Book(String name, String author, String description, Date published, double price, int countInStock) {
+        this.id = counter++; //заглушка
         this.name = name;
         this.author = author;
         this.description = description;
@@ -27,6 +32,10 @@ public class Book {
         else {
             this.inStock = false;
         }
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getName() {

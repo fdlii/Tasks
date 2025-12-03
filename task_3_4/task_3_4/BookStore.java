@@ -1,5 +1,6 @@
 package task_3_4;
 
+import java.io.*;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ public class BookStore {
     private static List<Book> books = new ArrayList<>();
     private static List<Order> orders = new ArrayList<>();
     private static List<Client> clients = new ArrayList<>();
+    private static List<Request> requests = new ArrayList<>();
 
     public static void addBook(String name, String author, String description, Date published, double price, int countInStock) {
         books.add(new Book(name, author, description, published, price, countInStock));
@@ -21,7 +23,12 @@ public class BookStore {
     public static void deleteBook(String bookName) {
         books.stream()
                 .filter(book -> book.getName().equals(bookName))
-                .forEach(book -> books.remove(book));
+                .forEach(book -> {
+                    for (Request r : book.getRequests()) {
+                        requests.remove(r);
+                    }
+                    books.remove(book);
+                });
     }
 
     public static List<Book> getBooks() {
@@ -180,7 +187,9 @@ public class BookStore {
                 if (book.getName().equals(bookName)) {
                     order.addBook(book);
                     if (book.getCountInStock() == 0) {
-                        book.addRequest(new Request(book, 1));
+                        Request request = new Request(book, 1);
+                        book.addRequest(request);
+                        requests.add(request);
                     }
                 }
             }
@@ -203,6 +212,7 @@ public class BookStore {
                 }
                 Request request = new Request(book, count);
                 book.addRequest(request);
+                requests.add(request);
                 return true;
             }
         }
@@ -232,5 +242,37 @@ public class BookStore {
                 .findFirst()
                 .get()
                 .getRequests();
+    }
+
+    public static void importBooksFromCSVFile(String filename) throws IOException {
+        FileManager.importBooksFromCSVFile(filename, books, requests);
+    }
+
+    public static void importOrdersFromCSVFile(String filename) throws IOException {
+        FileManager.importOrdersFromCSVFile(filename, orders, clients, books);
+    }
+
+    public static void importClientsFromCSVFile(String filename) throws IOException {
+        FileManager.importClientsFromCSVFile(filename, clients, orders);
+    }
+
+    public static void importRequestsFromCSVFile(String filename) throws IOException {
+        FileManager.importRequestsFromCSVFile(filename, requests, books);
+    }
+
+    public static void exportBooksIntoCSVFile(String filename) throws IOException {
+        FileManager.exportBooksIntoCSVFile(filename, books);
+    }
+
+    public static void exportOrdersIntoCSVFile(String filename) throws IOException {
+        FileManager.exportOrdersIntoCSVFile(filename, orders);
+    }
+
+    public static void exportClientsIntoCSVFile(String filename) throws IOException {
+        FileManager.exportClientsIntoCSVFile(filename, clients);
+    }
+
+    public static void exportRequestsIntoCSVFile(String filename) throws IOException {
+        FileManager.exportRequestsIntoCSVFile(filename, requests);
     }
 }

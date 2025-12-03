@@ -1,3 +1,9 @@
+import task_3_4.Book;
+import task_6_2.BookExeption;
+import task_6_2.ClientExeption;
+import task_6_2.OrderExeption;
+
+import java.io.IOException;
 import java.util.Scanner;
 
 public class MenuController {
@@ -33,7 +39,7 @@ public class MenuController {
     }
 
     public void navigate(int index, int count) {
-        if (index >= currentMenu.menuItems.size() && index != count) {
+        if (index > currentMenu.menuItems.size() && index != count) {
             System.out.println("Невалидное значение выбора. Попробуйте снова.");
             run();
         }
@@ -46,8 +52,19 @@ public class MenuController {
                 runNext();
             }
             else {
-                currentMenu.menuItems.get(index - 1).doAction();
-                run();
+                try
+                {
+                    currentMenu.menuItems.get(index - 1).doAction();
+                }
+                catch (IOException ex) {
+                    System.out.println("Ошибка при чтении файла. Попробуйте снова.");
+                }
+                catch (BookExeption | ClientExeption | OrderExeption ex) {
+                    System.out.println(ex.getMessage());
+                }
+                finally {
+                    run();
+                }
             }
         }
     }

@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Random;
 
 public class Order {
-    private Random random = new Random();
+    private static int counter = 1;
+
     private int id;
     private Client client;
     private List<Book> books;
@@ -16,7 +17,7 @@ public class Order {
     private OrderStatus orderStatus;
 
     public Order(double discount, Date executionDate, Client client) {
-        this.id = random.nextInt(100000);
+        this.id = counter++; //заглушка
         this.discount = discount;
         books = new ArrayList<>();
         this.client = client;

@@ -2,13 +2,18 @@ package task_3_4;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Client {
+    private static int counter = 1;
+
+    private int id;
     private String name;
     private int age;
     private List<Order> orders;
 
     public Client(String name, int age) {
+        this.id = counter++; //заглушка
         this.name = name;
         this.age = age;
         this.orders = new ArrayList<>();
@@ -18,7 +23,7 @@ public class Client {
         return orders;
     }
 
-    public void AddOrder(Order order) {
+    public void addOrder(Order order) {
         orders.add(order);
     }
 
