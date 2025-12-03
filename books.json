@@ -1,1 +1,1 @@
-[{"id":1,"name":"dsa","author":"asd","description":"dfg","published":1007413200000,"inStock":true,"countInStock":43,"requests":[{"id":1,"count":5,"open":true}],"price":455.0}]
+[{"id":1,"name":"dsa","author":"asd","description":"dfg","published":1007413200000,"inStock":true,"countInStock":43,"requests":[{"id":1,"count":5,"open":true}],"price":455.0},{"id":1,"name":"sdaf","author":"dasf","description":"gfdhdg","published":1102366800000,"inStock":true,"countInStock":23,"requests":[],"price":345.0}]

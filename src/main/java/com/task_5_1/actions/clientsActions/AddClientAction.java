@@ -1,0 +1,33 @@
+package com.task_5_1.actions.clientsActions;
+
+import com.task_5_1.actions.IAction;
+import com.task_3_4.BookStore;
+import com.task_6_2.ClientExeption;
+import com.task_8_2.annotations.Inject;
+import com.task_8_2.interfaces.IBookStore;
+
+import java.util.Scanner;
+
+public class AddClientAction implements IAction {
+    Scanner scanner = new Scanner(System.in);
+    IBookStore bookStore;
+
+    public AddClientAction(IBookStore bookStore) {
+        this.bookStore = bookStore;
+    }
+
+    @Override
+    public void execute() throws ClientExeption {
+        try {
+            System.out.println("Введите ФИО клиента: ");
+            String name = scanner.nextLine();
+            System.out.println("Введите возраст клиента: ");
+            int age = scanner.nextInt();
+            scanner.nextLine();
+            bookStore.addClient(name, age);
+        }
+        catch (Exception exception) {
+            throw new ClientExeption("Введены невалидные данные клиента. Попробуйте снова.");
+        }
+    }
+}
