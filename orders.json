@@ -1,0 +1,1 @@
+[{"id":1,"books":[{"id":1,"name":"dsa","author":"asd","description":"dfg","published":1007413200000,"inStock":true,"countInStock":43,"requests":[{"id":1,"count":5,"open":true}],"price":455.0}],"discount":0.0,"finalPrice":455.0,"executionDate":1764882000000,"orderStatus":"NEW"}]
