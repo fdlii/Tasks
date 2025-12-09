@@ -1,0 +1,3 @@
+SELECT speed, AVG(CAST(price as NUMERIC)) as avg_price
+FROM pc
+GROUP BY speed
