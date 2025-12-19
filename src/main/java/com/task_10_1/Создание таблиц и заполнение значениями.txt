@@ -1,0 +1,109 @@
+CREATE TABLE product (
+	maker VARCHAR(10) NOT NULL,
+	model VARCHAR(50) PRIMARY KEY,
+	type VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE laptop (
+	code INT PRIMARY KEY,
+	model VARCHAR(50) NOT NULL,
+	speed SMALLINT NOT NULL,
+	ram INT NOT NULL, --smallint не хватает для тестовых данных
+	hd REAL NOT NULL,
+	price MONEY,
+	screen SMALLINT NOT NULL, --tinyint нет в postgres
+
+	CONSTRAINT fk_laptop
+		FOREIGN KEY (model)
+		REFERENCES product(model)
+		ON DELETE CASCADE
+		ON UPDATE CASCADE
+);
+
+CREATE TABLE pc (
+	code INT PRIMARY KEY,
+	model VARCHAR(50) NOT NULL,
+	speed SMALLINT NOT NULL,
+	ram INT NOT NULL, --smallint не хватает для тестовых данных
+	hd REAL NOT NULL,
+	cd VARCHAR(10) NOT NULL,
+	price MONEY,
+
+	CONSTRAINT fk_pc
+		FOREIGN KEY (model)
+		REFERENCES product(model)
+		ON DELETE CASCADE
+		ON UPDATE CASCADE
+);
+
+CREATE TABLE printer (
+	code INT PRIMARY KEY,
+	model VARCHAR(50) NOT NULL,
+	color CHAR(1) NOT NULL,
+	type VARCHAR(10) NOT NULL,
+	price MONEY,
+
+	CONSTRAINT fk_printer
+		FOREIGN KEY (model)
+		REFERENCES product(model)
+		ON DELETE CASCADE
+		ON UPDATE CASCADE
+);
+
+INSERT INTO product (maker, model, type) VALUES
+('A', 'PC-A100', 'PC'),
+('A', 'PC-A200', 'PC'),
+('A', 'Laptop-A10', 'Laptop'),
+('A', 'Laptop-A20', 'Laptop'),
+('A', 'Printer-A1', 'Printer'),
+('B', 'PC-B150', 'PC'),
+('B', 'PC-B250', 'PC'),
+('B', 'PC-B350', 'PC'),
+('B', 'Laptop-B15', 'Laptop'),
+('B', 'Laptop-B25', 'Laptop'),
+('B', 'Printer-B2', 'Printer'),
+('C', 'PC-C300', 'PC'),
+('C', 'PC-C400', 'PC'),
+('C', 'Laptop-C30', 'Laptop'),
+('C', 'Laptop-C40', 'Laptop'),
+('C', 'Printer-C3', 'Printer'),
+('D', 'PC-D500', 'PC'),
+('D', 'Laptop-D50', 'Laptop'),
+('D', 'Printer-D5', 'Printer'),
+('E', 'PC-E600', 'PC'),
+('E', 'PC-E700', 'PC'),
+('E', 'Laptop-E60', 'Laptop'),
+('E', 'Printer-E6', 'Printer'),
+('F', 'PC-X160', 'PC'),
+('F', 'PC-Z190', 'PC');
+
+INSERT INTO pc (code, model, speed, ram, hd, cd, price) VALUES
+(1, 'PC-A100', 3200, 8192, 500, '24x', 599.99),
+(2, 'PC-A200', 4400, 16384, 2000, '48x', 1299.99),
+(3, 'PC-B150', 3600, 8192, 1000, '24x', 749.99),
+(4, 'PC-B250', 4800, 32768, 4000, '48x', 1899.99),
+(5, 'PC-C300', 3000, 4096, 256, '16x', 449.99),
+(6, 'PC-C400', 5200, 65536, 8000, '48x', 2999.99),
+(7, 'PC-D500', 4000, 16384, 1000, '24x', 899.99),
+(8, 'PC-E600', 2800, 4096, 500, '8x', 399.99),
+(9, 'PC-X160', 3200, 16384, 1000, '16x', 899.99),
+(10, 'PC-Z190', 4000, 8192, 2000, '24x', 1399.99),
+(11, 'PC-E700', 3000, 4096, 256, '24x', 559.99),
+(12, 'PC-B350', 5200, 16384, 2000, '48x', 2799.99);
+
+INSERT INTO laptop (code, model, speed, ram, hd, price, screen) VALUES
+(101, 'Laptop-A10', 2500, 8192, 512, 799.99, 15),
+(102, 'Laptop-A20', 3800, 32768, 2000, 2199.99, 17),
+(103, 'Laptop-B15', 2900, 8192, 256, 649.99, 14),
+(104, 'Laptop-B25', 4200, 16384, 1000, 1599.99, 15),
+(105, 'Laptop-C30', 2200, 4096, 128, 449.99, 13),
+(106, 'Laptop-C40', 3400, 16384, 512, 1299.99, 15),
+(107, 'Laptop-D50', 3100, 8192, 500, 899.99, 15),
+(108, 'Laptop-E60', 2000, 4096, 256, 399.99, 14);
+
+INSERT INTO printer (code, model, color, type, price) VALUES
+(201, 'Printer-A1', 'y', 'Laser', 299.99),
+(202, 'Printer-B2', 'n', 'Jet', 149.99),
+(203, 'Printer-C3', 'y', 'Matrix', 199.99),
+(204, 'Printer-D5', 'n', 'Jet', 129.99),
+(205, 'Printer-E6', 'n', 'Laser', 249.99);

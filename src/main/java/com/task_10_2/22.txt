@@ -1,0 +1,4 @@
+SELECT speed, AVG(CAST(price as NUMERIC)) as avg_price
+FROM pc
+WHERE speed > 600
+GROUP BY speed

@@ -1,0 +1,3 @@
+SELECT model, ram, screen
+FROM laptop
+WHERE CAST(price as NUMERIC) > 1000
