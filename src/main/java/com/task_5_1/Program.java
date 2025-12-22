@@ -7,8 +7,6 @@ import com.task_8_2.interfaces.IMenuController;
 import java.lang.reflect.InvocationTargetException;
 
 public class Program {
-    @Inject
-    IMenuController menuController;
     public static void main(String[] args) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         DIContainer diContainer = null;
             diContainer = run();

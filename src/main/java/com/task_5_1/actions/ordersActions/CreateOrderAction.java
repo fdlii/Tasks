@@ -1,9 +1,7 @@
 package com.task_5_1.actions.ordersActions;
 
 import com.task_5_1.actions.IAction;
-import com.task_3_4.BookStore;
-import com.task_6_2.OrderExeption;
-import com.task_8_2.annotations.Inject;
+import com.task_6_2.OrderException;
 import com.task_8_2.interfaces.IBookStore;
 
 import java.util.Date;
@@ -18,7 +16,7 @@ public class CreateOrderAction implements IAction {
     }
 
     @Override
-    public void execute() throws OrderExeption {
+    public void execute() throws OrderException {
         try {
             System.out.println("Введите скидку в заказе клиента: ");
             double discount = scanner.nextDouble();
@@ -40,7 +38,7 @@ public class CreateOrderAction implements IAction {
             bookStore.createOrder(discount, date, name, bookNames);
         }
         catch (Exception exception) {
-            throw new OrderExeption("Введены невалидные данные заказа. Попробуйте снова.");
+            throw new OrderException("Введены невалидные данные заказа. Попробуйте снова.");
         }
     }
 }

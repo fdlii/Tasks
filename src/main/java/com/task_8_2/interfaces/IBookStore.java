@@ -1,6 +1,7 @@
 package com.task_8_2.interfaces;
 
 import com.task_3_4.*;
+import com.task_6_2.OrderException;
 
 import java.io.IOException;
 import java.util.Date;
@@ -17,8 +18,8 @@ public interface IBookStore {
     List<Order> getOrders();
     Order getOrderById(int id);
     Order createOrder(double discount, Date executionDate, String clientName, String... bookNames);
-    void cancelOrder(int orderId);
-    boolean completeOrder(int orderId);
+    void cancelOrder(int orderId) throws OrderException;
+    boolean completeOrder(int orderId) throws OrderException;
 
     List<Client> getClients();
     void addClient(String name, int age);

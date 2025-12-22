@@ -1,6 +1,7 @@
 package com.task_3_4;
 
 import com.task_4_1.*;
+import com.task_6_2.OrderException;
 import com.task_8_1.Configuration;
 import com.task_8_2.annotations.Inject;
 import com.task_8_2.annotations.PostConstruct;
@@ -224,6 +225,9 @@ public class BookStore implements IBookStore {
                         book.addRequest(request);
                         requests.add(request);
                     }
+                    else {
+
+                    }
                 }
             }
         }
@@ -232,10 +236,13 @@ public class BookStore implements IBookStore {
     }
 
     @Override
-    public void cancelOrder(int orderId) {
-        orders.stream()
-                .filter(order -> order.getId() == orderId)
-                .forEach(order -> order.changeStatus(OrderStatus.CANCELLED));
+    public void cancelOrder(int orderId) throws OrderException {
+        for (Order order : orders) {
+            if (order.getId() == orderId) {
+                order.changeStatus(OrderStatus.CANCELLED);
+                return;
+            }
+        }
     }
 
     @Override
@@ -252,16 +259,9 @@ public class BookStore implements IBookStore {
     }
 
     @Override
-    public boolean completeOrder(int orderId) {
+    public boolean completeOrder(int orderId) throws OrderException {
         for (Order order : orders) {
             if (order.getId() == orderId) {
-                for (Book book : order.getBooks()) {
-                    for (Request request : book.getRequests()) {
-                        if (request.isOpen()) {
-                            return false;
-                        }
-                    }
-                }
                 order.changeStatus(OrderStatus.COMPLETED);
                 return true;
             }
