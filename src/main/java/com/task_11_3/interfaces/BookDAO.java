@@ -1,0 +1,14 @@
+package com.task_11_3.interfaces;
+
+import com.task_3_4.Book;
+import com.task_3_4.Request;
+
+import java.util.List;
+
+public interface BookDAO {
+    void createBook(Book book);
+    void deleteBook(String bookName);
+    void addBookInStock(String bookName, int count);
+    void debitBookFromStock(String bookName);
+    List<Request> getBookRequests(String bookName);
+}
