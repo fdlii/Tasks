@@ -1,6 +1,6 @@
 package com.task_11_3.implementations;
 
-import com.task_11_3.interfaces.BookDAO;
+import com.task_11_3.interfaces.IBookDAO;
 import com.task_3_4.Book;
 import com.task_3_4.Request;
 
@@ -10,10 +10,10 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
-public class BookDAOImplementation extends GenericDAOImplementation<Book, Integer> implements BookDAO {
-    private final RequestDAOImplementation requestDAOImplementation = new RequestDAOImplementation("requests");
+public class BookDAO extends GenericDAO<Book, Integer> implements IBookDAO {
+    private final RequestDAO requestDAOImplementation = new RequestDAO("requests");
 
-    protected BookDAOImplementation(String tableName) {
+    protected BookDAO(String tableName) {
         super(tableName);
     }
 
@@ -47,11 +47,6 @@ public class BookDAOImplementation extends GenericDAOImplementation<Book, Intege
         preparedStatement.setObject(7, entity.getCountInStock());
         preparedStatement.setObject(8, entity.getPrice());
         return preparedStatement;
-    }
-
-    @Override
-    protected PreparedStatement setUpdateParameters(Book entity) {
-        return null;
     }
 
     @Override
@@ -110,8 +105,8 @@ public class BookDAOImplementation extends GenericDAOImplementation<Book, Intege
         }
         catch (SQLException ex) {
             System.out.println("Не удалось получить запросы книги.");
+            return null;
         }
-        return null;
     }
 
     private Book findByName(String bookName) {

@@ -1,23 +1,22 @@
 package com.task_11_3.implementations;
 
 import com.task_11_3.ConnectionManager;
-import com.task_11_3.interfaces.GenericDAO;
+import com.task_11_3.interfaces.IGenericDAO;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class GenericDAOImplementation<T, ID> implements GenericDAO<T, ID> {
+public abstract class GenericDAO<T, ID> implements IGenericDAO<T, ID> {
     protected final String tableName;
     protected Connection connection = ConnectionManager.getConnection();
 
-    protected GenericDAOImplementation(String tableName) {
+    protected GenericDAO(String tableName) {
         this.tableName = tableName;
     }
 
     protected abstract T mapResultSetToEntity(ResultSet resultSet) throws SQLException;
     protected abstract PreparedStatement setCreateParameters(T entity) throws SQLException;
-    protected abstract PreparedStatement setUpdateParameters(T entity);
 
     @Override
     public T findById(ID id) {
@@ -46,10 +45,11 @@ public abstract class GenericDAOImplementation<T, ID> implements GenericDAO<T, I
                     entities.add(mapResultSetToEntity(resultSet));
                 }
             };
+            return entities;
         }
         catch (SQLException ex) {
             System.out.println("Не удалось создать запрос для нахождения сущностей.");
+            return null;
         }
-        return entities;
     }
 }

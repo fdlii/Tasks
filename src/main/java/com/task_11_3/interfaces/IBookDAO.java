@@ -5,7 +5,7 @@ import com.task_3_4.Request;
 
 import java.util.List;
 
-public interface BookDAO {
+public interface IBookDAO {
     void createBook(Book book);
     void deleteBook(String bookName);
     void addBookInStock(String bookName, int count);

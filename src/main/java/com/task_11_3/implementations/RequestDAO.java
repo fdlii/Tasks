@@ -1,6 +1,6 @@
 package com.task_11_3.implementations;
 
-import com.task_11_3.interfaces.RequestDAO;
+import com.task_11_3.interfaces.IRequestDAO;
 import com.task_3_4.Book;
 import com.task_3_4.Request;
 
@@ -10,10 +10,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RequestDAOImplementation extends GenericDAOImplementation<Request, Integer> implements RequestDAO {
-    private final BookDAOImplementation bookDAOImplementation = new BookDAOImplementation("books");
+public class RequestDAO extends GenericDAO<Request, Integer> implements IRequestDAO {
+    private final BookDAO bookDAOImplementation = new BookDAO("books");
 
-    public RequestDAOImplementation(String tableName) {
+    public RequestDAO(String tableName) {
         super(tableName);
     }
 
@@ -37,11 +37,6 @@ public class RequestDAOImplementation extends GenericDAOImplementation<Request, 
         preparedStatement.setObject(3, entity.getCount());
         preparedStatement.setObject(4, entity.isOpen());
         return preparedStatement;
-    }
-
-    @Override
-    protected PreparedStatement setUpdateParameters(Request entity) {
-        return null;
     }
 
     @Override

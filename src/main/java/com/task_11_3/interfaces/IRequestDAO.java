@@ -6,7 +6,7 @@ import com.task_3_4.Request;
 import java.sql.SQLException;
 import java.util.List;
 
-public interface RequestDAO {
+public interface IRequestDAO {
     void createRequest(Request request);
     public List<Request> findRequestsByBookId(Book book) throws SQLException;
 }
