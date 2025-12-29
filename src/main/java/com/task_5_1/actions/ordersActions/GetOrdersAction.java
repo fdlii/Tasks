@@ -16,12 +16,11 @@ public class GetOrdersAction implements IAction {
     @Override
     public void execute() {
         for (Order order : bookStore.getOrders()) {
-            String status = "";
-            switch (order.getOrderStatus()) {
-                case NEW : status = "Новый";
-                case COMPLETED: status = "Завершён";
-                case CANCELLED: status = "Отменён";
-            }
+            String status = switch (order.getOrderStatus()) {
+                case NEW -> "Новый";
+                case COMPLETED -> "Завершён";
+                case CANCELLED -> "Отменён";
+            };
             System.out.printf("Идентификатор: %d, дата выполнения: %s, имя клиента: %s, статус: %s.%n",
                     order.getId(),
                     order.getExecutionDate(),

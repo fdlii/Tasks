@@ -1,8 +1,8 @@
 package com.task_5_1;
 
-import com.task_6_2.BookExeption;
-import com.task_6_2.ClientExeption;
-import com.task_6_2.OrderExeption;
+import com.task_6_2.BookException;
+import com.task_6_2.ClientException;
+import com.task_6_2.OrderException;
 import com.task_8_2.annotations.Inject;
 import com.task_8_2.annotations.PostConstruct;
 import com.task_8_2.interfaces.IBookStore;
@@ -27,12 +27,7 @@ public class MenuController implements IMenuController {
 
     @PostConstruct
     public void initialize() {
-        try {
-            builder.buildMenu(bookStore);
-            bookStore.getSerializedObjects();
-        } catch (IOException ex) {
-            System.out.println("Некоторые/все файлы с сущностями пустые или не существуют.");
-        }
+        builder.buildMenu(bookStore);
     }
 
     public void run() {
@@ -54,18 +49,19 @@ public class MenuController implements IMenuController {
             run();
         }
         else if (index == count) {
-            try {
-                fileManager.serializeObjects(bookStore.getRequests(), "requests");
-                fileManager.serializeObjects(bookStore.getBooks(), "books");
-                fileManager.serializeObjects(bookStore.getOrders(), "orders");
-                fileManager.serializeObjects(bookStore.getClients(), "clients");
-                System.exit(0);
-
-            }
-            catch (IOException ex) {
-                System.out.println("Не удалось сериализовать объекты в JSON.");
-                System.exit(1);
-            }
+            System.exit(0);
+//            try {
+//                fileManager.serializeObjects(bookStore.getRequests(), "requests");
+//                fileManager.serializeObjects(bookStore.getBooks(), "books");
+//                fileManager.serializeObjects(bookStore.getOrders(), "orders");
+//                fileManager.serializeObjects(bookStore.getClients(), "clients");
+//                System.exit(0);
+//
+//            }
+//            catch (IOException ex) {
+//                System.out.println("Не удалось сериализовать объекты в JSON.");
+//                System.exit(1);
+//            }
         }
         else {
             if (currentMenu.menuItems.get(index - 1).getNextMenu() != null) {
@@ -80,7 +76,7 @@ public class MenuController implements IMenuController {
                 catch (IOException ex) {
                     System.out.println("Ошибка при чтении файла. Попробуйте снова.");
                 }
-                catch (BookExeption | ClientExeption | OrderExeption ex) {
+                catch (BookException | ClientException | OrderException ex) {
                     System.out.println(ex.getMessage());
                 }
                 finally {

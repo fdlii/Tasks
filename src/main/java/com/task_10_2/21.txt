@@ -1,0 +1,5 @@
+SELECT maker, MAX(CAST(price as NUMERIC)) as max_price
+FROM product
+JOIN pc ON product.model = pc.model
+GROUP BY maker
+ORDER BY maker

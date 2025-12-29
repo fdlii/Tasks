@@ -20,10 +20,31 @@ public class Book {
     private List<Request> requests = new ArrayList<Request>();
     private double price;
 
-    public Book() {}
+    public Book() {
+        this.id = counter++;
+    }
 
     public Book(String name, String author, String description, Date published, double price, int countInStock) {
         this.id = counter++; //заглушка
+        this.name = name;
+        this.author = author;
+        this.description = description;
+        this.published = published;
+        this.price = price;
+        this.countInStock = countInStock;
+        if (countInStock > 0) {
+            this.inStock = true;
+        }
+        else {
+            this.inStock = false;
+        }
+    }
+
+    public Book(int id, String name, String author, String description, Date published, int countInStock, double price) {
+        this.id = id;
+        if (id == counter) {
+            counter++;
+        }
         this.name = name;
         this.author = author;
         this.description = description;
@@ -110,6 +131,10 @@ public class Book {
         requests.stream()
                 .filter(request -> request.getId() == requestId)
                 .forEach(request -> request.setOpen(status));
+    }
+
+    public void setRequests(List<Request> requests) {
+        this.requests = requests;
     }
 
     public List<Request> getRequests()

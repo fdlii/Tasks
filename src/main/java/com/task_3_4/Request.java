@@ -22,6 +22,16 @@ public class Request {
         isOpen = true;
     }
 
+    public Request(int id, Book book, int count, boolean isOpen) {
+        this.id = id;
+        this.book = book;
+        this.count = count;
+        this.isOpen = isOpen;
+        if (id == counter) {
+            counter++;
+        }
+    }
+
     public int getId() {
         return id;
     }
