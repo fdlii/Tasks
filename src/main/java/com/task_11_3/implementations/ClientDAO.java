@@ -6,6 +6,7 @@ import com.task_11_3.interfaces.IOrderDAO;
 import com.task_3_4.Client;
 import com.task_3_4.Order;
 import com.task_8_2.annotations.Inject;
+import com.task_8_2.annotations.PostConstruct;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,9 +16,13 @@ import java.util.List;
 public class ClientDAO extends GenericDAO<Client, Integer> implements IClientDAO {
     @Inject
     private IOrderDAO orderDAO;
+    @Inject
+    private DBConfigurator dbConfigurator;
 
-    public ClientDAO() {
-        DBConfigurator dbConfigurator = new DBConfigurator();
+    public ClientDAO() {}
+
+    @PostConstruct
+    public void init() {
         this.tableName = dbConfigurator.getConfiguration().clientsTableName;
     }
 

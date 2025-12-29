@@ -6,6 +6,7 @@ import com.task_11_3.interfaces.IRequestDAO;
 import com.task_3_4.Book;
 import com.task_3_4.Request;
 import com.task_8_2.annotations.Inject;
+import com.task_8_2.annotations.PostConstruct;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,9 +17,13 @@ import java.util.List;
 public class RequestDAO extends GenericDAO<Request, Integer> implements IRequestDAO {
     @Inject
     private IBookDAO bookDAO;
+    @Inject
+    private DBConfigurator dbConfigurator;
 
-    public RequestDAO() {
-        DBConfigurator dbConfigurator = new DBConfigurator();
+    public RequestDAO() {}
+
+    @PostConstruct
+    public void init() {
         this.tableName = dbConfigurator.getConfiguration().requestsTableName;
     }
 

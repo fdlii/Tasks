@@ -5,6 +5,7 @@ import com.task_11_3.interfaces.IClientDAO;
 import com.task_11_3.interfaces.IOrderDAO;
 import com.task_11_3.interfaces.IRequestDAO;
 import com.task_4_1.*;
+import com.task_6_2.BookException;
 import com.task_6_2.OrderException;
 import com.task_8_2.annotations.Inject;
 import com.task_8_2.interfaces.IBookStore;
@@ -19,10 +20,6 @@ import java.util.List;
 
 //книжный магазин
 public class BookStore implements IBookStore {
-//    private static List<Book> books = new ArrayList<>();
-//    private static List<Order> orders = new ArrayList<>();
-//    private static List<Client> clients = new ArrayList<>();
-//    private static List<Request> requests = new ArrayList<>();
     @Inject
     private IBookDAO bookDAO;
     @Inject
@@ -38,22 +35,11 @@ public class BookStore implements IBookStore {
 
     @Override
     public void addBook(String name, String author, String description, Date published, double price, int countInStock) {
-//        books.add(new Book(name, author, description, published, price, countInStock));
-
         bookDAO.createBook(new Book(name, author, description, published, price, countInStock));
     }
 
     @Override
     public void deleteBook(String bookName) {
-//        books.stream()
-//                .filter(book -> book.getName().equals(bookName))
-//                .forEach(book -> {
-//                    for (Request r : book.getRequests()) {
-//                        requests.remove(r);
-//                    }
-//                    books.remove(book);
-//                });
-
         bookDAO.deleteBook(bookName);
     }
 
@@ -65,34 +51,12 @@ public class BookStore implements IBookStore {
                 .thenComparing(new BookPublishedComparator()
                         .thenComparing(new BookPriceComparator()
                                 .thenComparing(new BookIsInStockComparator()))));
-
         return books;
     }
 
     @Override
     public List<Book> getStaledBooks() {
-//        List<Book> notStaledBooks = new ArrayList<>();
-//        for (Order order : orders) {
-//            if (ChronoUnit.MONTHS.between((new Date()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
-//                    order.getExecutionDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()) < configuration.staledBooksDeadline)
-//            {
-//                notStaledBooks.addAll(order.getBooks());
-//            }
-//        }
-//
-        List<Book> staledBooks = new ArrayList<>();
-//        for (Book book : books) {
-//            boolean flag = false;
-//            for (Book staledBook : staledBooks) {
-//                if (book.equals(staledBook)) {
-//                    flag = true;
-//                }
-//            }
-//            if (!flag) {
-//                staledBooks.add(book);
-//            }
-//        }
-
+        List<Book> staledBooks;
         staledBooks = orderDAO.getStaledBooks(Timestamp.valueOf(LocalDateTime.now()));
         staledBooks.sort(new BookPublishedComparator()
                 .thenComparing(new BookPriceComparator()));
@@ -110,115 +74,48 @@ public class BookStore implements IBookStore {
 
     @Override
     public Order getOrderById(int id) {
-        //        return orders.stream()
-//                .filter(order1 -> order1.getId() == id)
-//                .findFirst()
-//                .get();
         return orderDAO.findById(id);
     }
 
     @Override
     public List<Client> getClients() {
-//        return clients;
         return clientDAO.findAll();
     }
 
     @Override
     public void addClient(String name, int age) {
-//        clients.add(new Client(name, age));
         clientDAO.createClient(new Client(name, age));
     }
 
     @Override
     public double getEarnedFundsForTimeSpan(Date from, Date to) {
-//        double sum = 0;
-//        for (Order order : orders) {
-//            if
-//            (
-//                    order.getExecutionDate().compareTo(from) > 0 &&
-//                    to.compareTo(order.getExecutionDate()) > 0 &&
-//                    order.getOrderStatus() == OrderStatus.COMPLETED
-//            )
-//            {
-//                sum += order.getFinalPrice();
-//            }
-//        }
-//        return sum;
         return orderDAO.getEarnedFundsForTimeSpan(from, to);
     }
 
     @Override
     public int getCompletedOrdersCountForTimeSpan(Date from, Date to) {
-//        int count = 0;
-//        for (Order order : orders) {
-//            if
-//            (
-//                    order.getExecutionDate().compareTo(from) > 0 &&
-//                    to.compareTo(order.getExecutionDate()) > 0 &&
-//                    order.getOrderStatus() == OrderStatus.COMPLETED
-//            )
-//            {
-//                count += 1;
-//            }
-//        }
-//        return count;
         return orderDAO.getCompletedOrdersCountForTimeSpan(from, to);
     }
 
     @Override
     public List<Order> getCompletedOrdersForTimeSpan(Date from, Date to) {
-//        List<Order> validOrders = new ArrayList<>();
-//        for (Order order : orders) {
-//            if
-//            (
-//                    order.getExecutionDate().compareTo(from) > 0 &&
-//                    to.compareTo(order.getExecutionDate()) > 0 &&
-//                    order.getOrderStatus() == OrderStatus.COMPLETED)
-//            {
-//                validOrders.add(order);
-//            }
-//        }
-//        validOrders.sort(new OrderExecutionDateComparator()
-//                .thenComparing(new OrderFinalPriceComparator()));
-//        return validOrders;
         return orderDAO.getCompletedOrdersForTimeSpan(from, to);
     }
 
     @Override
     public void addInStock(String bookName, int count) {
-//        for (Book book : books) {
-//            if (book.getName().equals(bookName)) {
-//                int sum = book.getCountInStock() + count;
-//                book.setCountInStock(sum);
-//                book.setInStock(true);
-//
-//                if (configuration.canCompleteRequest) {
-//                    for (Request r : book.getRequests()) {
-//                        if (r.getCount() <= book.getCountInStock() && r.isOpen()) {
-//                            r.setOpen(false);
-//                            book.setCountInStock(book.getCountInStock() - r.getCount());
-//                        }
-//                    }
-//
-//                    if (book.getCountInStock() == 0) {
-//                        book.setInStock(false);
-//                    }
-//                }
-//                break;
-//            }
-//        }
-        bookDAO.addBookInStock(bookName, count);
+        boolean isAdded = bookDAO.addBookInStock(bookName, count);
+        if (!isAdded) {
+            System.out.println("Книги с таким именем не существует.");
+        }
     }
 
     @Override
     public void debitFromStock(String bookName) {
-//        books.stream()
-//                .filter(book -> book.getName().equals(bookName))
-//                .forEach(book -> {
-//                    book.setCountInStock(0);
-//                    book.setInStock(false);
-//                });
-        bookDAO.debitBookFromStock(bookName);
+        boolean isDebit = bookDAO.debitBookFromStock(bookName);
+        if (!isDebit) {
+            System.out.println("Книги с таким именем не существует.");
+        }
     }
 
     @Override
@@ -230,7 +127,6 @@ public class BookStore implements IBookStore {
         for (Client client : clients) {
             if (clientName.equals(client.getName())) {
                 order = new Order(discount, executionDate, client);
-//                client.addOrder(order);
                 flag = true;
                 break;
             }
@@ -296,11 +192,6 @@ public class BookStore implements IBookStore {
 
     @Override
     public List<Request> getBookRequests(String bookName) {
-//        return books.stream()
-//                .filter(book -> book.getName().equals(bookName))
-//                .findFirst()
-//                .get()
-//                .getRequests();
         return bookDAO.getBookRequests(bookName);
     }
 

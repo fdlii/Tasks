@@ -8,7 +8,7 @@ import java.util.List;
 public interface IBookDAO extends IGenericDAO<Book, Integer> {
     void createBook(Book book);
     void deleteBook(String bookName);
-    void addBookInStock(String bookName, int count);
-    void debitBookFromStock(String bookName);
+    boolean addBookInStock(String bookName, int count);
+    boolean debitBookFromStock(String bookName);
     List<Request> getBookRequests(String bookName);
 }

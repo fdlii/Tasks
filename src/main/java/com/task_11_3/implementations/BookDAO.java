@@ -7,6 +7,7 @@ import com.task_3_4.Book;
 import com.task_3_4.Request;
 import com.task_8_1.Configurator;
 import com.task_8_2.annotations.Inject;
+import com.task_8_2.annotations.PostConstruct;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -17,10 +18,15 @@ import java.util.List;
 public class BookDAO extends GenericDAO<Book, Integer> implements IBookDAO {
     @Inject
     private IRequestDAO requestDAO;
-    private final Configurator configurator = new Configurator();
+    @Inject
+    private Configurator configurator;
+    @Inject
+    private DBConfigurator dbConfigurator;
 
-    public BookDAO() {
-        DBConfigurator dbConfigurator = new DBConfigurator();
+    public BookDAO() {}
+
+    @PostConstruct
+    public void init() {
         this.tableName = dbConfigurator.getConfiguration().booksTableName;
     }
 
@@ -79,37 +85,53 @@ public class BookDAO extends GenericDAO<Book, Integer> implements IBookDAO {
     }
 
     @Override
-    public void addBookInStock(String bookName, int count) {
-        Book book = findByName(bookName);
-        book.setInStock(true);
-        if (configurator.getConfiguration().canCompleteRequest) {
-            for (Request r : book.getRequests()) {
-                if (r.getCount() <= book.getCountInStock() && r.isOpen()) {
-                    r.setOpen(false);
-                    requestDAO.updateRequest(r);
-                    book.setCountInStock(book.getCountInStock() - r.getCount());
+    public boolean addBookInStock(String bookName, int count) {
+        try {
+            connection.setAutoCommit(false);
+            Book book = findByName(bookName);
+            if (book == null) {
+                return false;
+            }
+            book.setInStock(true);
+            if (configurator.getConfiguration().canCompleteRequest) {
+                for (Request r : book.getRequests()) {
+                    if (r.getCount() <= book.getCountInStock() && r.isOpen()) {
+                        r.setOpen(false);
+                        requestDAO.updateRequest(r);
+                        book.setCountInStock(book.getCountInStock() - r.getCount());
+                    }
+                }
+
+                if (book.getCountInStock() == 0) {
+                    book.setInStock(false);
                 }
             }
-
-            if (book.getCountInStock() == 0) {
-                book.setInStock(false);
-            }
-        }
-        String sql = "UPDATE " + tableName + " SET instock = ?, countinstock = ? WHERE name = ?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            String sql = "UPDATE " + tableName + " SET instock = ?, countinstock = ? WHERE name = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setObject(1, book.isInStock());
             preparedStatement.setObject(2, book.getCountInStock() + count);
             preparedStatement.setObject(3, bookName);
             System.out.println("Изменено книг: " + preparedStatement.executeUpdate());
+            connection.commit();
+            connection.setAutoCommit(true);
         }
         catch (SQLException ex) {
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
             System.out.println("Не удалось добавить книгу на склад.");
         }
+        return true;
     }
 
     @Override
-    public void debitBookFromStock(String bookName) {
+    public boolean debitBookFromStock(String bookName) {
         Book book = findByName(bookName);
+        if (book == null) {
+            return false;
+        }
         String sql = "UPDATE " + tableName + " SET countinstock = 0, instock = false WHERE name = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setObject(1, bookName);
@@ -118,6 +140,7 @@ public class BookDAO extends GenericDAO<Book, Integer> implements IBookDAO {
         catch (SQLException ex) {
             System.out.println("Не удалось удалить книгу со склада.");
         }
+        return true;
     }
 
     @Override

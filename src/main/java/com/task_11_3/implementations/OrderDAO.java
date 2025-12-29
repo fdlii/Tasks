@@ -6,6 +6,7 @@ import com.task_11_3.interfaces.IClientDAO;
 import com.task_11_3.interfaces.IOrderDAO;
 import com.task_3_4.*;
 import com.task_8_2.annotations.Inject;
+import com.task_8_2.annotations.PostConstruct;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,14 +17,18 @@ import java.util.Date;
 import java.util.List;
 
 public class OrderDAO extends GenericDAO<Order, Integer> implements IOrderDAO {
-    private final String subTable;
+    @Inject
+    private DBConfigurator dbConfigurator;
     @Inject
     private IBookDAO bookDAO;
     @Inject
     private IClientDAO clientDAO;
+    private String subTable;
 
-    public OrderDAO() {
-        DBConfigurator dbConfigurator = new DBConfigurator();
+    public OrderDAO() {}
+
+    @PostConstruct
+    public void init() {
         this.tableName = dbConfigurator.getConfiguration().ordersTableName;
         this.subTable = dbConfigurator.getConfiguration().MMsTableName;
     }
@@ -172,6 +177,7 @@ public class OrderDAO extends GenericDAO<Order, Integer> implements IOrderDAO {
     @Override
     public void createOrder(Order order) {
         try (PreparedStatement preparedStatement = setCreateParameters(order)) {
+            connection.setAutoCommit(false);
             System.out.println("Добавлено заказов: " + preparedStatement.executeUpdate());
             String sql = "INSERT INTO " + subTable + " VALUES (?, ?)";
             for (Book book : order.getBooks()) {
@@ -180,7 +186,14 @@ public class OrderDAO extends GenericDAO<Order, Integer> implements IOrderDAO {
                 subStatement.setObject(2, book.getId());
                 subStatement.executeUpdate();
             }
+            connection.commit();
+            connection.setAutoCommit(true);
         } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
             System.out.println("Не удалось добавить заказ в БД.");
         }
     }
