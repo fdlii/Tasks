@@ -9,7 +9,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
-public interface IOrderDAO {
+public interface IOrderDAO extends IGenericDAO<Order, Integer> {
     List<Book> getStaledBooks(Timestamp currentTime);
     double getEarnedFundsForTimeSpan(Date from, Date to);
     int getCompletedOrdersCountForTimeSpan(Date from, Date to);

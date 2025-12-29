@@ -8,6 +8,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DIContainer {
     private static DIContainer instance = new DIContainer();
@@ -15,6 +17,8 @@ public class DIContainer {
         configurator = new JavaBeanConfigurator();
     }
     private IBeanConfigurator configurator;
+
+    private final Map<Class<?>, Object> singletonCache = new ConcurrentHashMap<>();
 
     public static DIContainer getInstance() {
         return instance;
@@ -26,7 +30,13 @@ public class DIContainer {
             implementationClass = configurator.getInterfaceImplementation(clazz);
         }
 
+        if (singletonCache.containsKey(implementationClass)) {
+            return (T) singletonCache.get(implementationClass);
+        }
+
         T bean = implementationClass.getDeclaredConstructor().newInstance();
+
+        singletonCache.put(implementationClass, bean);
 
         for (Field field : Arrays.stream(implementationClass.getDeclaredFields()).filter(field -> field.isAnnotationPresent(Inject.class)).toList()) {
             field.setAccessible(true);

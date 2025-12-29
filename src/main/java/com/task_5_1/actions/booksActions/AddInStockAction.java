@@ -25,6 +25,7 @@ public class AddInStockAction implements IAction {
             bookStore.addInStock(name, count);
         }
         catch (Exception exception) {
+            scanner.nextLine();
             throw new BookException("Введены невалидные данные книги. Попробуйте снова.");
         }
     }

@@ -5,7 +5,7 @@ import com.task_3_4.Request;
 
 import java.util.List;
 
-public interface IBookDAO {
+public interface IBookDAO extends IGenericDAO<Book, Integer> {
     void createBook(Book book);
     void deleteBook(String bookName);
     void addBookInStock(String bookName, int count);

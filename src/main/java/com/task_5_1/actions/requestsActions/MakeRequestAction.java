@@ -25,6 +25,7 @@ public class MakeRequestAction implements IAction {
             boolean flag = bookStore.makeRequest(name, count);
         }
         catch (Exception exception) {
+            scanner.nextLine();
             throw new BookException("Введено невалидное значение книг на запрос. Попробуйте снова.");
         }
     }

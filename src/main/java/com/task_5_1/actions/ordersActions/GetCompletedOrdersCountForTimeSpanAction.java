@@ -25,6 +25,7 @@ public class GetCompletedOrdersCountForTimeSpanAction implements IAction {
             System.out.println("Число заказов: " + bookStore.getCompletedOrdersCountForTimeSpan(dateFrom, dateTo));
         }
         catch (Exception exception) {
+            scanner.nextLine();
             throw new OrderException("Введены невалидные даты. Формат ввода даты - дд/мм/гггг. Попробуйте снова.");
         }
     }

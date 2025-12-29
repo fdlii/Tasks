@@ -1,8 +1,11 @@
 package com.task_11_3.implementations;
 
+import com.task_11_3.config.DBConfigurator;
 import com.task_11_3.interfaces.IClientDAO;
+import com.task_11_3.interfaces.IOrderDAO;
 import com.task_3_4.Client;
 import com.task_3_4.Order;
+import com.task_8_2.annotations.Inject;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,11 +13,12 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class ClientDAO extends GenericDAO<Client, Integer> implements IClientDAO {
+    @Inject
+    private IOrderDAO orderDAO;
 
-    private final OrderDAO orderDAOImplementation = new OrderDAO("orders", "orders_books");
-
-    public ClientDAO(String tableName) {
-        super(tableName);
+    public ClientDAO() {
+        DBConfigurator dbConfigurator = new DBConfigurator();
+        this.tableName = dbConfigurator.getConfiguration().clientsTableName;
     }
 
     @Override
@@ -24,7 +28,7 @@ public class ClientDAO extends GenericDAO<Client, Integer> implements IClientDAO
         int age = resultSet.getInt(3);
         Client client = new Client(id, name, age);
 
-        List<Order> orders = orderDAOImplementation.findOrdersByClientId(client);
+        List<Order> orders = orderDAO.findOrdersByClientId(client);
         client.setOrders(orders);
         return client;
     }

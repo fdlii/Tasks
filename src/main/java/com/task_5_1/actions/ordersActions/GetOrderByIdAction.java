@@ -22,12 +22,11 @@ public class GetOrderByIdAction implements IAction {
             int id = scanner.nextInt();
             scanner.nextLine();
             Order order = bookStore.getOrderById(id);
-            String status = "";
-            switch (order.getOrderStatus()) {
-                case NEW : status = "Новый";
-                case COMPLETED: status = "Завершён";
-                case CANCELLED: status = "Отменён";
-            }
+            String status = switch (order.getOrderStatus()) {
+                case NEW -> "Новый";
+                case COMPLETED -> "Завершён";
+                case CANCELLED -> "Отменён";
+            };
             System.out.printf("Идентификатор: %d, дата выполнения: %s, имя клиента: %s, статус: %s.%n",
                     order.getId(),
                     order.getExecutionDate(),
@@ -35,6 +34,7 @@ public class GetOrderByIdAction implements IAction {
                     status);
         }
         catch (Exception exception) {
+            scanner.nextLine();
             throw new OrderException("Введены невалидные данные заказа. Попробуйте снова.");
         }
     }

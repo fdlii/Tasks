@@ -8,7 +8,7 @@ CREATE TABLE orders (
     id INT PRIMARY KEY,
     clientID INT NOT NULL,
     discount NUMERIC NOT NULL,
-    finalPrice MONEY NOT NULL,
+    finalPrice NUMERIC(12,2) NOT NULL,
     executionDate TIMESTAMP NOT NULL,
     orderStatus INT NOT NULL,
 
@@ -27,7 +27,7 @@ CREATE TABLE books (
     published TIMESTAMP NOT NULL,
     inStock BOOLEAN NOT NULL,
     countInStock INT NOT NULL,
-    price MONEY NOT NULL
+    price NUMERIC(12,2) NOT NULL
 );
 
 CREATE TABLE orders_books (

@@ -27,12 +27,7 @@ public class MenuController implements IMenuController {
 
     @PostConstruct
     public void initialize() {
-        try {
-            builder.buildMenu(bookStore);
-            bookStore.getSerializedObjects();
-        } catch (IOException ex) {
-            System.out.println("Некоторые/все файлы с сущностями пустые или не существуют.");
-        }
+        builder.buildMenu(bookStore);
     }
 
     public void run() {
@@ -54,18 +49,19 @@ public class MenuController implements IMenuController {
             run();
         }
         else if (index == count) {
-            try {
-                fileManager.serializeObjects(bookStore.getRequests(), "requests");
-                fileManager.serializeObjects(bookStore.getBooks(), "books");
-                fileManager.serializeObjects(bookStore.getOrders(), "orders");
-                fileManager.serializeObjects(bookStore.getClients(), "clients");
-                System.exit(0);
-
-            }
-            catch (IOException ex) {
-                System.out.println("Не удалось сериализовать объекты в JSON.");
-                System.exit(1);
-            }
+            System.exit(0);
+//            try {
+//                fileManager.serializeObjects(bookStore.getRequests(), "requests");
+//                fileManager.serializeObjects(bookStore.getBooks(), "books");
+//                fileManager.serializeObjects(bookStore.getOrders(), "orders");
+//                fileManager.serializeObjects(bookStore.getClients(), "clients");
+//                System.exit(0);
+//
+//            }
+//            catch (IOException ex) {
+//                System.out.println("Не удалось сериализовать объекты в JSON.");
+//                System.exit(1);
+//            }
         }
         else {
             if (currentMenu.menuItems.get(index - 1).getNextMenu() != null) {

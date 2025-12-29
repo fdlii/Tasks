@@ -1,7 +1,11 @@
 package com.task_11_3.implementations;
 
+import com.task_11_3.config.DBConfigurator;
+import com.task_11_3.interfaces.IBookDAO;
+import com.task_11_3.interfaces.IClientDAO;
 import com.task_11_3.interfaces.IOrderDAO;
 import com.task_3_4.*;
+import com.task_8_2.annotations.Inject;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,12 +17,15 @@ import java.util.List;
 
 public class OrderDAO extends GenericDAO<Order, Integer> implements IOrderDAO {
     private final String subTable;
-    private final BookDAO bookDAOImplementation = new BookDAO("books");
-    private final ClientDAO clientDAOImplementation = new ClientDAO("clients");
+    @Inject
+    private IBookDAO bookDAO;
+    @Inject
+    private IClientDAO clientDAO;
 
-    public OrderDAO(String tableName, String subTable) {
-        super(tableName);
-        this.subTable = subTable;
+    public OrderDAO() {
+        DBConfigurator dbConfigurator = new DBConfigurator();
+        this.tableName = dbConfigurator.getConfiguration().ordersTableName;
+        this.subTable = dbConfigurator.getConfiguration().MMsTableName;
     }
 
     @Override
@@ -41,10 +48,10 @@ public class OrderDAO extends GenericDAO<Order, Integer> implements IOrderDAO {
 
         List<Book> books = new ArrayList<>();
         for (int bookId : bookIDs) {
-            books.add(bookDAOImplementation.findById(bookId));
+            books.add(bookDAO.findById(bookId));
         }
 
-        Client client = clientDAOImplementation.findById(clientID);
+        Client client = clientDAO.findById(clientID);
         Order order = new Order(id, client, discount, finalPrice, executionDate, orderStatus);
         order.setBooks(books);
         return order;
@@ -83,7 +90,7 @@ public class OrderDAO extends GenericDAO<Order, Integer> implements IOrderDAO {
 
             List<Book> books = new ArrayList<>();
             for (int id : bookIds) {
-                books.add(bookDAOImplementation.findById(id));
+                books.add(bookDAO.findById(id));
             }
 
             return books;
@@ -166,6 +173,13 @@ public class OrderDAO extends GenericDAO<Order, Integer> implements IOrderDAO {
     public void createOrder(Order order) {
         try (PreparedStatement preparedStatement = setCreateParameters(order)) {
             System.out.println("Добавлено заказов: " + preparedStatement.executeUpdate());
+            String sql = "INSERT INTO " + subTable + " VALUES (?, ?)";
+            for (Book book : order.getBooks()) {
+                PreparedStatement subStatement = connection.prepareStatement(sql);
+                subStatement.setObject(1, order.getId());
+                subStatement.setObject(2, book.getId());
+                subStatement.executeUpdate();
+            }
         } catch (SQLException e) {
             System.out.println("Не удалось добавить заказ в БД.");
         }

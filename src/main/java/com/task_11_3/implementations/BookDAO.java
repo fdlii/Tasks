@@ -1,8 +1,12 @@
 package com.task_11_3.implementations;
 
+import com.task_11_3.config.DBConfigurator;
 import com.task_11_3.interfaces.IBookDAO;
+import com.task_11_3.interfaces.IRequestDAO;
 import com.task_3_4.Book;
 import com.task_3_4.Request;
+import com.task_8_1.Configurator;
+import com.task_8_2.annotations.Inject;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -11,10 +15,13 @@ import java.util.Date;
 import java.util.List;
 
 public class BookDAO extends GenericDAO<Book, Integer> implements IBookDAO {
-    private final RequestDAO requestDAOImplementation = new RequestDAO("requests");
+    @Inject
+    private IRequestDAO requestDAO;
+    private final Configurator configurator = new Configurator();
 
-    protected BookDAO(String tableName) {
-        super(tableName);
+    public BookDAO() {
+        DBConfigurator dbConfigurator = new DBConfigurator();
+        this.tableName = dbConfigurator.getConfiguration().booksTableName;
     }
 
     @Override
@@ -28,7 +35,7 @@ public class BookDAO extends GenericDAO<Book, Integer> implements IBookDAO {
         double price = resultSet.getDouble(8);
 
         Book book = new Book(id, name, author, description, Date.from(published.atZone(ZoneId.systemDefault()).toInstant()), countInStock, price);
-        List<Request> bookRequests = requestDAOImplementation.findRequestsByBookId(book);
+        List<Request> bookRequests = requestDAO.findRequestsByBookId(book);
         book.setRequests(bookRequests);
 
         return book;
@@ -61,9 +68,10 @@ public class BookDAO extends GenericDAO<Book, Integer> implements IBookDAO {
 
     @Override
     public void deleteBook(String bookName) {
-        String sql = "DELETE FROM " + tableName + " WHERE name = " + bookName;
-        try (Statement statement = connection.createStatement()) {
-            System.out.println("Удалено книг: " + statement.executeUpdate(sql));
+        String sql = "DELETE FROM " + tableName + " WHERE name = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, bookName);
+            System.out.println("Удалено книг: " + statement.executeUpdate());
         }
         catch (SQLException ex) {
             System.out.println("Не удалось удалить книгу из БД.");
@@ -73,10 +81,25 @@ public class BookDAO extends GenericDAO<Book, Integer> implements IBookDAO {
     @Override
     public void addBookInStock(String bookName, int count) {
         Book book = findByName(bookName);
-        String sql = "UPDATE " + tableName + "SET countinstock = ? WHERE name = ?";
+        book.setInStock(true);
+        if (configurator.getConfiguration().canCompleteRequest) {
+            for (Request r : book.getRequests()) {
+                if (r.getCount() <= book.getCountInStock() && r.isOpen()) {
+                    r.setOpen(false);
+                    requestDAO.updateRequest(r);
+                    book.setCountInStock(book.getCountInStock() - r.getCount());
+                }
+            }
+
+            if (book.getCountInStock() == 0) {
+                book.setInStock(false);
+            }
+        }
+        String sql = "UPDATE " + tableName + " SET instock = ?, countinstock = ? WHERE name = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setObject(1, book.getCountInStock() + count);
-            preparedStatement.setObject(2, bookName);
+            preparedStatement.setObject(1, book.isInStock());
+            preparedStatement.setObject(2, book.getCountInStock() + count);
+            preparedStatement.setObject(3, bookName);
             System.out.println("Изменено книг: " + preparedStatement.executeUpdate());
         }
         catch (SQLException ex) {
@@ -87,7 +110,7 @@ public class BookDAO extends GenericDAO<Book, Integer> implements IBookDAO {
     @Override
     public void debitBookFromStock(String bookName) {
         Book book = findByName(bookName);
-        String sql = "UPDATE " + tableName + "SET countinstock = 0, instock = false WHERE name = ?";
+        String sql = "UPDATE " + tableName + " SET countinstock = 0, instock = false WHERE name = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setObject(1, bookName);
             System.out.println("Изменено книг: " + preparedStatement.executeUpdate());
@@ -101,7 +124,7 @@ public class BookDAO extends GenericDAO<Book, Integer> implements IBookDAO {
     public List<Request> getBookRequests(String bookName) {
         try {
             Book book = findByName(bookName);
-            return requestDAOImplementation.findRequestsByBookId(book);
+            return requestDAO.findRequestsByBookId(book);
         }
         catch (SQLException ex) {
             System.out.println("Не удалось получить запросы книги.");

@@ -38,6 +38,7 @@ public class CreateOrderAction implements IAction {
             bookStore.createOrder(discount, date, name, bookNames);
         }
         catch (Exception exception) {
+            scanner.nextLine();
             throw new OrderException("Введены невалидные данные заказа. Попробуйте снова.");
         }
     }

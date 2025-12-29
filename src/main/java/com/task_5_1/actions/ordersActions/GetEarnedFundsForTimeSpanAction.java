@@ -25,6 +25,7 @@ public class GetEarnedFundsForTimeSpanAction implements IAction {
             System.out.println(bookStore.getEarnedFundsForTimeSpan(dateFrom, dateTo));
         }
         catch (Exception exception) {
+            scanner.nextLine();
             throw new OrderException("Введены невалидные даты. Формат ввода даты - дд/мм/гггг. Попробуйте снова.");
         }
     }

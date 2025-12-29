@@ -71,6 +71,7 @@ public class Order {
 
     public void setBooks(List<Book> books) {
         this.books = books;
+        calculateFinalPrice();
     }
 
     public List<Book> getBooks() {
@@ -98,10 +99,13 @@ public class Order {
     public void changeStatus(OrderStatus orderStatus) throws OrderException {
         if (orderStatus == OrderStatus.COMPLETED) {
             for (Book book : books) {
-                if (!book.isInStock()){
-                    throw new OrderException("Невозможно завершить заказ. Книга отсвутствует на складе.");
+                for (Request request : book.getRequests()) {
+                    if (request.isOpen()){
+                        throw new OrderException("Невозможно завершить заказ. Книга отсвутствует на складе.");
+                    }
                 }
             }
+            this.orderStatus = orderStatus;
         }
         if (orderStatus == OrderStatus.CANCELLED) {
             for (Book book : books) {

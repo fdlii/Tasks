@@ -8,12 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class GenericDAO<T, ID> implements IGenericDAO<T, ID> {
-    protected final String tableName;
+    protected String tableName;
     protected Connection connection = ConnectionManager.getConnection();
 
-    protected GenericDAO(String tableName) {
-        this.tableName = tableName;
-    }
+    protected GenericDAO() {}
 
     protected abstract T mapResultSetToEntity(ResultSet resultSet) throws SQLException;
     protected abstract PreparedStatement setCreateParameters(T entity) throws SQLException;

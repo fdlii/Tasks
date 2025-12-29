@@ -1,8 +1,11 @@
 package com.task_11_3.implementations;
 
+import com.task_11_3.config.DBConfigurator;
+import com.task_11_3.interfaces.IBookDAO;
 import com.task_11_3.interfaces.IRequestDAO;
 import com.task_3_4.Book;
 import com.task_3_4.Request;
+import com.task_8_2.annotations.Inject;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,10 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RequestDAO extends GenericDAO<Request, Integer> implements IRequestDAO {
-    private final BookDAO bookDAOImplementation = new BookDAO("books");
+    @Inject
+    private IBookDAO bookDAO;
 
-    public RequestDAO(String tableName) {
-        super(tableName);
+    public RequestDAO() {
+        DBConfigurator dbConfigurator = new DBConfigurator();
+        this.tableName = dbConfigurator.getConfiguration().requestsTableName;
     }
 
     @Override
@@ -24,7 +29,7 @@ public class RequestDAO extends GenericDAO<Request, Integer> implements IRequest
         int count = resultSet.getInt(3);
         boolean isOpen = resultSet.getBoolean(4);
 
-        Book requestBook = bookDAOImplementation.findById(bookID);
+        Book requestBook = bookDAO.findById(bookID);
         return new Request(id, requestBook, count, isOpen);
     }
 
@@ -47,6 +52,18 @@ public class RequestDAO extends GenericDAO<Request, Integer> implements IRequest
         }
         catch (SQLException ex) {
             System.out.println(ex.getMessage());
+        }
+    }
+
+    @Override
+    public void updateRequest(Request request) {
+        String sql = "UPDATE " + tableName + " SET isopen = ? WHERE id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setObject(1, request.isOpen());
+            preparedStatement.setObject(2, request.getId());
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Не удалось закрыть запрос на книгу.");
         }
     }
 

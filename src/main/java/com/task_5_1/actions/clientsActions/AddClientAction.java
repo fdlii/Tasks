@@ -25,6 +25,7 @@ public class AddClientAction implements IAction {
             bookStore.addClient(name, age);
         }
         catch (Exception exception) {
+            scanner.nextLine();
             throw new ClientException("Введены невалидные данные клиента. Попробуйте снова.");
         }
     }

@@ -23,6 +23,7 @@ public class CancelOrderAction implements IAction {
             bookStore.cancelOrder(id);
         }
         catch (Exception exception) {
+            scanner.nextLine();
             throw new OrderException("Введены невалидные данные заказа. Попробуйте снова.");
         }
     }

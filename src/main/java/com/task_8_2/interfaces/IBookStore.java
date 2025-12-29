@@ -42,5 +42,5 @@ public interface IBookStore {
     void exportClientsIntoCSVFile(String filename)  throws IOException;
     void exportRequestsIntoCSVFile(String filename)  throws IOException;
 
-    void getSerializedObjects()  throws IOException;
+//    void getSerializedObjects()  throws IOException;
 }
