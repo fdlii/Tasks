@@ -4,6 +4,7 @@ import com.task_5_1.actions.IAction;
 import com.task_6_2.OrderException;
 import com.task_8_2.interfaces.IBookStore;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.Scanner;
 
@@ -23,6 +24,9 @@ public class GetCompletedOrdersCountForTimeSpanAction implements IAction {
             System.out.println("Введите дату \"по\": ");
             Date dateTo = new Date(scanner.nextLine());
             System.out.println("Число заказов: " + bookStore.getCompletedOrdersCountForTimeSpan(dateFrom, dateTo));
+        }
+        catch (SQLException exception) {
+            System.out.println("Не удалось получить число заказов.");
         }
         catch (Exception exception) {
             scanner.nextLine();

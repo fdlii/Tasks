@@ -6,6 +6,7 @@ import com.task_8_2.annotations.Inject;
 import com.task_8_2.interfaces.IBookStore;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class ExportBooksFromCSVFileAction implements IAction {
@@ -18,9 +19,13 @@ public class ExportBooksFromCSVFileAction implements IAction {
 
     @Override
     public void execute() throws IOException {
-        System.out.println("Введите путь к файлу для экспорта:");
-        String fileName = scanner.nextLine();
-        bookStore.exportBooksIntoCSVFile(fileName);
-        System.out.println("Книги экспортированы.");
+        try {
+            System.out.println("Введите путь к файлу для экспорта:");
+            String fileName = scanner.nextLine();
+            bookStore.exportBooksIntoCSVFile(fileName);
+            System.out.println("Книги экспортированы.");
+        } catch (SQLException e) {
+            System.out.println("Не удалось экспортировать книги из БД.");
+        }
     }
 }

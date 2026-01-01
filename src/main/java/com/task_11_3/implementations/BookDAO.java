@@ -63,29 +63,21 @@ public class BookDAO extends GenericDAO<Book, Integer> implements IBookDAO {
     }
 
     @Override
-    public void createBook(Book book) {
-        try (PreparedStatement preparedStatement = setCreateParameters(book)) {
-            System.out.println("Добавлено книг: " + preparedStatement.executeUpdate());
-        }
-        catch (SQLException ex) {
-            System.out.println("Не удалось добавить книгу в БД.");
-        }
+    public void createBook(Book book) throws SQLException {
+        PreparedStatement preparedStatement = setCreateParameters(book);
+        preparedStatement.executeUpdate();
     }
 
     @Override
-    public void deleteBook(String bookName) {
+    public void deleteBook(String bookName) throws SQLException {
         String sql = "DELETE FROM " + tableName + " WHERE name = ?";
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, bookName);
-            System.out.println("Удалено книг: " + statement.executeUpdate());
-        }
-        catch (SQLException ex) {
-            System.out.println("Не удалось удалить книгу из БД.");
-        }
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setString(1, bookName);
+        statement.executeUpdate();
     }
 
     @Override
-    public boolean addBookInStock(String bookName, int count) {
+    public boolean addBookInStock(String bookName, int count) throws SQLException {
         try {
             connection.setAutoCommit(false);
             Book book = findByName(bookName);
@@ -111,62 +103,46 @@ public class BookDAO extends GenericDAO<Book, Integer> implements IBookDAO {
             preparedStatement.setObject(1, book.isInStock());
             preparedStatement.setObject(2, book.getCountInStock() + count);
             preparedStatement.setObject(3, bookName);
-            System.out.println("Изменено книг: " + preparedStatement.executeUpdate());
+            preparedStatement.executeUpdate();
             connection.commit();
             connection.setAutoCommit(true);
         }
         catch (SQLException ex) {
-            try {
-                connection.rollback();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-            System.out.println("Не удалось добавить книгу на склад.");
+            connection.rollback();
+            throw new SQLException(ex);
         }
         return true;
     }
 
     @Override
-    public boolean debitBookFromStock(String bookName) {
+    public boolean debitBookFromStock(String bookName) throws SQLException {
         Book book = findByName(bookName);
         if (book == null) {
             return false;
         }
         String sql = "UPDATE " + tableName + " SET countinstock = 0, instock = false WHERE name = ?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setObject(1, bookName);
-            System.out.println("Изменено книг: " + preparedStatement.executeUpdate());
-        }
-        catch (SQLException ex) {
-            System.out.println("Не удалось удалить книгу со склада.");
-        }
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setObject(1, bookName);
+        preparedStatement.executeUpdate();
         return true;
     }
 
     @Override
-    public List<Request> getBookRequests(String bookName) {
-        try {
-            Book book = findByName(bookName);
-            return requestDAO.findRequestsByBookId(book);
+    public List<Request> getBookRequests(String bookName) throws SQLException {
+        Book book = findByName(bookName);
+        if (book == null) {
+            throw new RuntimeException();
         }
-        catch (SQLException ex) {
-            System.out.println("Не удалось получить запросы книги.");
-            return null;
-        }
+        return requestDAO.findRequestsByBookId(book);
     }
 
-    private Book findByName(String bookName) {
+    private Book findByName(String bookName) throws SQLException {
         String sql = "SELECT * FROM " + tableName + " WHERE name = ?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setObject(1, bookName);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    return mapResultSetToEntity(resultSet);
-                }
-            }
-        }
-        catch (SQLException ex) {
-            System.out.println("Не удалось создать запрос для нахождения сущности.");
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setObject(1, bookName);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        if (resultSet.next()) {
+            return mapResultSetToEntity(resultSet);
         }
         return null;
     }

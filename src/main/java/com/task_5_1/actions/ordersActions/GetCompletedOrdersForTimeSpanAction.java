@@ -5,6 +5,7 @@ import com.task_3_4.Order;
 import com.task_6_2.OrderException;
 import com.task_8_2.interfaces.IBookStore;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.Scanner;
 
@@ -37,6 +38,9 @@ public class GetCompletedOrdersForTimeSpanAction implements IAction {
                         order.getClient().getName(),
                         status);
             }
+        }
+        catch (SQLException exception) {
+            System.out.println("Не удалось получить заказы.");
         }
         catch (Exception exception) {
             scanner.nextLine();

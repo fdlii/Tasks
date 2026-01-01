@@ -3,6 +3,7 @@ package com.task_5_1.actions.booksActions;
 import com.task_5_1.actions.IAction;
 import com.task_8_2.interfaces.IBookStore;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.Scanner;
 
@@ -16,6 +17,7 @@ public class AddBookAction implements IAction {
 
     @Override
     public void execute() {
+        try {
             System.out.println("Введите название книги: ");
             String name = scanner.nextLine();
             System.out.println("Введите автора: ");
@@ -31,5 +33,8 @@ public class AddBookAction implements IAction {
             int count = scanner.nextInt();
             scanner.nextLine();
             bookStore.addBook(name, author, description, date, price, count);
+        } catch (SQLException e) {
+            System.out.println("Не удалось добавить книгу в БД.");
         }
+    }
 }

@@ -4,6 +4,7 @@ import com.task_5_1.actions.IAction;
 import com.task_6_2.BookException;
 import com.task_8_2.interfaces.IBookStore;
 
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class DebitFromStockAction implements IAction {
@@ -20,6 +21,9 @@ public class DebitFromStockAction implements IAction {
             System.out.println("Введите название книги: ");
             String name = scanner.nextLine();
             bookStore.debitFromStock(name);
+        }
+        catch (SQLException exception) {
+            System.out.println("Не удалось удалить книгу со склада.");
         }
         catch (Exception exception) {
             throw new BookException("Введены невалидные данные книги. Попробуйте снова.");

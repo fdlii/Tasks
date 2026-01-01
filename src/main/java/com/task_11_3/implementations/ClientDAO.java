@@ -49,11 +49,8 @@ public class ClientDAO extends GenericDAO<Client, Integer> implements IClientDAO
     }
 
     @Override
-    public void createClient(Client client) {
-        try (PreparedStatement preparedStatement = setCreateParameters(client)) {
-            System.out.println("Добавлено клиентов: " + preparedStatement.executeUpdate());
-        } catch (SQLException e) {
-            System.out.println("Не удалось добавить клиента в БД.");
-        }
+    public void createClient(Client client) throws SQLException {
+        PreparedStatement preparedStatement = setCreateParameters(client);
+        preparedStatement.executeUpdate();
     }
 }

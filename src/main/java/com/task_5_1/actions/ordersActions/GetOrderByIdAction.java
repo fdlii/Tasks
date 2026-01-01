@@ -5,6 +5,7 @@ import com.task_3_4.Order;
 import com.task_6_2.OrderException;
 import com.task_8_2.interfaces.IBookStore;
 
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class GetOrderByIdAction implements IAction {
@@ -32,6 +33,9 @@ public class GetOrderByIdAction implements IAction {
                     order.getExecutionDate(),
                     order.getClient().getName(),
                     status);
+        }
+        catch (SQLException exception) {
+            System.out.println("Не удалось получить заказ из БД.");
         }
         catch (Exception exception) {
             scanner.nextLine();

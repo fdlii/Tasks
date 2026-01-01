@@ -6,6 +6,8 @@ import com.task_3_4.Order;
 import com.task_8_2.annotations.Inject;
 import com.task_8_2.interfaces.IBookStore;
 
+import java.sql.SQLException;
+
 public class GetOrdersAction implements IAction {
     IBookStore bookStore;
 
@@ -15,17 +17,21 @@ public class GetOrdersAction implements IAction {
 
     @Override
     public void execute() {
-        for (Order order : bookStore.getOrders()) {
-            String status = switch (order.getOrderStatus()) {
-                case NEW -> "Новый";
-                case COMPLETED -> "Завершён";
-                case CANCELLED -> "Отменён";
-            };
-            System.out.printf("Идентификатор: %d, дата выполнения: %s, имя клиента: %s, статус: %s.%n",
-                    order.getId(),
-                    order.getExecutionDate(),
-                    order.getClient().getName(),
-                    status);
+        try {
+            for (Order order : bookStore.getOrders()) {
+                String status = switch (order.getOrderStatus()) {
+                    case NEW -> "Новый";
+                    case COMPLETED -> "Завершён";
+                    case CANCELLED -> "Отменён";
+                };
+                System.out.printf("Идентификатор: %d, дата выполнения: %s, имя клиента: %s, статус: %s.%n",
+                        order.getId(),
+                        order.getExecutionDate(),
+                        order.getClient().getName(),
+                        status);
+            }
+        } catch (SQLException e) {
+            System.out.println("Ошибка при получении заказов из БД.");
         }
     }
 }
