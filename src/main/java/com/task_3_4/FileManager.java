@@ -1,7 +1,5 @@
 package com.task_3_4;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.task_8_2.interfaces.IFileManager;
 
 import java.io.*;
@@ -11,7 +9,7 @@ import java.util.List;
 
 public class FileManager implements IFileManager {
     @Override
-    public void importBooksFromCSVFile(String filename, List<Book> books, List<Request> requests) throws IOException {
+    public void importBooksFromCSVFile(String filename, List<Book> books) throws IOException {
         List<String[]> records = parseCSV(filename);
 
         for (String[] record : records) {
@@ -36,17 +34,6 @@ public class FileManager implements IFileManager {
                         new Date(record[3]),
                         Double.parseDouble(record[4]),
                         Integer.parseInt(record[5]));
-
-                if (record.length > 6) {
-                    for (int i = 6; i < record.length; i++) {
-                        for (Request r : requests) {
-                            if (r.getId() == Integer.parseInt(record[i])) {
-                                book.addRequest(r);
-                                break;
-                            }
-                        }
-                    }
-                }
 
                 books.add(book);
             }
@@ -106,7 +93,7 @@ public class FileManager implements IFileManager {
     }
 
     @Override
-    public void importClientsFromCSVFile(String filename, List<Client> clients, List<Order> orders) throws IOException {
+    public void importClientsFromCSVFile(String filename, List<Client> clients) throws IOException {
         List<String[]> records = parseCSV(filename);
 
         for (String[] record : records) {
@@ -122,18 +109,6 @@ public class FileManager implements IFileManager {
 
             if (!clientFound) {
                 Client client = new Client(record[0], Integer.parseInt(record[1]));
-
-                if (record.length > 2) {
-                    for (int i = 2; i < record.length; i++) {
-                        for (Order o : orders) {
-                            if (o.getId() == Integer.parseInt(record[i])) {
-                                client.addOrder(o);
-                                break;
-                            }
-                        }
-                    }
-                }
-
                 clients.add(client);
             }
         }
@@ -251,18 +226,18 @@ public class FileManager implements IFileManager {
         return records;
     }
 
-    @Override
-    public <T> void serializeObjects(List<T> objects, String entitiesCategory) throws IOException {
-        String fileName = entitiesCategory + ".json";
-        ObjectMapper objectMapper = new ObjectMapper();
-        File file = new File(fileName);
-        objectMapper.writeValue(file, objects);
-    }
-
-    @Override
-    public <T> List<T> deserializeObjects(Class<T> type, String fileName) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        JavaType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, type);
-        return objectMapper.readValue(new File(fileName), listType);
-    }
+//    @Override
+//    public <T> void serializeObjects(List<T> objects, String entitiesCategory) throws IOException {
+//        String fileName = entitiesCategory + ".json";
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        File file = new File(fileName);
+//        objectMapper.writeValue(file, objects);
+//    }
+//
+//    @Override
+//    public <T> List<T> deserializeObjects(Class<T> type, String fileName) throws IOException {
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        JavaType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, type);
+//        return objectMapper.readValue(new File(fileName), listType);
+//    }
 }

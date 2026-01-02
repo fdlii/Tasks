@@ -1,11 +1,10 @@
 package com.task_5_1.actions.ordersActions;
 
 import com.task_5_1.actions.IAction;
-import com.task_3_4.BookStore;
-import com.task_6_2.OrderExeption;
-import com.task_8_2.annotations.Inject;
+import com.task_6_2.OrderException;
 import com.task_8_2.interfaces.IBookStore;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.Scanner;
 
@@ -18,7 +17,7 @@ public class GetEarnedFundsForTimeSpanAction implements IAction {
     }
 
     @Override
-    public void execute() throws OrderExeption {
+    public void execute() throws OrderException {
         try {
             System.out.println("Введите дату \"c\": ");
             Date dateFrom = new Date(scanner.nextLine());
@@ -26,8 +25,12 @@ public class GetEarnedFundsForTimeSpanAction implements IAction {
             Date dateTo = new Date(scanner.nextLine());
             System.out.println(bookStore.getEarnedFundsForTimeSpan(dateFrom, dateTo));
         }
+        catch (SQLException exception) {
+            System.out.println("Не удалось получить сумму заработка.");
+        }
         catch (Exception exception) {
-            throw new OrderExeption("Введены невалидные даты. Формат ввода даты - дд/мм/гггг. Попробуйте снова.");
+            scanner.nextLine();
+            throw new OrderException("Введены невалидные даты. Формат ввода даты - дд/мм/гггг. Попробуйте снова.");
         }
     }
 }

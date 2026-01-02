@@ -1,0 +1,10 @@
+WITH all_products AS (
+    SELECT model, price, 'PC' as type FROM pc
+    UNION ALL
+    SELECT model, price, 'Laptop' as type FROM laptop
+    UNION ALL
+    SELECT model, price, 'Printer' as type FROM printer
+)
+SELECT model
+FROM all_products
+WHERE price = (SELECT MAX(price) FROM all_products);

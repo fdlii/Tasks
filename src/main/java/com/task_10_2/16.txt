@@ -1,0 +1,5 @@
+SELECT model as model1, model2, speed, ram
+FROM pc
+JOIN (SELECT model as model2, speed as speed2, ram as ram2 FROM pc)
+ON model > model2
+WHERE speed = speed2 AND ram = ram2

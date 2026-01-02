@@ -1,11 +1,10 @@
 package com.task_5_1.actions.clientsActions;
 
 import com.task_5_1.actions.IAction;
-import com.task_3_4.BookStore;
-import com.task_6_2.ClientExeption;
-import com.task_8_2.annotations.Inject;
+import com.task_6_2.ClientException;
 import com.task_8_2.interfaces.IBookStore;
 
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class AddClientAction implements IAction {
@@ -17,7 +16,7 @@ public class AddClientAction implements IAction {
     }
 
     @Override
-    public void execute() throws ClientExeption {
+    public void execute() throws ClientException {
         try {
             System.out.println("Введите ФИО клиента: ");
             String name = scanner.nextLine();
@@ -26,8 +25,12 @@ public class AddClientAction implements IAction {
             scanner.nextLine();
             bookStore.addClient(name, age);
         }
+        catch (SQLException exception) {
+            System.out.println("Не удалось добавить клиента в БД.");
+        }
         catch (Exception exception) {
-            throw new ClientExeption("Введены невалидные данные клиента. Попробуйте снова.");
+            scanner.nextLine();
+            throw new ClientException("Введены невалидные данные клиента. Попробуйте снова.");
         }
     }
 }

@@ -1,9 +1,9 @@
 package com.task_5_1;
 
 import com.task_5_1.actions.IAction;
-import com.task_6_2.BookExeption;
-import com.task_6_2.ClientExeption;
-import com.task_6_2.OrderExeption;
+import com.task_6_2.BookException;
+import com.task_6_2.ClientException;
+import com.task_6_2.OrderException;
 
 import java.io.IOException;
 
@@ -18,7 +18,7 @@ public class MenuItem {
         this.nextMenu = nextMenu;
     }
 
-    public void doAction() throws IOException, BookExeption, ClientExeption, OrderExeption {
+    public void doAction() throws IOException, BookException, ClientException, OrderException {
         action.execute();
     }
 
