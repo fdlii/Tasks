@@ -1,12 +1,12 @@
 CREATE TABLE clients (
-    id INT PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     age INT
 );
 
 CREATE TABLE orders (
-    id INT PRIMARY KEY,
-    clientID INT NOT NULL,
+    id BIGINT PRIMARY KEY,
+    clientID BIGINT NOT NULL,
     discount NUMERIC NOT NULL,
     finalPrice NUMERIC(12,2) NOT NULL,
     executionDate TIMESTAMP NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE orders (
 );
 
 CREATE TABLE books (
-    id INT PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     author VARCHAR(50) NOT NULL,
     description TEXT,
@@ -31,8 +31,8 @@ CREATE TABLE books (
 );
 
 CREATE TABLE orders_books (
-    bookID INT,
-    orderID INT,
+    bookID BIGINT,
+    orderID BIGINT,
 
     CONSTRAINT fk_orders
         FOREIGN KEY (orderID)
@@ -48,8 +48,8 @@ CREATE TABLE orders_books (
 );
 
 CREATE TABLE requests (
-    id INT PRIMARY KEY,
-    bookID INT NOT NULL,
+    id BIGINT PRIMARY KEY,
+    bookID BIGINT NOT NULL,
     count INT NOT NULL,
     isOpen BOOLEAN NOT NULL,
 
