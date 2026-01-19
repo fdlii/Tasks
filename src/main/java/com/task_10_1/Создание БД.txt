@@ -1,0 +1,3 @@
+CREATE DATABASE Computer_Store
+
+// далее подключаемся к БД для создания таблиц

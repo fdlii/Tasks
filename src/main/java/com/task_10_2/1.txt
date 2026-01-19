@@ -1,0 +1,3 @@
+SELECT model, speed, cd
+FROM pc
+WHERE CAST(price AS NUMERIC) < 500

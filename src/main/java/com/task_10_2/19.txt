@@ -1,0 +1,5 @@
+SELECT maker, AVG(screen) as avg_screen
+FROM product
+JOIN laptop ON product.model = laptop.model
+GROUP BY maker
+ORDER BY maker
