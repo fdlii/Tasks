@@ -10,11 +10,11 @@ import java.util.Date;
 import java.util.List;
 
 public interface IOrderDAO extends IGenericDAO<Order, Integer> {
-    List<Book> getStaledBooks(Timestamp currentTime);
-    double getEarnedFundsForTimeSpan(Date from, Date to);
-    int getCompletedOrdersCountForTimeSpan(Date from, Date to);
-    List<Order> getCompletedOrdersForTimeSpan(Date from, Date to);
-    void createOrder(Order order);
-    void updateOrder(Order order);
+    List<Book> getStaledBooks(Timestamp currentTime) throws SQLException;
+    double getEarnedFundsForTimeSpan(Date from, Date to) throws SQLException;
+    int getCompletedOrdersCountForTimeSpan(Date from, Date to) throws SQLException;
+    List<Order> getCompletedOrdersForTimeSpan(Date from, Date to) throws SQLException;
+    void createOrder(Order order) throws SQLException;
+    void updateOrder(Order order) throws SQLException;
     List<Order> findOrdersByClientId(Client client) throws SQLException;
 }

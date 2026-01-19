@@ -4,6 +4,7 @@ import com.task_5_1.actions.IAction;
 import com.task_6_2.BookException;
 import com.task_8_2.interfaces.IBookStore;
 
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class MakeRequestAction implements IAction {
@@ -23,6 +24,9 @@ public class MakeRequestAction implements IAction {
             int count = scanner.nextInt();
             scanner.nextLine();
             boolean flag = bookStore.makeRequest(name, count);
+        }
+        catch (SQLException exception) {
+            System.out.println("Не удалось добавить запрос в БД.");
         }
         catch (Exception exception) {
             scanner.nextLine();

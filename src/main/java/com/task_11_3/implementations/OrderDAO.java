@@ -76,109 +76,92 @@ public class OrderDAO extends GenericDAO<Order, Integer> implements IOrderDAO {
     }
 
     @Override
-    public List<Book> getStaledBooks(Timestamp currentTime) {
+    public List<Book> getStaledBooks(Timestamp currentTime) throws SQLException {
         String sql = """
             SELECT DISTINCT books.id FROM orders
             JOIN orders_books ON orders.id = orders_books.orderid
             JOIN books ON orders_books.bookid = books.id
             WHERE orders.executiondate < ( ? - INTERVAL '? MONTH' )
             """;
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setObject(1, currentTime);
-            preparedStatement.setObject(2, 6);
-            ResultSet resultSet = preparedStatement.executeQuery();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setObject(1, currentTime);
+        preparedStatement.setObject(2, 6);
+        ResultSet resultSet = preparedStatement.executeQuery();
 
-            List<Integer> bookIds = new ArrayList<>();
-            while (resultSet.next()) {
-                bookIds.add(resultSet.getInt(1));
-            }
-
-            List<Book> books = new ArrayList<>();
-            for (int id : bookIds) {
-                books.add(bookDAO.findById(id));
-            }
-
-            return books;
-        } catch (SQLException e) {
-            System.out.println("Не удалось получить залежавшиеся книги.");
-            return null;
+        List<Integer> bookIds = new ArrayList<>();
+        while (resultSet.next()) {
+            bookIds.add(resultSet.getInt(1));
         }
+
+        List<Book> books = new ArrayList<>();
+        for (int id : bookIds) {
+            books.add(bookDAO.findById(id));
+        }
+
+        return books;
     }
 
     @Override
-    public double getEarnedFundsForTimeSpan(Date from, Date to) {
+    public double getEarnedFundsForTimeSpan(Date from, Date to) throws SQLException {
         Timestamp fromT = new Timestamp(from.getTime());
         Timestamp toT = new Timestamp(to.getTime());
 
         String sql = "SELECT * FROM " + tableName + " WHERE executiondate BETWEEN ? AND ?";
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setObject(1, fromT);
-            preparedStatement.setObject(2, toT);
-            ResultSet resultSet = preparedStatement.executeQuery();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setObject(1, fromT);
+        preparedStatement.setObject(2, toT);
+        ResultSet resultSet = preparedStatement.executeQuery();
 
-            double earnedFunds = 0;
-            while (resultSet.next()) {
-                earnedFunds += resultSet.getDouble(4);
-            }
-            return earnedFunds;
-        } catch (SQLException e) {
-            System.out.println("Не удалось получить сумму заказов.");
-            return 0;
+        double earnedFunds = 0;
+        while (resultSet.next()) {
+            earnedFunds += resultSet.getDouble(4);
         }
+        return earnedFunds;
     }
 
     @Override
-    public int getCompletedOrdersCountForTimeSpan(Date from, Date to) {
+    public int getCompletedOrdersCountForTimeSpan(Date from, Date to) throws SQLException {
         Timestamp fromT = new Timestamp(from.getTime());
         Timestamp toT = new Timestamp(to.getTime());
 
         String sql = "SELECT * FROM " + tableName + " WHERE (executiondate BETWEEN ? AND ?) AND orderstatus = 1";
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setObject(1, fromT);
-            preparedStatement.setObject(2, toT);
-            ResultSet resultSet = preparedStatement.executeQuery();
 
-            int count = 0;
-            while (resultSet.next()) {
-                count++;
-            }
-            return count;
-        } catch (SQLException e) {
-            System.out.println("Не удалось получить число заказов.");
-            return 0;
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setObject(1, fromT);
+        preparedStatement.setObject(2, toT);
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        int count = 0;
+        while (resultSet.next()) {
+            count++;
         }
+        return count;
     }
 
     @Override
-    public List<Order> getCompletedOrdersForTimeSpan(Date from, Date to) {
+    public List<Order> getCompletedOrdersForTimeSpan(Date from, Date to) throws SQLException {
         Timestamp fromT = new Timestamp(from.getTime());
         Timestamp toT = new Timestamp(to.getTime());
 
         String sql = "SELECT * FROM " + tableName + " WHERE executiondate BETWEEN ? AND ?";
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setObject(1, fromT);
-            preparedStatement.setObject(2, toT);
-            ResultSet resultSet = preparedStatement.executeQuery();
 
-            List<Order> orders = new ArrayList<>();
-            while (resultSet.next()) {
-                orders.add(mapResultSetToEntity(resultSet));
-            }
-            return orders;
-        } catch (SQLException e) {
-            System.out.println("Не удалось получить список заказов.");
-            return null;
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setObject(1, fromT);
+        preparedStatement.setObject(2, toT);
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        List<Order> orders = new ArrayList<>();
+        while (resultSet.next()) {
+            orders.add(mapResultSetToEntity(resultSet));
         }
+        return orders;
     }
 
     @Override
-    public void createOrder(Order order) {
+    public void createOrder(Order order) throws SQLException {
         try (PreparedStatement preparedStatement = setCreateParameters(order)) {
             connection.setAutoCommit(false);
-            System.out.println("Добавлено заказов: " + preparedStatement.executeUpdate());
+            preparedStatement.executeUpdate();
             String sql = "INSERT INTO " + subTable + " VALUES (?, ?)";
             for (Book book : order.getBooks()) {
                 PreparedStatement subStatement = connection.prepareStatement(sql);
@@ -189,29 +172,22 @@ public class OrderDAO extends GenericDAO<Order, Integer> implements IOrderDAO {
             connection.commit();
             connection.setAutoCommit(true);
         } catch (SQLException e) {
-            try {
-                connection.rollback();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
-            }
-            System.out.println("Не удалось добавить заказ в БД.");
+            connection.rollback();
+            throw new SQLException(e);
         }
     }
 
     @Override
-    public void updateOrder(Order order) {
+    public void updateOrder(Order order) throws SQLException {
         String sql = "UPDATE " + tableName + " SET clientid = ?, discount = ?, finalprice = ?, executiondate = ?, orderstatus = ? WHERE id = ?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setObject(1, order.getClient().getId());
-            preparedStatement.setObject(2, order.getDiscount());
-            preparedStatement.setObject(3, order.getFinalPrice());
-            preparedStatement.setObject(4, new Timestamp(order.getExecutionDate().getTime()));
-            preparedStatement.setObject(5, order.getOrderStatus().ordinal());
-            preparedStatement.setObject(6, order.getId());
-            System.out.println("Обновлено заказов: " + preparedStatement.executeUpdate());
-        } catch (SQLException e) {
-            System.out.println("Не удалось обновить заказ.");
-        }
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setObject(1, order.getClient().getId());
+        preparedStatement.setObject(2, order.getDiscount());
+        preparedStatement.setObject(3, order.getFinalPrice());
+        preparedStatement.setObject(4, new Timestamp(order.getExecutionDate().getTime()));
+        preparedStatement.setObject(5, order.getOrderStatus().ordinal());
+        preparedStatement.setObject(6, order.getId());
+        preparedStatement.executeUpdate();
     }
 
     @Override

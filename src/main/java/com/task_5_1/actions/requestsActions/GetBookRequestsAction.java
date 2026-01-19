@@ -5,6 +5,7 @@ import com.task_3_4.Request;
 import com.task_6_2.BookException;
 import com.task_8_2.interfaces.IBookStore;
 
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class GetBookRequestsAction implements IAction {
@@ -36,8 +37,11 @@ public class GetBookRequestsAction implements IAction {
                         isOpen);
             }
         }
+        catch (SQLException exception) {
+            System.out.println("Не удалось получить запросы книги.");
+        }
         catch (Exception exception) {
-            throw new BookException("Введены невалидные данные книги. Попробуйте снова.");
+            throw new BookException("Введены невалидные данные книги или книги не существует. Попробуйте снова.");
         }
     }
 }

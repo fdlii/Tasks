@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 public interface IRequestDAO extends IGenericDAO<Request, Integer> {
-    void createRequest(Request request);
-    void updateRequest(Request request);
+    void createRequest(Request request) throws SQLException;
+    void updateRequest(Request request) throws SQLException;
     public List<Request> findRequestsByBookId(Book book) throws SQLException;
 }

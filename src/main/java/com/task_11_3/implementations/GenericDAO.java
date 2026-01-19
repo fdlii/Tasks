@@ -17,37 +17,26 @@ public abstract class GenericDAO<T, ID> implements IGenericDAO<T, ID> {
     protected abstract PreparedStatement setCreateParameters(T entity) throws SQLException;
 
     @Override
-    public T findById(ID id) {
+    public T findById(ID id) throws SQLException {
         String sql = "SELECT * FROM " + tableName + " WHERE id = ?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setObject(1, id);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    return mapResultSetToEntity(resultSet);
-                }
-            }
-        }
-        catch (SQLException ex) {
-            System.out.println("Не удалось подготовить запрос для нахождения сущности.");
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setObject(1, id);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        if (resultSet.next()) {
+            return mapResultSetToEntity(resultSet);
         }
         return null;
     }
 
     @Override
-    public List<T> findAll() {
+    public List<T> findAll() throws SQLException {
         List<T> entities = new ArrayList<>();
         String sql = "SELECT * FROM " + tableName;
-        try (Statement statement = connection.createStatement()) {
-            try (ResultSet resultSet = statement.executeQuery(sql)) {
-                while (resultSet.next()) {
-                    entities.add(mapResultSetToEntity(resultSet));
-                }
-            };
-            return entities;
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+        while (resultSet.next()) {
+            entities.add(mapResultSetToEntity(resultSet));
         }
-        catch (SQLException ex) {
-            System.out.println("Не удалось создать запрос для нахождения сущностей.");
-            return null;
-        }
+        return entities;
     }
 }

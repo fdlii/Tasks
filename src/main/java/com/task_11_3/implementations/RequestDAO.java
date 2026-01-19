@@ -50,26 +50,18 @@ public class RequestDAO extends GenericDAO<Request, Integer> implements IRequest
     }
 
     @Override
-    public void createRequest(Request request) {
-        try (PreparedStatement preparedStatement = setCreateParameters(request)) {
-            preparedStatement.executeUpdate();
-            System.out.println("Реквест добавлен.");
-        }
-        catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-        }
+    public void createRequest(Request request) throws SQLException {
+        PreparedStatement preparedStatement = setCreateParameters(request);
+        preparedStatement.executeUpdate();
     }
 
     @Override
-    public void updateRequest(Request request) {
+    public void updateRequest(Request request) throws SQLException {
         String sql = "UPDATE " + tableName + " SET isopen = ? WHERE id = ?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setObject(1, request.isOpen());
-            preparedStatement.setObject(2, request.getId());
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println("Не удалось закрыть запрос на книгу.");
-        }
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setObject(1, request.isOpen());
+        preparedStatement.setObject(2, request.getId());
+        preparedStatement.executeUpdate();
     }
 
     @Override

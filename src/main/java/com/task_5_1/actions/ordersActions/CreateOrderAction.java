@@ -4,6 +4,7 @@ import com.task_5_1.actions.IAction;
 import com.task_6_2.OrderException;
 import com.task_8_2.interfaces.IBookStore;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.Scanner;
 
@@ -36,6 +37,9 @@ public class CreateOrderAction implements IAction {
                 count--;
             }
             bookStore.createOrder(discount, date, name, bookNames);
+        }
+        catch (SQLException exception) {
+            System.out.println("Не удалось создать заказ в БД.");
         }
         catch (Exception exception) {
             scanner.nextLine();

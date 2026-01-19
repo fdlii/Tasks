@@ -6,6 +6,8 @@ import com.task_3_4.Client;
 import com.task_8_2.annotations.Inject;
 import com.task_8_2.interfaces.IBookStore;
 
+import java.sql.SQLException;
+
 public class GetClientsAction implements IAction {
     IBookStore bookStore;
 
@@ -15,9 +17,13 @@ public class GetClientsAction implements IAction {
 
     @Override
     public void execute() {
-        System.out.println("Список клиентов: ");
-        for (Client client : bookStore.getClients()) {
-            System.out.printf("ФИО : %s, возраст: %d.%n", client.getName(), client.getAge());
+        try {
+            System.out.println("Список клиентов: ");
+            for (Client client : bookStore.getClients()) {
+                System.out.printf("ФИО : %s, возраст: %d.%n", client.getName(), client.getAge());
+            }
+        } catch (SQLException ex) {
+            System.out.println("Ошибка при получении клиентов из БД.");
         }
     }
 }
