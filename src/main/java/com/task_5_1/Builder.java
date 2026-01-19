@@ -53,7 +53,7 @@ public class Builder {
         innerMenu3.addItem("Отмена заказа", new CancelOrderAction(bookStore), null);
         innerMenu3.addItem("Выполнение заказа", new CompleteOrderAction(bookStore), null);
         innerMenu3.addItem("Создание заказа", new CreateOrderAction(bookStore), null);
-        innerMenu3.addItem("Получение числа заказов за промежуток времени", new GetCompletedOrdersCountForTimeSpanAction(bookStore), null);
+        innerMenu3.addItem("Получение числа выполненных заказов за промежуток времени", new GetCompletedOrdersCountForTimeSpanAction(bookStore), null);
         innerMenu3.addItem("Получение всех заказов за промежуток времени", new GetCompletedOrdersForTimeSpanAction(bookStore), null);
         innerMenu3.addItem("Получение суммы дохода за промежуток времени", new GetEarnedFundsForTimeSpanAction(bookStore), null);
         innerMenu3.addItem("Получение заказа по идентификатору", new GetOrderByIdAction(bookStore), null);

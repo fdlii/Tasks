@@ -2,6 +2,7 @@ package com.task_3_4;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.task_6_2.OrderException;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,6 +32,19 @@ public class Order {
         this.orderStatus = OrderStatus.NEW;
     }
 
+    public Order(int id, Client client, double discount, double finalPrice, Date executionDate, OrderStatus orderStatus) {
+        this.id = id;
+        if (id == counter) {
+            counter++;
+        }
+        this.discount = discount;
+        this.finalPrice = finalPrice;
+        books = new ArrayList<>();
+        this.client = client;
+        this.executionDate = executionDate;
+        this.orderStatus = orderStatus;
+    }
+
     public int getId() {
         return id;
     }
@@ -55,6 +69,11 @@ public class Order {
         this.executionDate = executionDate;
     }
 
+    public void setBooks(List<Book> books) {
+        this.books = books;
+        calculateFinalPrice();
+    }
+
     public List<Book> getBooks() {
         return books;
     }
@@ -77,8 +96,28 @@ public class Order {
         this.client = client;
     }
 
-    public void changeStatus(OrderStatus orderStatus) {
-        this.orderStatus = orderStatus;
+    public void changeStatus(OrderStatus orderStatus) throws OrderException {
+        if (orderStatus == OrderStatus.COMPLETED) {
+            for (Book book : books) {
+                for (Request request : book.getRequests()) {
+                    if (request.isOpen()){
+                        throw new OrderException("Невозможно завершить заказ. Книга отсвутствует на складе.");
+                    }
+                }
+            }
+            this.orderStatus = orderStatus;
+        }
+        if (orderStatus == OrderStatus.CANCELLED) {
+            for (Book book : books) {
+                for (Request request : book.getRequests()){
+                    if (request.getCount() == 1) {
+                        request.setOpen(false);
+                        break;
+                    }
+                }
+            }
+            this.orderStatus = orderStatus;
+        }
     }
 
     public OrderStatus getOrderStatus() {

@@ -23,6 +23,20 @@ public class Client {
         this.orders = new ArrayList<>();
     }
 
+    public Client(int id, String name, int age) {
+        this.id = id;
+        if (id == counter) {
+            counter++;
+        }
+        this.name = name;
+        this.age = age;
+        this.orders = new ArrayList<>();
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
+    }
+
     public List<Order> getOrders() {
         return orders;
     }
@@ -33,6 +47,10 @@ public class Client {
 
     public void deleteOrder(Order order) {
         orders.remove(order);
+    }
+
+    public int getId() {
+        return id;
     }
 
     public int getAge() {
