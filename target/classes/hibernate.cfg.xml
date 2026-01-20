@@ -18,8 +18,5 @@
         <property name="hibernate.format_sql">true</property>
 
         <mapping class="com.task_13.entities.ClientEntity"/>
-        <mapping class="com.task_13.entities.OrderEntity"/>
-        <mapping class="com.task_13.entities.BookEntity"/>
-        <mapping class="com.task_13.entities.RequestEntity"/>
     </session-factory>
 </hibernate-configuration>

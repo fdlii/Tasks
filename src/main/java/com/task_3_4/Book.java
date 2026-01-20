@@ -25,7 +25,6 @@ public class Book {
     }
 
     public Book(String name, String author, String description, Date published, double price, int countInStock) {
-        this.id = counter++; //заглушка
         this.name = name;
         this.author = author;
         this.description = description;

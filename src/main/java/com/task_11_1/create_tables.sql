@@ -1,11 +1,11 @@
 CREATE TABLE clients (
-    id BIGINT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     age INT
 );
 
 CREATE TABLE orders (
-    id BIGINT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     clientID BIGINT NOT NULL,
     discount NUMERIC NOT NULL,
     finalPrice NUMERIC(12,2) NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE orders (
 );
 
 CREATE TABLE books (
-    id BIGINT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     author VARCHAR(50) NOT NULL,
     description TEXT,
@@ -48,7 +48,7 @@ CREATE TABLE orders_books (
 );
 
 CREATE TABLE requests (
-    id BIGINT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     bookID BIGINT NOT NULL,
     count INT NOT NULL,
     isOpen BOOLEAN NOT NULL,
