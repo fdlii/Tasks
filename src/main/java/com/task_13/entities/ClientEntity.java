@@ -31,4 +31,9 @@ public class ClientEntity {
         this.name = name;
         this.age = age;
     }
+
+    public ClientEntity(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
 }

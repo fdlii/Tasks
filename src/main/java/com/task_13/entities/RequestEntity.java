@@ -25,4 +25,10 @@ public class RequestEntity {
 
     @Column(name = "isopen")
     private boolean isOpen;
+
+    public RequestEntity(BookEntity bookEntity, int count, boolean open) {
+        this.book = bookEntity;
+        this.count = count;
+        this.isOpen = open;
+    }
 }

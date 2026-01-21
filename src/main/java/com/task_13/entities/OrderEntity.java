@@ -53,4 +53,12 @@ public class OrderEntity {
         this.executionDate = executionDate;
         this.orderStatus = orderStatus;
     }
+
+    public OrderEntity(ClientEntity clientEntity, double discount, double finalPrice, LocalDateTime executionDate, OrderStatus orderStatus) {
+        this.client = clientEntity;
+        this.discount = discount;
+        this.finalPrice = finalPrice;
+        this.executionDate = executionDate;
+        this.orderStatus = orderStatus;
+    }
 }

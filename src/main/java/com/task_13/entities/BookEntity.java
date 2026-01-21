@@ -49,4 +49,14 @@ public class BookEntity {
         this.countInStock = countInStock;
         this.price = price;
     }
+
+    public BookEntity(String name, String author, String description, LocalDateTime published, boolean inStock, int countInStock, double price) {
+        this.name = name;
+        this.author = author;
+        this.description = description;
+        this.published = published;
+        this.inStock = inStock;
+        this.countInStock = countInStock;
+        this.price = price;
+    }
 }

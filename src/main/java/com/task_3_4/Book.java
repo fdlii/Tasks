@@ -108,6 +108,9 @@ public class Book {
 
     public void setCountInStock(int countInStock) {
         this.countInStock = countInStock;
+        if (countInStock > 0) {
+            setInStock(true);
+        }
     }
 
     public double getPrice() {

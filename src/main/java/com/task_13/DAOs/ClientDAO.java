@@ -4,12 +4,14 @@ import com.task_13.entities.ClientEntity;
 import com.task_13.entities.OrderEntity;
 import com.task_3_4.Client;
 import com.task_3_4.Order;
+import com.task_8_2.annotations.Inject;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ClientDAO extends GenericDAO<Client, Long, ClientEntity> {
-    private OrderDAO orderDAO = new OrderDAO();
+    @Inject
+    private OrderDAO orderDAO;
 
     public ClientDAO() {
         super(ClientEntity.class);
@@ -17,29 +19,32 @@ public class ClientDAO extends GenericDAO<Client, Long, ClientEntity> {
 
     @Override
     protected Client mapFromEntityToModel(ClientEntity entity) {
-        Client model = new Client(
+        return new Client(
                 (int) entity.getId(),
                 entity.getName(),
                 entity.getAge()
         );
-        List<Order> orders = new ArrayList<>();
-        for (OrderEntity orderEntity : entity.getOrders()) {
-            orders.add(orderDAO.mapFromEntityToModel(orderEntity));
-        }
-        model.setOrders(orders);
-        return model;
     }
 
     @Override
-    protected ClientEntity mapFromModelToEntity(Client model) {
-        ClientEntity entity = new ClientEntity(
-                model.getId(),
-                model.getName(),
-                model.getAge()
-        );
+    protected ClientEntity mapFromModelToEntity(Client model, boolean ignoreId) {
+        ClientEntity entity;
+        if (ignoreId) {
+            entity = new ClientEntity(
+                    model.getName(),
+                    model.getAge()
+            );
+        }
+        else {
+            entity = new ClientEntity(
+                    model.getId(),
+                    model.getName(),
+                    model.getAge()
+            );
+        }
         List<OrderEntity> orderEntities = new ArrayList<>();
         for (Order order : model.getOrders()) {
-            orderEntities.add(orderDAO.mapFromModelToEntity(order));
+            orderEntities.add(orderDAO.mapFromModelToEntity(order, false));
         }
         entity.setOrders(orderEntities);
         return entity;

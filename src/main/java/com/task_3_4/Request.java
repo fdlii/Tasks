@@ -16,7 +16,6 @@ public class Request {
     public Request(){};
 
     public Request(Book book, int count) {
-        this.id = counter++; // заглушка
         this.book = book;
         this.count = count;
         isOpen = true;

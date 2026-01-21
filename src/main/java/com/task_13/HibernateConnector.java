@@ -20,11 +20,16 @@ public class HibernateConnector {
                     .buildSessionFactory();
         } catch (HibernateException ex) {
             logger.error("Не удалось сконфигурировать Hibernate.");
-            throw new RuntimeException(ex);
+            throw new HibernateException(ex);
         }
     }
 
     public static Session getSession() {
-        return sessionFactory.openSession();
+        try {
+            return sessionFactory.openSession();
+        } catch (HibernateException ex) {
+            logger.error("Не удалось открыть сессию.");
+            throw new HibernateException(ex);
+        }
     }
 }

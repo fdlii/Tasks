@@ -5,7 +5,9 @@ import com.task_13.entities.BookEntity;
 import com.task_13.entities.OrderEntity;
 import com.task_3_4.Book;
 import com.task_3_4.Order;
+import com.task_8_2.annotations.Inject;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -14,8 +16,10 @@ import java.util.Date;
 import java.util.List;
 
 public class OrderDAO extends GenericDAO<Order, Long, OrderEntity> {
-    ClientDAO clientDAO = new ClientDAO();
-    BookDAO bookDAO = new BookDAO();
+    @Inject
+    ClientDAO clientDAO;
+    @Inject
+    BookDAO bookDAO;
 
     public OrderDAO() {
         super(OrderEntity.class);
@@ -23,7 +27,7 @@ public class OrderDAO extends GenericDAO<Order, Long, OrderEntity> {
 
     @Override
     protected Order mapFromEntityToModel(OrderEntity entity) {
-        Order model = new Order(
+        return new Order(
                 (int) entity.getId(),
                 clientDAO.mapFromEntityToModel(entity.getClient()),
                 entity.getDiscount(),
@@ -31,27 +35,33 @@ public class OrderDAO extends GenericDAO<Order, Long, OrderEntity> {
                 Date.from(entity.getExecutionDate().atZone(ZoneId.systemDefault()).toInstant()),
                 entity.getOrderStatus()
         );
-        List<Book> books = new ArrayList<>();
-        for (BookEntity bookEntity : entity.getBooks()) {
-            books.add(bookDAO.mapFromEntityToModel(bookEntity));
-        }
-        model.setBooks(books);
-        return model;
     }
 
     @Override
-    protected OrderEntity mapFromModelToEntity(Order model) {
-        OrderEntity entity = new OrderEntity(
-                model.getId(),
-                clientDAO.mapFromModelToEntity(model.getClient()),
-                model.getDiscount(),
-                model.getFinalPrice(),
-                model.getExecutionDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
-                model.getOrderStatus()
-        );
+    protected OrderEntity mapFromModelToEntity(Order model, boolean ignoreId) {
+        OrderEntity entity;
+        if (ignoreId) {
+            entity = new OrderEntity(
+                    clientDAO.mapFromModelToEntity(model.getClient(), false),
+                    model.getDiscount(),
+                    model.getFinalPrice(),
+                    model.getExecutionDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
+                    model.getOrderStatus()
+            );
+        }
+        else {
+            entity = new OrderEntity(
+                    model.getId(),
+                    clientDAO.mapFromModelToEntity(model.getClient(), false),
+                    model.getDiscount(),
+                    model.getFinalPrice(),
+                    model.getExecutionDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
+                    model.getOrderStatus()
+            );
+        }
         List<BookEntity> bookEntities = new ArrayList<>();
         for (Book book : model.getBooks()) {
-            bookEntities.add(bookDAO.mapFromModelToEntity(book));
+            bookEntities.add(bookDAO.mapFromModelToEntity(book, false));
         }
         entity.setBooks(bookEntities);
         return entity;
@@ -62,6 +72,7 @@ public class OrderDAO extends GenericDAO<Order, Long, OrderEntity> {
         LocalDateTime toL = to.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
         try (Session session = HibernateConnector.getSession()) {
+            Transaction transaction = session.beginTransaction();
             String hql = """
                     SELECT COUNT(o.id)
                     FROM OrderEntity o
@@ -74,6 +85,8 @@ public class OrderDAO extends GenericDAO<Order, Long, OrderEntity> {
                     .setParameter("toDate", toL)
                     .getSingleResult();
 
+            transaction.commit();
+            session.close();
             return count != null ? count.intValue() : 0;
         }
     }
@@ -83,6 +96,7 @@ public class OrderDAO extends GenericDAO<Order, Long, OrderEntity> {
         LocalDateTime toL = to.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
         try (Session session = HibernateConnector.getSession()) {
+            Transaction transaction = session.beginTransaction();
             String hql = """
                     SELECT COUNT(o.id)
                     FROM OrderEntity o
@@ -99,6 +113,9 @@ public class OrderDAO extends GenericDAO<Order, Long, OrderEntity> {
             for (OrderEntity orderEntity : orderEntities) {
                 orders.add(mapFromEntityToModel(orderEntity));
             }
+
+            transaction.commit();
+            session.close();
             return orders;
         }
     }
@@ -108,6 +125,7 @@ public class OrderDAO extends GenericDAO<Order, Long, OrderEntity> {
         LocalDateTime toL = to.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
         try (Session session = HibernateConnector.getSession()) {
+            Transaction transaction = session.beginTransaction();
             String hql = """
                     SELECT SUM(o.finalPrice)
                     FROM OrderEntity o
@@ -120,25 +138,37 @@ public class OrderDAO extends GenericDAO<Order, Long, OrderEntity> {
                     .setParameter("toDate", toL)
                     .getSingleResult();
 
+            transaction.commit();
+            session.close();
             return sum != null ? sum : 0;
         }
     }
 
-    public List<Book> getStaledBooksAction() {
+    public List<Book> getStaledBooks(LocalDateTime now) {
         try (Session session = HibernateConnector.getSession()) {
+            Transaction transaction = session.beginTransaction();
+
+            LocalDateTime threshold = now.minusMonths(6);
             String sql = """
-                SELECT b
+                SELECT b.*
                 FROM books b
                 LEFT JOIN orders_books ob ON b.id = ob.bookid
                 LEFT JOIN orders o ON ob.orderid = o.id
-                AND o.executiondate >= ? - INTERVAL '? MONTH'
+                       AND o.executiondate >= ?
                 WHERE o.id IS NULL
-                """;
-            List<BookEntity> bookEntities = session.createNativeQuery(sql, BookEntity.class).getResultList();
+            """;
+
+            List<BookEntity> entities = session.createNativeQuery(sql, BookEntity.class)
+                    .setParameter(1, threshold)
+                    .getResultList();
+
             List<Book> books = new ArrayList<>();
-            for (BookEntity bookEntity : bookEntities) {
+            for (BookEntity bookEntity : entities) {
                 books.add(bookDAO.mapFromEntityToModel(bookEntity));
             }
+
+            transaction.commit();
+            session.close();
             return books;
         }
     }

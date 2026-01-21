@@ -5,6 +5,7 @@ import com.task_3_4.Book;
 import com.task_3_4.BookStore;
 import com.task_8_2.annotations.Inject;
 import com.task_8_2.interfaces.IBookStore;
+import org.hibernate.HibernateException;
 
 import java.sql.SQLException;
 
@@ -28,7 +29,7 @@ public class GetBooksAction implements IAction {
                         book.getCountInStock());
             }
         }
-        catch (SQLException ex) {
+        catch (HibernateException ex) {
             System.out.println("Ошибка при получении книг из БД.");
         }
     }
