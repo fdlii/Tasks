@@ -6,6 +6,7 @@ import com.task_13.entities.OrderEntity;
 import com.task_3_4.Book;
 import com.task_3_4.Order;
 import com.task_8_2.annotations.Inject;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -27,6 +28,9 @@ public class OrderDAO extends GenericDAO<Order, Long, OrderEntity> {
 
     @Override
     protected Order mapFromEntityToModel(OrderEntity entity) {
+        if (entity == null) {
+            return null;
+        }
         return new Order(
                 (int) entity.getId(),
                 clientDAO.mapFromEntityToModel(entity.getClient()),
@@ -71,8 +75,10 @@ public class OrderDAO extends GenericDAO<Order, Long, OrderEntity> {
         LocalDateTime fromL = from.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         LocalDateTime toL = to.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
+        Long count;
+        Transaction transaction = null;
         try (Session session = HibernateConnector.getSession()) {
-            Transaction transaction = session.beginTransaction();
+            transaction = session.beginTransaction();
             String hql = """
                     SELECT COUNT(o.id)
                     FROM OrderEntity o
@@ -80,23 +86,28 @@ public class OrderDAO extends GenericDAO<Order, Long, OrderEntity> {
                       AND o.orderStatus = 1
                     """;
 
-            Long count = session.createQuery(hql, Long.class)
+            count = session.createQuery(hql, Long.class)
                     .setParameter("fromDate", fromL)
                     .setParameter("toDate", toL)
                     .getSingleResult();
 
             transaction.commit();
-            session.close();
-            return count != null ? count.intValue() : 0;
         }
+        catch (HibernateException ex) {
+            transaction.rollback();
+            throw new HibernateException(ex);
+        }
+        return count != null ? count.intValue() : 0;
     }
 
     public List<Order> getCompletedOrdersForTimeSpan(Date from, Date to) {
         LocalDateTime fromL = from.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         LocalDateTime toL = to.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
+        List<Order> orders;
+        Transaction transaction = null;
         try (Session session = HibernateConnector.getSession()) {
-            Transaction transaction = session.beginTransaction();
+            transaction = session.beginTransaction();
             String hql = """
                     SELECT COUNT(o.id)
                     FROM OrderEntity o
@@ -109,23 +120,28 @@ public class OrderDAO extends GenericDAO<Order, Long, OrderEntity> {
                     .setParameter("toDate", toL)
                     .getResultList();
 
-            List<Order> orders = new ArrayList<>();
+            orders = new ArrayList<>();
             for (OrderEntity orderEntity : orderEntities) {
                 orders.add(mapFromEntityToModel(orderEntity));
             }
 
             transaction.commit();
-            session.close();
-            return orders;
         }
+        catch (HibernateException ex) {
+            transaction.rollback();
+            throw new HibernateException(ex);
+        }
+        return orders;
     }
 
     public double getEarnedFundsForTimeSpan(Date from, Date to) {
         LocalDateTime fromL = from.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         LocalDateTime toL = to.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
+        Double sum;
+        Transaction transaction = null;
         try (Session session = HibernateConnector.getSession()) {
-            Transaction transaction = session.beginTransaction();
+            transaction = session.beginTransaction();
             String hql = """
                     SELECT SUM(o.finalPrice)
                     FROM OrderEntity o
@@ -133,20 +149,25 @@ public class OrderDAO extends GenericDAO<Order, Long, OrderEntity> {
                       AND o.orderStatus = 1
                     """;
 
-            Double sum = session.createQuery(hql, Double.class)
+            sum = session.createQuery(hql, Double.class)
                     .setParameter("fromDate", fromL)
                     .setParameter("toDate", toL)
                     .getSingleResult();
 
             transaction.commit();
-            session.close();
-            return sum != null ? sum : 0;
         }
+        catch (HibernateException ex) {
+            transaction.rollback();
+            throw new HibernateException(ex);
+        }
+        return sum != null ? sum : 0;
     }
 
     public List<Book> getStaledBooks(LocalDateTime now) {
+        Transaction transaction = null;
+        List<Book> books;
         try (Session session = HibernateConnector.getSession()) {
-            Transaction transaction = session.beginTransaction();
+            transaction = session.beginTransaction();
 
             LocalDateTime threshold = now.minusMonths(6);
             String sql = """
@@ -162,14 +183,17 @@ public class OrderDAO extends GenericDAO<Order, Long, OrderEntity> {
                     .setParameter(1, threshold)
                     .getResultList();
 
-            List<Book> books = new ArrayList<>();
+            books = new ArrayList<>();
             for (BookEntity bookEntity : entities) {
                 books.add(bookDAO.mapFromEntityToModel(bookEntity));
             }
 
             transaction.commit();
-            session.close();
-            return books;
         }
+        catch (HibernateException ex) {
+            transaction.rollback();
+            throw new HibernateException(ex);
+        }
+        return books;
     }
 }

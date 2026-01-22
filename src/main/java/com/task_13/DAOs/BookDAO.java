@@ -6,6 +6,7 @@ import com.task_13.entities.RequestEntity;
 import com.task_3_4.Book;
 import com.task_3_4.Request;
 import com.task_8_2.annotations.Inject;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -24,6 +25,9 @@ public class BookDAO extends GenericDAO<Book, Long, BookEntity> {
 
     @Override
     protected Book mapFromEntityToModel(BookEntity entity) {
+        if (entity == null) {
+            return null;
+        }
         return new Book(
                 (int) entity.getId(),
                 entity.getName(),
@@ -70,8 +74,10 @@ public class BookDAO extends GenericDAO<Book, Long, BookEntity> {
     }
 
     public Book findByName(String bookName) {
+        Transaction transaction = null;
+        Book model;
         try (Session session = HibernateConnector.getSession()) {
-            Transaction transaction = session.beginTransaction();
+            transaction = session.beginTransaction();
             String hql = """
                     SELECT b
                     FROM BookEntity b
@@ -81,10 +87,14 @@ public class BookDAO extends GenericDAO<Book, Long, BookEntity> {
             BookEntity bookEntity = session.createQuery(hql, BookEntity.class)
                     .setParameter("bookname", bookName)
                     .getSingleResult();
+            model = mapFromEntityToModel(bookEntity);
 
             transaction.commit();
-            session.close();
-            return mapFromEntityToModel(bookEntity);
         }
+        catch (HibernateException ex) {
+            transaction.rollback();
+            throw new HibernateException(ex);
+        }
+        return model;
     }
 }

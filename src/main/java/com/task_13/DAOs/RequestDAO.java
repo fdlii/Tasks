@@ -21,6 +21,9 @@ public class RequestDAO extends GenericDAO<Request, Long, RequestEntity> {
 
     @Override
     protected Request mapFromEntityToModel(RequestEntity entity) {
+        if (entity == null) {
+            return null;
+        }
         return new Request(
                 entity.getId(),
                 bookDAO.mapFromEntityToModel(entity.getBook()),
@@ -56,21 +59,23 @@ public class RequestDAO extends GenericDAO<Request, Long, RequestEntity> {
                 WHERE r.bookid = ?
                 """;
 
+        Transaction tx = null;
+        List<Request> requests;
         try (Session session = HibernateConnector.getSession()) {
-            Transaction tx = session.beginTransaction();
+            tx = session.beginTransaction();
             List<RequestEntity> requestEntities = session.createNativeQuery(sql, RequestEntity.class)
                     .setParameter(1, id)
                     .getResultList();
             tx.commit();
-            List<Request> requests = new ArrayList<>();
+            requests = new ArrayList<>();
             for (RequestEntity requestEntity : requestEntities) {
                 requests.add(mapFromEntityToModel(requestEntity));
             }
-
-            return requests;
         }
         catch (HibernateException ex) {
+            tx.rollback();
             throw new HibernateException(ex);
         }
+        return requests;
     }
 }

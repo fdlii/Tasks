@@ -19,6 +19,9 @@ public class ClientDAO extends GenericDAO<Client, Long, ClientEntity> {
 
     @Override
     protected Client mapFromEntityToModel(ClientEntity entity) {
+        if (entity == null) {
+            return null;
+        }
         return new Client(
                 (int) entity.getId(),
                 entity.getName(),
