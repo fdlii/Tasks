@@ -5,6 +5,7 @@ import com.task_3_4.BookStore;
 import com.task_3_4.Order;
 import com.task_8_2.annotations.Inject;
 import com.task_8_2.interfaces.IBookStore;
+import org.hibernate.HibernateException;
 
 import java.sql.SQLException;
 
@@ -30,7 +31,7 @@ public class GetOrdersAction implements IAction {
                         order.getClient().getName(),
                         status);
             }
-        } catch (SQLException e) {
+        } catch (HibernateException e) {
             System.out.println("Ошибка при получении заказов из БД.");
         }
     }

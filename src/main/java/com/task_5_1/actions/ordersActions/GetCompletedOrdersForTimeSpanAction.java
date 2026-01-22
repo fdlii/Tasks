@@ -4,6 +4,7 @@ import com.task_5_1.actions.IAction;
 import com.task_3_4.Order;
 import com.task_6_2.OrderException;
 import com.task_8_2.interfaces.IBookStore;
+import org.hibernate.HibernateException;
 
 import java.sql.SQLException;
 import java.util.Date;
@@ -39,7 +40,7 @@ public class GetCompletedOrdersForTimeSpanAction implements IAction {
                         status);
             }
         }
-        catch (SQLException exception) {
+        catch (HibernateException exception) {
             System.out.println("Не удалось получить заказы.");
         }
         catch (Exception exception) {

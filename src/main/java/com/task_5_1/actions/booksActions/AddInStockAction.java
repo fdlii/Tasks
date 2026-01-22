@@ -3,6 +3,7 @@ package com.task_5_1.actions.booksActions;
 import com.task_5_1.actions.IAction;
 import com.task_6_2.BookException;
 import com.task_8_2.interfaces.IBookStore;
+import org.hibernate.HibernateException;
 
 import java.sql.SQLException;
 import java.util.Scanner;
@@ -25,7 +26,7 @@ public class AddInStockAction implements IAction {
             scanner.nextLine();
             bookStore.addInStock(name, count);
         }
-        catch (SQLException exception) {
+        catch (HibernateException exception) {
             System.out.println("Не удалось добавить книгу на склад.");
         }
         catch (Exception exception) {

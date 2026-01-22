@@ -3,6 +3,7 @@ package com.task_5_1.actions.ordersActions;
 import com.task_5_1.actions.IAction;
 import com.task_6_2.OrderException;
 import com.task_8_2.interfaces.IBookStore;
+import org.hibernate.HibernateException;
 
 import java.sql.SQLException;
 import java.util.Date;
@@ -25,7 +26,7 @@ public class GetCompletedOrdersCountForTimeSpanAction implements IAction {
             Date dateTo = new Date(scanner.nextLine());
             System.out.println("Число заказов: " + bookStore.getCompletedOrdersCountForTimeSpan(dateFrom, dateTo));
         }
-        catch (SQLException exception) {
+        catch (HibernateException exception) {
             System.out.println("Не удалось получить число заказов.");
         }
         catch (Exception exception) {

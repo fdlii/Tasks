@@ -10,6 +10,4 @@ psql -h %PGHOST% -p %PGPORT% -U %PGUSER% -c "CREATE DATABASE %DATABASE_NAME%;"
 
 psql -h %PGHOST% -p %PGPORT% -U %PGUSER% -d %DATABASE_NAME% -f %SCRIPT_DIR%create_tables.sql
 
-psql -h %PGHOST% -p %PGPORT% -U %PGUSER% -d %DATABASE_NAME% -f %SCRIPT_DIR%insert_data.sql
-
 pause

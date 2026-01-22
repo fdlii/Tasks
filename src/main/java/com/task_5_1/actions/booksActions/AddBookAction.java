@@ -2,6 +2,7 @@ package com.task_5_1.actions.booksActions;
 
 import com.task_5_1.actions.IAction;
 import com.task_8_2.interfaces.IBookStore;
+import org.hibernate.HibernateException;
 
 import java.sql.SQLException;
 import java.util.Date;
@@ -33,7 +34,7 @@ public class AddBookAction implements IAction {
             int count = scanner.nextInt();
             scanner.nextLine();
             bookStore.addBook(name, author, description, date, price, count);
-        } catch (SQLException e) {
+        } catch (HibernateException e) {
             System.out.println("Не удалось добавить книгу в БД.");
         }
     }

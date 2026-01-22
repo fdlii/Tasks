@@ -5,6 +5,7 @@ import com.task_3_4.BookStore;
 import com.task_3_4.Client;
 import com.task_8_2.annotations.Inject;
 import com.task_8_2.interfaces.IBookStore;
+import org.hibernate.HibernateException;
 
 import java.sql.SQLException;
 
@@ -22,7 +23,7 @@ public class GetClientsAction implements IAction {
             for (Client client : bookStore.getClients()) {
                 System.out.printf("ФИО : %s, возраст: %d.%n", client.getName(), client.getAge());
             }
-        } catch (SQLException ex) {
+        } catch (HibernateException ex) {
             System.out.println("Ошибка при получении клиентов из БД.");
         }
     }

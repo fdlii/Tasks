@@ -3,8 +3,8 @@ package com.task_5_1.actions.requestsActions;
 import com.task_5_1.actions.IAction;
 import com.task_6_2.BookException;
 import com.task_8_2.interfaces.IBookStore;
+import org.hibernate.HibernateException;
 
-import java.sql.SQLException;
 import java.util.Scanner;
 
 public class MakeRequestAction implements IAction {
@@ -25,7 +25,7 @@ public class MakeRequestAction implements IAction {
             scanner.nextLine();
             boolean flag = bookStore.makeRequest(name, count);
         }
-        catch (SQLException exception) {
+        catch (HibernateException exception) {
             System.out.println("Не удалось добавить запрос в БД.");
         }
         catch (Exception exception) {
