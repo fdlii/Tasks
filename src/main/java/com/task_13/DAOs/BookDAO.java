@@ -5,18 +5,20 @@ import com.task_13.entities.BookEntity;
 import com.task_13.entities.RequestEntity;
 import com.task_3_4.Book;
 import com.task_3_4.Request;
-import com.task_8_2.annotations.Inject;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Repository
 public class BookDAO extends GenericDAO<Book, Long, BookEntity> {
-    @Inject
+    @Autowired
     private RequestDAO requestDAO;
 
     public BookDAO() {

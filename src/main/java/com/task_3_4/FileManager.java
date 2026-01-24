@@ -1,12 +1,14 @@
 package com.task_3_4;
 
 import com.task_8_2.interfaces.IFileManager;
+import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Service
 public class FileManager implements IFileManager {
     @Override
     public void importBooksFromCSVFile(String filename, List<Book> books) throws IOException {

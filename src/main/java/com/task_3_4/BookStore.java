@@ -12,6 +12,8 @@ import com.task_8_2.interfaces.IFileManager;
 import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.sql.Timestamp;
@@ -20,18 +22,18 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-//книжный магазин
+@Service
 public class BookStore implements IBookStore {
     Logger logger = LoggerFactory.getLogger(BookStore.class);
-    @Inject
+    @Autowired
     private BookDAO bookDAO;
-    @Inject
+    @Autowired
     private OrderDAO orderDAO;
-    @Inject
+    @Autowired
     private ClientDAO clientDAO;
-    @Inject
+    @Autowired
     private RequestDAO requestDAO;
-    @Inject
+    @Autowired
     private IFileManager fileManager;
 
     public BookStore() {}

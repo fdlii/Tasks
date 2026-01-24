@@ -4,13 +4,15 @@ import com.task_13.entities.ClientEntity;
 import com.task_13.entities.OrderEntity;
 import com.task_3_4.Client;
 import com.task_3_4.Order;
-import com.task_8_2.annotations.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class ClientDAO extends GenericDAO<Client, Long, ClientEntity> {
-    @Inject
+    @Autowired
     private OrderDAO orderDAO;
 
     public ClientDAO() {

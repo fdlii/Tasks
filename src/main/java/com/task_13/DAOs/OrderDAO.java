@@ -9,6 +9,8 @@ import com.task_8_2.annotations.Inject;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -16,11 +18,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Repository
 public class OrderDAO extends GenericDAO<Order, Long, OrderEntity> {
-    @Inject
-    ClientDAO clientDAO;
-    @Inject
-    BookDAO bookDAO;
+    @Autowired
+    private ClientDAO clientDAO;
+    @Autowired
+    private BookDAO bookDAO;
 
     public OrderDAO() {
         super(OrderEntity.class);

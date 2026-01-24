@@ -3,22 +3,24 @@ package com.task_5_1;
 import com.task_6_2.BookException;
 import com.task_6_2.ClientException;
 import com.task_6_2.OrderException;
-import com.task_8_2.annotations.Inject;
-import com.task_8_2.annotations.PostConstruct;
 import com.task_8_2.interfaces.IBookStore;
 import com.task_8_2.interfaces.IFileManager;
 import com.task_8_2.interfaces.IMenuController;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
 import java.io.IOException;
 import java.util.Scanner;
 
+@Controller
 public class MenuController implements IMenuController {
     private Scanner scanner = new Scanner(System.in);
     private static Builder builder;
     private static Menu currentMenu;
-    @Inject
+    @Autowired
     private IBookStore bookStore;
-    @Inject
+    @Autowired
     private IFileManager fileManager;
 
     public MenuController() {
