@@ -1,6 +1,5 @@
 package com.task_13.DAOs;
 
-import com.task_13.HibernateConnector;
 import com.task_13.entities.BookEntity;
 import com.task_13.entities.RequestEntity;
 import com.task_3_4.Book;
@@ -9,6 +8,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 
 import java.time.ZoneId;
@@ -19,6 +19,7 @@ import java.util.List;
 @Repository
 public class BookDAO extends GenericDAO<Book, Long, BookEntity> {
     @Autowired
+    @Lazy
     private RequestDAO requestDAO;
 
     public BookDAO() {
@@ -78,7 +79,7 @@ public class BookDAO extends GenericDAO<Book, Long, BookEntity> {
     public Book findByName(String bookName) {
         Transaction transaction = null;
         Book model;
-        try (Session session = HibernateConnector.getSession()) {
+        try (Session session = hibernateConnector.getSession()) {
             transaction = session.beginTransaction();
             String hql = """
                     SELECT b

@@ -1,15 +1,21 @@
 package com.task_13.DAOs;
 
 import com.task_13.HibernateConnector;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Repository
 public abstract class GenericDAO<T, ID, M> implements IDAO<T, ID> {
+
     private final Class<M> entityClass;
+
+    @Autowired
+    protected HibernateConnector hibernateConnector;
 
     public GenericDAO(Class<M> entityClass) {
         this.entityClass = entityClass;
@@ -19,91 +25,48 @@ public abstract class GenericDAO<T, ID, M> implements IDAO<T, ID> {
     protected abstract M mapFromModelToEntity(T model, boolean ignoreId);
 
     @Override
+    @Transactional(readOnly = true)
     public T findById(ID id) {
-        T model = null;
-        Transaction transaction = null;
-        try(Session session = HibernateConnector.getSession()) {
-            transaction = session.beginTransaction();
-            M entity = session.find(entityClass, id);
-            model = mapFromEntityToModel(entity);
-
-            transaction.commit();
-        }
-        catch (HibernateException ex) {
-            transaction.rollback();
-            throw new HibernateException(ex);
-        }
-        return model;
+        Session session = hibernateConnector.getSession();
+        M entity = session.find(entityClass, id);
+        return entity != null ? mapFromEntityToModel(entity) : null;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<T> findAll() {
-        List<T> models = null;
-        Transaction transaction = null;
-        try (Session session = HibernateConnector.getSession()) {
-            transaction = session.beginTransaction();
-            List<M> entities = session
-                    .createSelectionQuery("FROM " + entityClass.getName(), entityClass)
-                    .getResultList();
-            models = new ArrayList<>();
-            for (M entity : entities) {
-                models.add(mapFromEntityToModel(entity));
-            }
+        Session session = hibernateConnector.getSession();
 
-            transaction.commit();
-        }
-        catch (HibernateException ex) {
-            transaction.rollback();
-            throw new HibernateException(ex);
-        }
-        return models;
+        List<M> entities = session
+                .createSelectionQuery("FROM " + entityClass.getName(), entityClass)
+                .getResultList();
+
+        return entities.stream()
+                .map(this::mapFromEntityToModel)
+                .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public void save(T model) {
-        Transaction transaction = null;
-        try (Session session = HibernateConnector.getSession()) {
-            transaction = session.beginTransaction();
-            M entity = mapFromModelToEntity(model, true);
-            session.persist(entity);
-
-            transaction.commit();
-        }
-        catch (HibernateException ex) {
-            transaction.rollback();
-            throw new HibernateException(ex);
-        }
+        Session session = hibernateConnector.getSession();
+        M entity = mapFromModelToEntity(model, true);
+        session.persist(entity);
     }
 
     @Override
+    @Transactional
     public void update(T model) {
-        Transaction transaction = null;
-        try (Session session = HibernateConnector.getSession()) {
-            transaction = session.beginTransaction();
-            M entity = mapFromModelToEntity(model, false);
-            session.merge(entity);
-
-            transaction.commit();
-        }
-        catch (HibernateException ex) {
-            transaction.rollback();
-            throw new HibernateException(ex);
-        }
+        Session session = hibernateConnector.getSession();
+        M entity = mapFromModelToEntity(model, false);
+        session.merge(entity);
     }
 
     @Override
+    @Transactional
     public void delete(T model) {
-        Transaction transaction = null;
-        try (Session session = HibernateConnector.getSession()) {
-            transaction = session.beginTransaction();
-            M entity = mapFromModelToEntity(model, false);
-            session.remove(entity);
-
-            transaction.commit();
-        }
-        catch (HibernateException ex) {
-            transaction.rollback();
-            throw new HibernateException(ex);
-        }
+        Session session = hibernateConnector.getSession();
+        M entity = mapFromModelToEntity(model, false);
+        session.remove(entity);
     }
 }

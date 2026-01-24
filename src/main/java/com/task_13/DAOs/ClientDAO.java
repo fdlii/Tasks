@@ -5,6 +5,7 @@ import com.task_13.entities.OrderEntity;
 import com.task_3_4.Client;
 import com.task_3_4.Order;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.List;
 @Repository
 public class ClientDAO extends GenericDAO<Client, Long, ClientEntity> {
     @Autowired
+    @Lazy
     private OrderDAO orderDAO;
 
     public ClientDAO() {

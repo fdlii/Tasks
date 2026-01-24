@@ -1,13 +1,10 @@
 package com.task_13.DAOs;
 
-import com.task_13.HibernateConnector;
 import com.task_13.entities.RequestEntity;
 import com.task_3_4.Request;
-import com.task_8_2.annotations.Inject;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -15,11 +12,11 @@ import java.util.List;
 
 @Repository
 public class RequestDAO extends GenericDAO<Request, Long, RequestEntity> {
-    @Autowired
-    private BookDAO bookDAO;
+    private final BookDAO bookDAO;
 
-    public RequestDAO() {
+    public RequestDAO(BookDAO bookDAO) {
         super(RequestEntity.class);
+        this.bookDAO = bookDAO;
     }
 
     @Override
@@ -64,7 +61,7 @@ public class RequestDAO extends GenericDAO<Request, Long, RequestEntity> {
 
         Transaction tx = null;
         List<Request> requests;
-        try (Session session = HibernateConnector.getSession()) {
+        try (Session session = hibernateConnector.getSession()) {
             tx = session.beginTransaction();
             List<RequestEntity> requestEntities = session.createNativeQuery(sql, RequestEntity.class)
                     .setParameter(1, id)
