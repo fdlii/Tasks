@@ -20,7 +20,7 @@ public class CompleteOrderAction implements IAction {
     public void execute() throws OrderException {
         try {
             System.out.println("Введите идентификатор заказа: ");
-            int id = scanner.nextInt();
+            long id = scanner.nextLong();
             scanner.nextLine();
             bookStore.completeOrder(id);
         }

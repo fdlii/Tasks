@@ -4,9 +4,12 @@ import com.task_13.DAOs.BookDAO;
 import com.task_13.DAOs.ClientDAO;
 import com.task_13.DAOs.OrderDAO;
 import com.task_13.DAOs.RequestDAO;
+import com.task_13.mappers.BookMapper;
+import com.task_13.mappers.ClientMapper;
+import com.task_13.mappers.OrderMapper;
+import com.task_13.mappers.RequestMapper;
 import com.task_4_1.*;
 import com.task_6_2.OrderException;
-import com.task_8_2.annotations.Inject;
 import com.task_8_2.interfaces.IBookStore;
 import com.task_8_2.interfaces.IFileManager;
 import org.hibernate.HibernateException;
@@ -14,9 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,15 +37,24 @@ public class BookStore implements IBookStore {
     @Autowired
     private RequestDAO requestDAO;
     @Autowired
+    private BookMapper bookMapper;
+    @Autowired
+    private OrderMapper orderMapper;
+    @Autowired
+    private ClientMapper clientMapper;
+    @Autowired
+    private RequestMapper requestMapper;
+    @Autowired
     private IFileManager fileManager;
 
     public BookStore() {}
 
     @Override
+    @Transactional
     public void addBook(String name, String author, String description, Date published, double price, int countInStock) throws HibernateException {
         logger.info("Добавление книги.");
         try {
-            bookDAO.save(new Book(name, author, description, published, price, countInStock));
+            bookDAO.save(bookMapper.toEntity(new Book(name, author, description, published, price, countInStock), true));
             logger.info("Книга успешно добавлена.");
         } catch (HibernateException ex) {
             logger.error("Не удалось добавить книгу в БД.");
@@ -51,11 +63,11 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public void deleteBook(String bookName) throws HibernateException {
         logger.info("Удаление книги.");
         try {
-            Book bookToDelete = bookDAO.findByName(bookName);
-            bookDAO.delete(bookToDelete);
+            bookDAO.delete(bookDAO.findByName(bookName));
             logger.info("Книга успешно удалена.");
         } catch (HibernateException ex) {
             logger.error("Не удалось удалить книгу из БД.");
@@ -64,11 +76,12 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public List<Book> getBooks() throws HibernateException {
         logger.info("Получение всех книг.");
         List<Book> books;
         try {
-            books = bookDAO.findAll();
+            books = bookMapper.toModelsList(bookDAO.findAll());
             logger.info("Книги успешно получены.");
         } catch (HibernateException ex) {
             logger.error("Ошибка при получении книг из БД.");
@@ -82,11 +95,12 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public List<Book> getStaledBooks() throws HibernateException {
         logger.info("Получение залежавшихся книг.");
         List<Book> staledBooks;
         try {
-            staledBooks = orderDAO.getStaledBooks(LocalDateTime.now());
+            staledBooks = bookMapper.toModelsList(bookDAO.getStaledBooks(LocalDateTime.now(), 6));
             logger.info("Книги успешно получены.");
         } catch (HibernateException ex) {
             logger.error("Ошибка при получении книг из БД.");
@@ -98,11 +112,12 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public List<Order> getOrders() throws HibernateException {
         logger.info("Получение всех заказов.");
         List<Order> orders;
         try {
-            orders = orderDAO.findAll();
+            orders = orderMapper.toModelsList(orderDAO.findAll());
             logger.info("Заказы успешно получены.");
         }
         catch (HibernateException ex) {
@@ -116,10 +131,11 @@ public class BookStore implements IBookStore {
     }
 
     @Override
-    public Order getOrderById(int id) throws HibernateException {
+    @Transactional
+    public Order getOrderById(long id) throws HibernateException {
         try {
             logger.info("Получение заказа по id.");
-            Order order = orderDAO.findById((long)id);
+            Order order = orderMapper.toModel(orderDAO.findById(id));
             logger.info("Заказ успешно получен.");
             return order;
         }
@@ -131,11 +147,12 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public List<Client> getClients() throws HibernateException {
         logger.info("Получение всех клиентов.");
         List<Client> clients = null;
         try {
-            clients = clientDAO.findAll();
+            clients = clientMapper.toModelsList(clientDAO.findAll());
             logger.info("Клиенты успешно получены.");
         }
         catch (HibernateException ex) {
@@ -146,10 +163,11 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public void addClient(String name, int age) throws HibernateException {
         logger.info("Добавление клиента.");
         try {
-            clientDAO.save(new Client(name, age));
+            clientDAO.save(clientMapper.toEntity(new Client(name, age), true));
             logger.info("Клиент успешно добавлен.");
         } catch (HibernateException ex) {
             logger.error("Не удалось добавить клиента в БД.");
@@ -158,6 +176,7 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public double getEarnedFundsForTimeSpan(Date from, Date to) throws HibernateException {
         logger.info("Получение суммы заработка за период времени.");
         double funds = 0;
@@ -172,6 +191,7 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public long getCompletedOrdersCountForTimeSpan(Date from, Date to) throws HibernateException {
         logger.info("Получение числа заказов за период времени.");
         long count = 0;
@@ -186,11 +206,12 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public List<Order> getCompletedOrdersForTimeSpan(Date from, Date to) throws HibernateException {
         logger.info("Получение заказов за период времени.");
         List<Order> orders;
         try {
-            orders = orderDAO.getCompletedOrdersForTimeSpan(from, to);
+            orders = orderMapper.toModelsList(orderDAO.getCompletedOrdersForTimeSpan(from, to));
             logger.info("Заказы получены успешно.");
         } catch (HibernateException ex) {
             logger.error("Не удалось получить заказы.");
@@ -200,12 +221,13 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public void addInStock(String bookName, int count) throws HibernateException {
         logger.info("Добавление книги на склад.");
         try {
-            Book book = bookDAO.findByName(bookName);
+            Book book = bookMapper.toModel(bookDAO.findByName(bookName));
             book.setCountInStock(book.getCountInStock() + count);
-            bookDAO.update(book);
+            bookDAO.update(bookMapper.toEntity(book, false));
             logger.info("Книга успешно добавлена на склад.");
         } catch (HibernateException ex) {
             logger.error("Не удалось добавить книгу на склад.");
@@ -215,13 +237,14 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public void debitFromStock(String bookName) throws HibernateException {
         logger.info("Удаление книги со склада.");
         try {
-            Book book = bookDAO.findByName(bookName);
+            Book book = bookMapper.toModel(bookDAO.findByName(bookName));
             book.setCountInStock(0);
             book.setInStock(false);
-            bookDAO.update(book);
+            bookDAO.update(bookMapper.toEntity(book, false));
             logger.info("Книга успешно удалена со склада.");
         } catch (HibernateException ex) {
             System.out.println(ex.getMessage());
@@ -231,10 +254,11 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public Order createOrder(double discount, Date executionDate, String clientName, String... bookNames) throws HibernateException {
         logger.info("Создание заказа.");
         try {
-            List<Client> clients = clientDAO.findAll();
+            List<Client> clients = clientMapper.toModelsList(clientDAO.findAll());
 
             Order order = null;
             boolean flag = false;
@@ -248,7 +272,7 @@ public class BookStore implements IBookStore {
             if (!flag)
                 return null;
 
-            List<Book> books = bookDAO.findAll();
+            List<Book> books = bookMapper.toModelsList(bookDAO.findAll());
 
             for (String bookName : bookNames) {
                 for (Book book : books) {
@@ -257,12 +281,12 @@ public class BookStore implements IBookStore {
                         if (book.getCountInStock() == 0) {
                             Request request = new Request(book, 1);
                             book.addRequest(request);
-                            requestDAO.save(request);
+                            requestDAO.save(requestMapper.toEntity(request, true));
                         }
                     }
                 }
             }
-            orderDAO.save(order);
+            orderDAO.save(orderMapper.toEntity(order, true));
             logger.info("Заказ успешно создан.");
             return order;
         } catch (HibernateException ex) {
@@ -272,13 +296,14 @@ public class BookStore implements IBookStore {
     }
 
     @Override
-    public void cancelOrder(int orderId) throws OrderException, HibernateException {
+    @Transactional
+    public void cancelOrder(long orderId) throws OrderException, HibernateException {
         logger.info("Отмена заказа.");
         try {
-            for (Order order : orderDAO.findAll()) {
+            for (Order order : orderMapper.toModelsList(orderDAO.findAll())) {
                 if (order.getId() == orderId) {
                     order.changeStatus(OrderStatus.CANCELLED);
-                    orderDAO.update(order);
+                    orderDAO.update(orderMapper.toEntity(order, false));
                     logger.info("Заказ успешно отменён.");
                     return;
                 }
@@ -290,15 +315,16 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public boolean makeRequest(String bookName, int count) throws HibernateException {
         logger.info("Создание запроса.");
         try {
-            List<Book> books = bookDAO.findAll();
+            List<Book> books = bookMapper.toModelsList(bookDAO.findAll());
 
             for (Book book : books) {
                 if (book.getName().equals(bookName)) {
                     Request request = new Request(book, count);
-                    requestDAO.save(request);
+                    requestDAO.save(requestMapper.toEntity(request, true));
                     logger.info("Запрос успешно создан.");
                     return true;
                 }
@@ -311,13 +337,14 @@ public class BookStore implements IBookStore {
     }
 
     @Override
-    public boolean completeOrder(int orderId) throws OrderException, HibernateException {
+    @Transactional
+    public boolean completeOrder(long orderId) throws OrderException, HibernateException {
         logger.info("Выполнение заказа.");
         try {
-            for (Order order : orderDAO.findAll()) {
+            for (Order order : orderMapper.toModelsList(orderDAO.findAll())) {
                 if (order.getId() == orderId) {
                     order.changeStatus(OrderStatus.COMPLETED);
-                    orderDAO.update(order);
+                    orderDAO.update(orderMapper.toEntity(order, false));
                     logger.info("Заказ успешно выполнен.");
                     return true;
                 }
@@ -330,11 +357,12 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public List<Request> getBookRequests(String bookName) throws HibernateException {
         logger.info("Получение запросов у книги.");
         try {
-            Book book = bookDAO.findByName(bookName);
-            List<Request> requests = requestDAO.findRequestsByBookId((long)book.getId());
+            Book book = bookMapper.toModel(bookDAO.findByName(bookName));
+            List<Request> requests = requestMapper.toModelsList(requestDAO.findRequestsByBookId(book.getId()));
             logger.info("Запросы успешно получены.");
             return requests;
         } catch (HibernateException ex) {
@@ -344,11 +372,12 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public List<Request> getRequests() throws HibernateException {
         logger.info("Получение запросов.");
         List<Request> requests;
         try {
-            requests = requestDAO.findAll();
+            requests = requestMapper.toModelsList(requestDAO.findAll());
             logger.info("Запросы успешно получены");
         } catch (HibernateException ex) {
             logger.error("Не удалось получить запросы из БД.");
@@ -358,13 +387,14 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public void importBooksFromCSVFile(String filename) throws IOException, HibernateException {
         logger.info("Импорт книг.");
         try {
             List<Book> books = new ArrayList<>();
             fileManager.importBooksFromCSVFile(filename, books);
             for (Book book : books) {
-                bookDAO.save(book);
+                bookDAO.save(bookMapper.toEntity(book, true));
             }
             logger.info("Книги успешно импортированы.");
         } catch (HibernateException ex) {
@@ -374,15 +404,16 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public void importOrdersFromCSVFile(String filename) throws IOException, HibernateException {
         logger.info("Импорт заказов.");
         try {
-            List<Book> books = bookDAO.findAll();
-            List<Client> clients = clientDAO.findAll();
+            List<Book> books = bookMapper.toModelsList(bookDAO.findAll());
+            List<Client> clients = clientMapper.toModelsList(clientDAO.findAll());
             List<Order> orders = new ArrayList<>();
             fileManager.importOrdersFromCSVFile(filename, orders, clients, books);
             for (Order order : orders) {
-                orderDAO.save(order);
+                orderDAO.save(orderMapper.toEntity(order, true));
             }
             logger.info("Заказы успешно импортированы.");
         } catch (HibernateException ex) {
@@ -392,13 +423,14 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public void importClientsFromCSVFile(String filename) throws IOException, HibernateException {
         logger.info("Импорт клиентов.");
         List<Client> clients = new ArrayList<>();
         fileManager.importClientsFromCSVFile(filename, clients);
         try {
             for (Client client : clients) {
-                clientDAO.save(client);
+                clientDAO.save(clientMapper.toEntity(client, true));
             }
             logger.info("Клиенты успешно импортированы.");
         } catch (HibernateException ex) {
@@ -408,14 +440,15 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public void importRequestsFromCSVFile(String filename) throws IOException, HibernateException {
         logger.info("Импорт запросов.");
         try {
-            List<Book> books = bookDAO.findAll();
+            List<Book> books = bookMapper.toModelsList(bookDAO.findAll());
             List<Request> requests = new ArrayList<>();
             fileManager.importRequestsFromCSVFile(filename, requests, books);
             for (Request request : requests) {
-                requestDAO.save(request);
+                requestDAO.save(requestMapper.toEntity(request, true));
             }
             logger.info("Запросы успешно импортированы.");
         } catch (HibernateException ex) {
@@ -425,10 +458,11 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public void exportBooksIntoCSVFile(String filename) throws IOException, HibernateException {
         logger.info("Экспорт книг.");
         try {
-            fileManager.exportBooksIntoCSVFile(filename, bookDAO.findAll());
+            fileManager.exportBooksIntoCSVFile(filename, bookMapper.toModelsList(bookDAO.findAll()));
             logger.info("Книги успешно экспортированы.");
         } catch (HibernateException ex) {
             logger.error("Не удалось экспортировать книги.");
@@ -437,10 +471,11 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public void exportOrdersIntoCSVFile(String filename) throws IOException, HibernateException {
         logger.info("Экспорт заказов.");
         try {
-            fileManager.exportOrdersIntoCSVFile(filename, orderDAO.findAll());
+            fileManager.exportOrdersIntoCSVFile(filename, orderMapper.toModelsList(orderDAO.findAll()));
             logger.info("Заказы успешно экспортированы.");
         } catch (HibernateException ex) {
             logger.error("Не удалось экспортировать заказы.");
@@ -449,10 +484,11 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public void exportClientsIntoCSVFile(String filename) throws IOException, HibernateException {
         logger.info("Экспорт клиентов.");
         try {
-            fileManager.exportClientsIntoCSVFile(filename, clientDAO.findAll());
+            fileManager.exportClientsIntoCSVFile(filename, clientMapper.toModelsList(clientDAO.findAll()));
             logger.info("Клиенты успешно экспортированы.");
         } catch (HibernateException ex) {
             logger.error("Не удалось экспортировать клиентов.");
@@ -461,10 +497,11 @@ public class BookStore implements IBookStore {
     }
 
     @Override
+    @Transactional
     public void exportRequestsIntoCSVFile(String filename) throws IOException, HibernateException {
         logger.info("Экспорт запросов.");
         try {
-            fileManager.exportRequestsIntoCSVFile(filename, requestDAO.findAll());
+            fileManager.exportRequestsIntoCSVFile(filename, requestMapper.toModelsList(requestDAO.findAll()));
             logger.info("Запросы успешно экспортированы.");
         } catch (HibernateException ex) {
             logger.error("Не удалось экспортировать запросы.");

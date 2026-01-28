@@ -9,7 +9,7 @@ import java.util.List;
 public class Client {
     private static int counter = 1;
 
-    private int id;
+    private long id;
     private String name;
     private int age;
     private List<Order> orders;
@@ -22,7 +22,7 @@ public class Client {
         this.orders = new ArrayList<>();
     }
 
-    public Client(int id, String name, int age) {
+    public Client(long id, String name, int age) {
         this.id = id;
         if (id == counter) {
             counter++;
@@ -48,7 +48,7 @@ public class Client {
         orders.remove(order);
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 

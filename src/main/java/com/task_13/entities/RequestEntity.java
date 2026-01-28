@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class RequestEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bookid")

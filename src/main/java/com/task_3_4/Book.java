@@ -10,7 +10,7 @@ import java.util.List;
 public class Book {
     private static int counter = 1;
 
-    private int id;
+    private long id;
     private String name;
     private String author;
     private String description;
@@ -39,7 +39,7 @@ public class Book {
         }
     }
 
-    public Book(int id, String name, String author, String description, Date published, int countInStock, double price) {
+    public Book(long id, String name, String author, String description, Date published, int countInStock, double price) {
         this.id = id;
         if (id == counter) {
             counter++;
@@ -58,7 +58,7 @@ public class Book {
         }
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 

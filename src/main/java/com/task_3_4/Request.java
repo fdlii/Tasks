@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Request {
     private static int counter = 1;
 
-    private int id;
+    private long id;
     @JsonIgnore
     private Book book;
     private int count;
@@ -27,7 +27,7 @@ public class Request {
         this.isOpen = isOpen;
     }
 
-    public Request(int id, Book book, int count, boolean isOpen) {
+    public Request(long id, Book book, int count, boolean isOpen) {
         this.id = id;
         this.book = book;
         this.count = count;
@@ -37,7 +37,7 @@ public class Request {
         }
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 

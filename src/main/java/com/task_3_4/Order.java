@@ -12,7 +12,7 @@ import java.util.List;
 public class Order {
     private static int counter = 1;
 
-    private int id;
+    private long id;
     @JsonIgnore
     private Client client;
     private List<Book> books;
@@ -41,7 +41,7 @@ public class Order {
         this.orderStatus = orderStatus;
     }
 
-    public Order(int id, Client client, double discount, double finalPrice, Date executionDate, OrderStatus orderStatus) {
+    public Order(long id, Client client, double discount, double finalPrice, Date executionDate, OrderStatus orderStatus) {
         this.id = id;
         if (id == counter) {
             counter++;
@@ -54,7 +54,7 @@ public class Order {
         this.orderStatus = orderStatus;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 

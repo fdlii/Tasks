@@ -17,10 +17,10 @@ public interface IBookStore {
     void debitFromStock(String bookName) throws HibernateException;
 
     List<Order> getOrders() throws HibernateException;
-    Order getOrderById(int id) throws HibernateException;
+    Order getOrderById(long id) throws HibernateException;
     Order createOrder(double discount, Date executionDate, String clientName, String... bookNames) throws HibernateException;
-    void cancelOrder(int orderId) throws OrderException, HibernateException;
-    boolean completeOrder(int orderId) throws OrderException, HibernateException;
+    void cancelOrder(long orderId) throws OrderException, HibernateException;
+    boolean completeOrder(long orderId) throws OrderException, HibernateException;
 
     List<Client> getClients() throws HibernateException;
     void addClient(String name, int age) throws HibernateException;

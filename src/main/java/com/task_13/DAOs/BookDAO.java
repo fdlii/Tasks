@@ -1,102 +1,53 @@
 package com.task_13.DAOs;
 
-import com.task_13.HibernateConnector;
 import com.task_13.entities.BookEntity;
-import com.task_13.entities.RequestEntity;
-import com.task_3_4.Book;
-import com.task_3_4.Request;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public class BookDAO extends GenericDAO<Book, Long, BookEntity> {
-    @Autowired
-    private RequestDAO requestDAO;
+public class BookDAO extends GenericDAO<BookEntity, Long> {
 
     public BookDAO() {
         super(BookEntity.class);
     }
 
-    @Override
-    protected Book mapFromEntityToModel(BookEntity entity) {
-        if (entity == null) {
-            return null;
-        }
-        return new Book(
-                (int) entity.getId(),
-                entity.getName(),
-                entity.getAuthor(),
-                entity.getDescription(),
-                Date.from(entity.getPublished().atZone(ZoneId.systemDefault()).toInstant()),
-                entity.getCountInStock(),
-                entity.getPrice()
-        );
-    }
-
-    @Override
-    protected BookEntity mapFromModelToEntity(Book model, boolean ignoreId) {
+    public BookEntity findByName(String bookName) {
         BookEntity entity;
-        if (ignoreId) {
-            entity = new BookEntity(
-                    model.getName(),
-                    model.getAuthor(),
-                    model.getDescription(),
-                    model.getPublished().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
-                    model.isInStock(),
-                    model.getCountInStock(),
-                    model.getPrice()
-            );
-        }
-        else {
-            entity = new BookEntity(
-                    model.getId(),
-                    model.getName(),
-                    model.getAuthor(),
-                    model.getDescription(),
-                    model.getPublished().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
-                    model.isInStock(),
-                    model.getCountInStock(),
-                    model.getPrice()
-            );
-        }
-        List<RequestEntity> requestEntities = new ArrayList<>();
-        for (Request request : model.getRequests()) {
-            requestEntities.add(requestDAO.mapFromModelToEntity(request, false));
-        }
-        entity.setRequests(requestEntities);
+        Session session = hibernateConnector.getCurrentSession();
+        String hql = """
+                SELECT b
+                FROM BookEntity b
+                WHERE b.name = :bookname
+                """;
+
+        entity = session.createQuery(hql, BookEntity.class)
+                .setParameter("bookname", bookName)
+                .getSingleResult();
+
         return entity;
     }
 
-    public Book findByName(String bookName) {
-        Transaction transaction = null;
-        Book model;
-        try (Session session = HibernateConnector.getSession()) {
-            transaction = session.beginTransaction();
-            String hql = """
-                    SELECT b
-                    FROM BookEntity b
-                    WHERE b.name = :bookname
-                    """;
+    public List<BookEntity> getStaledBooks(LocalDateTime now, int monthsCount) {
+        List<BookEntity> entities;
+        Session session = hibernateConnector.getCurrentSession();
+        LocalDateTime threshold = now.minusMonths(monthsCount);
 
-            BookEntity bookEntity = session.createQuery(hql, BookEntity.class)
-                    .setParameter("bookname", bookName)
-                    .getSingleResult();
-            model = mapFromEntityToModel(bookEntity);
+        String sql = """
+            SELECT b.*
+            FROM books b
+            LEFT JOIN orders_books ob ON b.id = ob.bookid
+            LEFT JOIN orders o ON ob.orderid = o.id
+                   AND o.executiondate >= ?
+            WHERE o.id IS NULL
+        """;
 
-            transaction.commit();
-        }
-        catch (HibernateException ex) {
-            transaction.rollback();
-            throw new HibernateException(ex);
-        }
-        return model;
+        entities = session.createNativeQuery(sql, BookEntity.class)
+                .setParameter(1, threshold)
+                .getResultList();
+
+        return entities;
     }
 }

@@ -1,35 +1,33 @@
 package com.task_13;
 
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-
+@Component
 public class HibernateConnector {
-    static Logger logger = LoggerFactory.getLogger(HibernateConnector.class);
+    private static final Logger logger = LoggerFactory.getLogger(HibernateConnector.class);
+    private final SessionFactory sessionFactory;
 
-    private static SessionFactory sessionFactory = null;
+    @Autowired
+    public HibernateConnector(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+        logger.info("HibernateConnector инициализирован с SessionFactory");
+    }
 
-    static {
+    public Session getCurrentSession() {
         try {
-            sessionFactory = new Configuration()
-                    .configure()
-                    .buildSessionFactory();
-        } catch (HibernateException ex) {
-            logger.error("Не удалось сконфигурировать Hibernate.");
-            throw new HibernateException(ex);
+            return sessionFactory.getCurrentSession();
+        } catch (IllegalStateException ex) {
+            logger.error("Нет активной транзакции. Вызывайте getCurrentSession() внутри @Transactional", ex);
+            throw ex;
         }
     }
 
-    public static Session getSession() {
-        try {
-            return sessionFactory.openSession();
-        } catch (HibernateException ex) {
-            logger.error("Не удалось открыть сессию.");
-            throw new HibernateException(ex);
-        }
+    public SessionFactory getSessionFactory() {
+        return sessionFactory;
     }
 }

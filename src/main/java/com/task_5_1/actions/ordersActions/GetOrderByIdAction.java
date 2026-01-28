@@ -21,7 +21,7 @@ public class GetOrderByIdAction implements IAction {
     public void execute() throws OrderException {
         try {
             System.out.println("Введите идентификатор заказа: ");
-            int id = scanner.nextInt();
+            long id = scanner.nextLong();
             scanner.nextLine();
             Order order = bookStore.getOrderById(id);
             String status = switch (order.getOrderStatus()) {
