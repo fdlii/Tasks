@@ -13,7 +13,6 @@ import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -27,37 +26,17 @@ import java.util.List;
 public class BookStore implements IBookStore {
     Logger logger = LoggerFactory.getLogger(BookStore.class);
     @Autowired
-    @Lazy
     private BookDAO bookDAO;
-
     @Autowired
-    @Lazy
     private OrderDAO orderDAO;
-
     @Autowired
-    @Lazy
     private ClientDAO clientDAO;
-
     @Autowired
-    @Lazy
     private RequestDAO requestDAO;
-
-    private final IFileManager fileManager;
-
     @Autowired
-    public BookStore(
-            BookDAO bookDAO,
-            OrderDAO orderDAO,
-            ClientDAO clientDAO,
-            RequestDAO requestDAO,
-            IFileManager fileManager
-    ) {
-        this.bookDAO = bookDAO;
-        this.orderDAO = orderDAO;
-        this.clientDAO = clientDAO;
-        this.requestDAO = requestDAO;
-        this.fileManager = fileManager;
-    }
+    private IFileManager fileManager;
+
+    public BookStore() {}
 
     @Override
     public void addBook(String name, String author, String description, Date published, double price, int countInStock) throws HibernateException {

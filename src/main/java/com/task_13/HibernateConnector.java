@@ -1,21 +1,35 @@
 package com.task_13;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.hibernate.cfg.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Component
+
 public class HibernateConnector {
+    static Logger logger = LoggerFactory.getLogger(HibernateConnector.class);
 
-    private final SessionFactory sessionFactory;
+    private static SessionFactory sessionFactory = null;
 
-    @Autowired
-    public HibernateConnector(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    static {
+        try {
+            sessionFactory = new Configuration()
+                    .configure()
+                    .buildSessionFactory();
+        } catch (HibernateException ex) {
+            logger.error("Не удалось сконфигурировать Hibernate.");
+            throw new HibernateException(ex);
+        }
     }
 
-    public Session getSession() {
-        return sessionFactory.getCurrentSession();
+    public static Session getSession() {
+        try {
+            return sessionFactory.openSession();
+        } catch (HibernateException ex) {
+            logger.error("Не удалось открыть сессию.");
+            throw new HibernateException(ex);
+        }
     }
 }

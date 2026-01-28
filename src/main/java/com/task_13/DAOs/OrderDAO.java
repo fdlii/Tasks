@@ -1,14 +1,15 @@
 package com.task_13.DAOs;
 
+import com.task_13.HibernateConnector;
 import com.task_13.entities.BookEntity;
 import com.task_13.entities.OrderEntity;
 import com.task_3_4.Book;
 import com.task_3_4.Order;
+import com.task_8_2.annotations.Inject;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -19,14 +20,13 @@ import java.util.List;
 
 @Repository
 public class OrderDAO extends GenericDAO<Order, Long, OrderEntity> {
+    @Autowired
     private ClientDAO clientDAO;
     @Autowired
-    @Lazy
     private BookDAO bookDAO;
 
-    public OrderDAO(ClientDAO clientDAO) {
+    public OrderDAO() {
         super(OrderEntity.class);
-        this.clientDAO = clientDAO;
     }
 
     @Override
@@ -80,7 +80,7 @@ public class OrderDAO extends GenericDAO<Order, Long, OrderEntity> {
 
         Long count;
         Transaction transaction = null;
-        try (Session session = hibernateConnector.getSession()) {
+        try (Session session = HibernateConnector.getSession()) {
             transaction = session.beginTransaction();
             String hql = """
                     SELECT COUNT(o.id)
@@ -109,7 +109,7 @@ public class OrderDAO extends GenericDAO<Order, Long, OrderEntity> {
 
         List<Order> orders;
         Transaction transaction = null;
-        try (Session session = hibernateConnector.getSession()) {
+        try (Session session = HibernateConnector.getSession()) {
             transaction = session.beginTransaction();
             String hql = """
                     SELECT COUNT(o.id)
@@ -143,7 +143,7 @@ public class OrderDAO extends GenericDAO<Order, Long, OrderEntity> {
 
         Double sum;
         Transaction transaction = null;
-        try (Session session = hibernateConnector.getSession()) {
+        try (Session session = HibernateConnector.getSession()) {
             transaction = session.beginTransaction();
             String hql = """
                     SELECT SUM(o.finalPrice)
@@ -169,7 +169,7 @@ public class OrderDAO extends GenericDAO<Order, Long, OrderEntity> {
     public List<Book> getStaledBooks(LocalDateTime now) {
         Transaction transaction = null;
         List<Book> books;
-        try (Session session = hibernateConnector.getSession()) {
+        try (Session session = HibernateConnector.getSession()) {
             transaction = session.beginTransaction();
 
             LocalDateTime threshold = now.minusMonths(6);
