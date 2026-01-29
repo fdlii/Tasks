@@ -8,6 +8,22 @@
     <groupId>com.yourcompany</groupId>
     <artifactId>SenlaTasks</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <modules>
+        <module>task_2</module>
+        <module>task_3</module>
+        <module>task_5</module>
+        <module>task_6</module>
+        <module>task_7</module>
+        <module>task_8</module>
+        <module>task_9</module>
+        <module>task_10</module>
+        <module>task_11</module>
+        <module>task_13</module>
+        <module>task_14</module>
+        <module>Domain</module>
+        <module>Start</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
