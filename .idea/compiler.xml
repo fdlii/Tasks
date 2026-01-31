@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="SenlaTasks" />
+      </profile>
+      <profile name="No AP" />
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="Domain" target="17" />
+      <module name="Start" target="17" />
+      <module name="task_1" target="17" />
+      <module name="task_10" target="17" />
+      <module name="task_11" target="17" />
+      <module name="task_12" target="17" />
+      <module name="task_13" target="17" />
+      <module name="task_14" target="17" />
+      <module name="task_2" target="17" />
+      <module name="task_3" target="17" />
+      <module name="task_4" target="17" />
+      <module name="task_5" target="17" />
+      <module name="task_6" target="17" />
+      <module name="task_7" target="17" />
+      <module name="task_8" target="17" />
+      <module name="task_9" target="17" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
