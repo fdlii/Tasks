@@ -1,10 +1,9 @@
-package yourcompany;
+package com.yourcompany;
 
 import com.yourcompany.task_14.ApplicationConfig;
 import com.yourcompany.task_5_1.MenuController;
 import com.yourcompany.task_5_1.interfaces.IMenuController;
 import liquibase.Liquibase;
-import liquibase.Scope;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
@@ -15,8 +14,6 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Program {
     public static void main(String[] args) throws Exception {

@@ -23,6 +23,7 @@
         <module>task_14</module>
         <module>Domain</module>
         <module>Start</module>
+        <module>task_16</module>
     </modules>
 
     <properties>
