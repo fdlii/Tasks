@@ -1,5 +1,6 @@
 package com.yourcompany.mappers;
 
+import com.yourcompany.DTO.BookDTO;
 import com.yourcompany.models.Book;
 import com.yourcompany.task_13.entities.BookEntity;
 
@@ -8,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class BookMapper implements IMapper<Book, BookEntity> {
+public class BookMapper implements IMapper<BookDTO, Book, BookEntity> {
     @Override
     public Book toModel(BookEntity entity) {
         return new Book(
@@ -54,5 +55,32 @@ public class BookMapper implements IMapper<Book, BookEntity> {
             books.add(toModel(entity));
         }
         return books;
+    }
+
+    @Override
+    public Book fromDTOtoModel(BookDTO DTO) {
+        return new Book(
+                DTO.getId(),
+                DTO.getName(),
+                DTO.getAuthor(),
+                DTO.getDescription(),
+                DTO.getPublished(),
+                DTO.getCountInStock(),
+                DTO.getPrice()
+        );
+    }
+
+    @Override
+    public BookDTO fromModelToDTO(Book model) {
+        return new BookDTO(
+                model.getId(),
+                model.getName(),
+                model.getAuthor(),
+                model.getDescription(),
+                model.getPublished(),
+                model.isInStock(),
+                model.getCountInStock(),
+                model.getPrice()
+        );
     }
 }

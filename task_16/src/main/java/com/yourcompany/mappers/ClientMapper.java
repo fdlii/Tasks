@@ -1,12 +1,13 @@
 package com.yourcompany.mappers;
 
+import com.yourcompany.DTO.ClientDTO;
 import com.yourcompany.models.Client;
 import com.yourcompany.task_13.entities.ClientEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClientMapper implements IMapper<Client, ClientEntity> {
+public class ClientMapper implements IMapper<ClientDTO, Client, ClientEntity> {
 
     @Override
     public Client toModel(ClientEntity entity) {
@@ -39,5 +40,23 @@ public class ClientMapper implements IMapper<Client, ClientEntity> {
             clients.add(toModel(clientEntity));
         }
         return clients;
+    }
+
+    @Override
+    public Client fromDTOtoModel(ClientDTO DTO) {
+        return new Client(
+            DTO.getId(),
+            DTO.getName(),
+            DTO.getAge()
+        );
+    }
+
+    @Override
+    public ClientDTO fromModelToDTO(Client model) {
+        return new ClientDTO(
+                model.getId(),
+                model.getName(),
+                model.getAge()
+        );
     }
 }

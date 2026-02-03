@@ -1,8 +1,8 @@
 package com.yourcompany.mappers;
 
+import com.yourcompany.DTO.OrderDTO;
 import com.yourcompany.models.Order;
 import com.yourcompany.task_13.entities.OrderEntity;
-import com.yourcompany.task_3_4.mappers.ClientMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.ZoneId;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class OrderMapper implements IMapper<Order, OrderEntity> {
+public class OrderMapper implements IMapper<OrderDTO, Order, OrderEntity> {
     @Autowired
     ClientMapper clientMapper;
 
@@ -54,5 +54,29 @@ public class OrderMapper implements IMapper<Order, OrderEntity> {
             orders.add(toModel(entity));
         }
         return orders;
+    }
+
+    @Override
+    public Order fromDTOtoModel(OrderDTO DTO) {
+        return new Order(
+                DTO.getId(),
+                clientMapper.fromDTOtoModel(DTO.getClient()),
+                DTO.getDiscount(),
+                DTO.getFinalPrice(),
+                DTO.getExecutionDate(),
+                DTO.getOrderStatus()
+        );
+    }
+
+    @Override
+    public OrderDTO fromModelToDTO(Order model) {
+        return new OrderDTO(
+                model.getId(),
+                clientMapper.fromModelToDTO(model.getClient()),
+                model.getDiscount(),
+                model.getFinalPrice(),
+                model.getExecutionDate(),
+                model.getOrderStatus()
+        );
     }
 }
