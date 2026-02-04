@@ -7,6 +7,7 @@ public class RequestDTO {
     private final long id;
     private final BookDTO book;
     private final int count;
+    private final boolean isOpen;
 
     public long getId() {
         return id;
@@ -23,6 +24,4 @@ public class RequestDTO {
     public boolean isOpen() {
         return isOpen;
     }
-
-    private final boolean isOpen;
 }

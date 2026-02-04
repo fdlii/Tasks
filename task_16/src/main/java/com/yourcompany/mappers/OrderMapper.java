@@ -1,15 +1,17 @@
 package com.yourcompany.mappers;
 
 import com.yourcompany.DTO.OrderDTO;
+import com.yourcompany.entities.OrderEntity;
 import com.yourcompany.models.Order;
-import com.yourcompany.task_13.entities.OrderEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Service
 public class OrderMapper implements IMapper<OrderDTO, Order, OrderEntity> {
     @Autowired
     ClientMapper clientMapper;
@@ -78,5 +80,14 @@ public class OrderMapper implements IMapper<OrderDTO, Order, OrderEntity> {
                 model.getExecutionDate(),
                 model.getOrderStatus()
         );
+    }
+
+    @Override
+    public List<OrderDTO> toDTOList(List<Order> models) {
+        List<OrderDTO> orderDTOList = new ArrayList<>();
+        for (Order order : models) {
+            orderDTOList.add(fromModelToDTO(order));
+        }
+        return orderDTOList;
     }
 }

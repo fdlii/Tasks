@@ -1,14 +1,16 @@
 package com.yourcompany.mappers;
 
 import com.yourcompany.DTO.BookDTO;
+import com.yourcompany.entities.BookEntity;
 import com.yourcompany.models.Book;
-import com.yourcompany.task_13.entities.BookEntity;
+import org.springframework.stereotype.Service;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Service
 public class BookMapper implements IMapper<BookDTO, Book, BookEntity> {
     @Override
     public Book toModel(BookEntity entity) {
@@ -82,5 +84,14 @@ public class BookMapper implements IMapper<BookDTO, Book, BookEntity> {
                 model.getCountInStock(),
                 model.getPrice()
         );
+    }
+
+    @Override
+    public List<BookDTO> toDTOList(List<Book> models) {
+        List<BookDTO> bookDTOList = new ArrayList<>();
+        for (Book book : models) {
+            bookDTOList.add(fromModelToDTO(book));
+        }
+        return bookDTOList;
     }
 }

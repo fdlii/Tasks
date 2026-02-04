@@ -1,13 +1,15 @@
 package com.yourcompany.mappers;
 
 import com.yourcompany.DTO.RequestDTO;
+import com.yourcompany.entities.RequestEntity;
 import com.yourcompany.models.Request;
-import com.yourcompany.task_13.entities.RequestEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class RequestMapper implements IMapper<RequestDTO, Request, RequestEntity> {
     @Autowired
     BookMapper bookMapper;
@@ -66,5 +68,14 @@ public class RequestMapper implements IMapper<RequestDTO, Request, RequestEntity
                 model.getCount(),
                 model.isOpen()
         );
+    }
+
+    @Override
+    public List<RequestDTO> toDTOList(List<Request> models) {
+        List<RequestDTO> requestDTOList = new ArrayList<>();
+        for (Request request : models) {
+            requestDTOList.add(fromModelToDTO(request));
+        }
+        return requestDTOList;
     }
 }

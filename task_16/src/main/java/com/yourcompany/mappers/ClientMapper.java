@@ -1,12 +1,14 @@
 package com.yourcompany.mappers;
 
 import com.yourcompany.DTO.ClientDTO;
+import com.yourcompany.entities.ClientEntity;
 import com.yourcompany.models.Client;
-import com.yourcompany.task_13.entities.ClientEntity;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class ClientMapper implements IMapper<ClientDTO, Client, ClientEntity> {
 
     @Override
@@ -58,5 +60,14 @@ public class ClientMapper implements IMapper<ClientDTO, Client, ClientEntity> {
                 model.getName(),
                 model.getAge()
         );
+    }
+
+    @Override
+    public List<ClientDTO> toDTOList(List<Client> models) {
+        List<ClientDTO> clientDTOList = new ArrayList<>();
+        for (Client client : models) {
+            clientDTOList.add(fromModelToDTO(client));
+        }
+        return clientDTOList;
     }
 }

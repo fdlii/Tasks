@@ -8,4 +8,5 @@ public interface IMapper<D, M, E> {
     List<M> toModelsList(List<E> entities);
     M fromDTOtoModel(D DTO);
     D fromModelToDTO(M model);
+    List<D> toDTOList(List<M> models);
 }

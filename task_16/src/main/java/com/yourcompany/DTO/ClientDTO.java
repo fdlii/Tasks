@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 public class ClientDTO {
     private final long id;
     private final String name;
+    private final int age;
 
     public long getId() {
         return id;
@@ -18,6 +19,4 @@ public class ClientDTO {
     public int getAge() {
         return age;
     }
-
-    private final int age;
 }
