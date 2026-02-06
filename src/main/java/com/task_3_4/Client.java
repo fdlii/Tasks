@@ -17,7 +17,6 @@ public class Client {
     public Client(){}
 
     public Client(String name, int age) {
-        this.id = counter++; //заглушка
         this.name = name;
         this.age = age;
         this.orders = new ArrayList<>();

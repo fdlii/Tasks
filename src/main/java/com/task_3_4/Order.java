@@ -32,6 +32,15 @@ public class Order {
         this.orderStatus = OrderStatus.NEW;
     }
 
+    public Order(Client client, double discount, double finalPrice, Date executionDate, OrderStatus orderStatus) {
+        this.discount = discount;
+        this.finalPrice = finalPrice;
+        books = new ArrayList<>();
+        this.client = client;
+        this.executionDate = executionDate;
+        this.orderStatus = orderStatus;
+    }
+
     public Order(int id, Client client, double discount, double finalPrice, Date executionDate, OrderStatus orderStatus) {
         this.id = id;
         if (id == counter) {
