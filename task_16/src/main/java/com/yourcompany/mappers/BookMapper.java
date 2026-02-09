@@ -2,6 +2,7 @@ package com.yourcompany.mappers;
 
 import com.yourcompany.DTO.BookDTO;
 import com.yourcompany.entities.BookEntity;
+import com.yourcompany.exceptions.BookNotFoundException;
 import com.yourcompany.models.Book;
 import org.springframework.stereotype.Service;
 
@@ -13,16 +14,21 @@ import java.util.List;
 @Service
 public class BookMapper implements IMapper<BookDTO, Book, BookEntity> {
     @Override
-    public Book toModel(BookEntity entity) {
-        return new Book(
-                entity.getId(),
-                entity.getName(),
-                entity.getAuthor(),
-                entity.getDescription(),
-                Date.from(entity.getPublished().atZone(ZoneId.systemDefault()).toInstant()),
-                entity.getCountInStock(),
-                entity.getPrice()
-        );
+    public Book toModel(BookEntity entity) throws BookNotFoundException {
+        try {
+            return new Book(
+                    entity.getId(),
+                    entity.getName(),
+                    entity.getAuthor(),
+                    entity.getDescription(),
+                    Date.from(entity.getPublished().atZone(ZoneId.systemDefault()).toInstant()),
+                    entity.getCountInStock(),
+                    entity.getPrice()
+            );
+        }
+        catch (NullPointerException ex) {
+            throw new BookNotFoundException("Не удалось найти запрашиваемую книгу.");
+        }
     }
 
     @Override
@@ -51,7 +57,7 @@ public class BookMapper implements IMapper<BookDTO, Book, BookEntity> {
     }
 
     @Override
-    public List<Book> toModelsList(List<BookEntity> entities) {
+    public List<Book> toModelsList(List<BookEntity> entities) throws BookNotFoundException {
         List<Book> books = new ArrayList<>();
         for (BookEntity entity : entities) {
             books.add(toModel(entity));

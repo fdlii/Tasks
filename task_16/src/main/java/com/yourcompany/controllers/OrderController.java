@@ -1,7 +1,10 @@
 package com.yourcompany.controllers;
 
 import com.yourcompany.DTO.OrderDTO;
+import com.yourcompany.exceptions.BookNotFoundException;
+import com.yourcompany.exceptions.ClientNotFoundException;
 import com.yourcompany.exceptions.OrderException;
+import com.yourcompany.exceptions.OrderNotFoundException;
 import com.yourcompany.mappers.OrderMapper;
 import com.yourcompany.models.OrderStatus;
 import com.yourcompany.services.OrderService;
@@ -24,12 +27,12 @@ public class OrderController {
     OrderMapper orderMapper;
 
     @GetMapping
-    public List<OrderDTO> getOrders() {
+    public List<OrderDTO> getOrders() throws OrderNotFoundException {
         return orderMapper.toDTOList(orderService.getOrders());
     }
 
     @GetMapping("/{id}")
-    public OrderDTO getOrderById(@PathVariable("id") long id) {
+    public OrderDTO getOrderById(@PathVariable("id") long id) throws OrderNotFoundException {
         return orderMapper.fromModelToDTO(orderService.getOrderById(id));
     }
 
@@ -56,15 +59,14 @@ public class OrderController {
     @GetMapping("/get_orders")
     public List<OrderDTO> getCompletedOrdersForTimeSpan(
             @RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam("to")   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to)
-    {
+            @RequestParam("to")   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) throws OrderNotFoundException {
         Date fromD = Date.from(from.atStartOfDay(ZoneId.systemDefault()).toInstant());
         Date toD = Date.from(to.atStartOfDay(ZoneId.systemDefault()).toInstant());
         return orderMapper.toDTOList(orderService.getCompletedOrdersForTimeSpan(fromD, toD));
     }
 
     @PostMapping
-    public void createOrder(@RequestBody OrderDTO orderDTO) {
+    public void createOrder(@RequestBody OrderDTO orderDTO) throws ClientNotFoundException, BookNotFoundException {
         orderService.createOrder(
                 orderDTO.getDiscount(),
                 orderDTO.getExecutionDate(),
@@ -74,17 +76,17 @@ public class OrderController {
     }
 
     @PutMapping("{id}/{status}")
-    public void updateOrder(@PathVariable("id") long id, @PathVariable("status") OrderStatus status) throws OrderException {
+    public void updateOrder(@PathVariable("id") long id, @PathVariable("status") OrderStatus status) throws OrderException, OrderNotFoundException {
         orderService.updateOrder(id, status);
     }
 
     @GetMapping("/import")
-    public void importFromCSV() throws IOException {
+    public void importFromCSV() throws IOException, ClientNotFoundException, BookNotFoundException {
         orderService.importOrdersFromCSVFile("task_6/src/main/java/com/yourcompany/task_6_1/Orders.csv");
     }
 
     @GetMapping("/export")
-    public void exportInCSV() throws IOException {
+    public void exportInCSV() throws IOException, OrderNotFoundException {
         orderService.exportOrdersIntoCSVFile("task_6/src/main/java/com/yourcompany/task_6_1/Orders.csv");
     }
 }

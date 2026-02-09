@@ -2,8 +2,9 @@ package com.yourcompany.mappers;
 
 import com.yourcompany.DTO.RequestDTO;
 import com.yourcompany.entities.RequestEntity;
+import com.yourcompany.exceptions.BookNotFoundException;
+import com.yourcompany.exceptions.RequestNotFoundException;
 import com.yourcompany.models.Request;
-import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,13 +17,17 @@ public class RequestMapper implements IMapper<RequestDTO, Request, RequestEntity
     BookMapper bookMapper;
 
     @Override
-    public Request toModel(RequestEntity entity) {
-        return new Request(
-                entity.getId(),
-                bookMapper.toModel(entity.getBook()),
-                entity.getCount(),
-                entity.isOpen()
-        );
+    public Request toModel(RequestEntity entity) throws RequestNotFoundException {
+        try {
+            return new Request(
+                    entity.getId(),
+                    bookMapper.toModel(entity.getBook()),
+                    entity.getCount(),
+                    entity.isOpen()
+            );
+        } catch (NullPointerException | BookNotFoundException ex) {
+            throw new RequestNotFoundException("Не удалось найти запрашиваемый запрос.");
+        }
     }
 
     @Override
@@ -43,7 +48,7 @@ public class RequestMapper implements IMapper<RequestDTO, Request, RequestEntity
     }
 
     @Override
-    public List<Request> toModelsList(List<RequestEntity> entities) {
+    public List<Request> toModelsList(List<RequestEntity> entities) throws RequestNotFoundException {
         List<Request> requests = new ArrayList<>();
         for (RequestEntity requestEntity : entities) {
             requests.add(toModel(requestEntity));

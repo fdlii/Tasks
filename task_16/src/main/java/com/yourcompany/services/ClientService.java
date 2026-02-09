@@ -1,5 +1,6 @@
 package com.yourcompany.services;
 
+import com.yourcompany.exceptions.ClientNotFoundException;
 import com.yourcompany.mappers.ClientMapper;
 import com.yourcompany.models.Client;
 import com.yourcompany.repositories.ClientRepository;
@@ -25,7 +26,7 @@ public class ClientService {
     FileManager fileManager;
 
     @Transactional
-    public List<Client> getClients() throws HibernateException {
+    public List<Client> getClients() throws HibernateException, ClientNotFoundException {
         logger.info("Получение всех клиентов.");
         List<Client> clients = null;
         try {
@@ -68,7 +69,7 @@ public class ClientService {
     }
 
     @Transactional
-    public void exportClientsIntoCSVFile(String filename) throws IOException, HibernateException {
+    public void exportClientsIntoCSVFile(String filename) throws IOException, HibernateException, ClientNotFoundException {
         logger.info("Экспорт клиентов.");
         try {
             fileManager.exportClientsIntoCSVFile(filename, clientMapper.toModelsList(clientRepository.findAll()));

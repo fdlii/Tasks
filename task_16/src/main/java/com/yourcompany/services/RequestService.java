@@ -1,5 +1,7 @@
 package com.yourcompany.services;
 
+import com.yourcompany.exceptions.BookNotFoundException;
+import com.yourcompany.exceptions.RequestNotFoundException;
 import com.yourcompany.mappers.BookMapper;
 import com.yourcompany.mappers.RequestMapper;
 import com.yourcompany.models.Book;
@@ -32,28 +34,32 @@ public class RequestService {
     FileManager fileManager;
 
     @Transactional
-    public boolean makeRequest(String bookName, int count) throws HibernateException {
+    public void makeRequest(String bookName, int count) throws HibernateException, BookNotFoundException {
         logger.info("Создание запроса.");
         try {
             List<Book> books = bookMapper.toModelsList(bookRepository.findAll());
 
+            boolean flag = false;
             for (Book book : books) {
                 if (book.getName().equals(bookName)) {
+                    flag = true;
                     Request request = new Request(book, count);
                     requestRepository.save(requestMapper.toEntity(request, true));
                     logger.info("Запрос успешно создан.");
-                    return true;
                 }
+            }
+            if (!flag) {
+                logger.error("Не удалось найти запрашиваемую книгу.");
+                throw new BookNotFoundException("Не удалось найти запрашиваемую книгу.");
             }
         } catch (HibernateException ex) {
             logger.error("Не удалось добавить запрос в БД.");
             throw new HibernateException(ex);
         }
-        return false;
     }
 
     @Transactional
-    public List<Request> getBookRequests(String bookName) throws HibernateException {
+    public List<Request> getBookRequests(String bookName) throws HibernateException, BookNotFoundException, RequestNotFoundException {
         logger.info("Получение запросов у книги.");
         try {
             Book book = bookMapper.toModel(bookRepository.findByName(bookName));
@@ -64,10 +70,14 @@ public class RequestService {
             logger.error("Не удалось получить запросы книги.");
             throw new HibernateException(ex);
         }
+        catch (BookNotFoundException ex) {
+            logger.error("Не удалось найти запрашиваемую книгу.");
+            throw new BookNotFoundException("Не удалось найти запрашиваемую книгу.");
+        }
     }
 
     @Transactional
-    public List<Request> getRequests() throws HibernateException {
+    public List<Request> getRequests() throws HibernateException, RequestNotFoundException {
         logger.info("Получение запросов.");
         List<Request> requests;
         try {
@@ -81,7 +91,7 @@ public class RequestService {
     }
 
     @Transactional
-    public void importRequestsFromCSVFile(String filename) throws IOException, HibernateException {
+    public void importRequestsFromCSVFile(String filename) throws IOException, HibernateException, BookNotFoundException {
         logger.info("Импорт запросов.");
         try {
             List<Book> books = bookMapper.toModelsList(bookRepository.findAll());
@@ -98,7 +108,7 @@ public class RequestService {
     }
 
     @Transactional
-    public void exportRequestsIntoCSVFile(String filename) throws IOException, HibernateException {
+    public void exportRequestsIntoCSVFile(String filename) throws IOException, HibernateException, RequestNotFoundException {
         logger.info("Экспорт запросов.");
         try {
             fileManager.exportRequestsIntoCSVFile(filename, requestMapper.toModelsList(requestRepository.findAll()));

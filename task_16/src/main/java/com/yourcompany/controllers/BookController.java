@@ -1,6 +1,7 @@
 package com.yourcompany.controllers;
 
 import com.yourcompany.DTO.BookDTO;
+import com.yourcompany.exceptions.BookNotFoundException;
 import com.yourcompany.mappers.BookMapper;
 import com.yourcompany.services.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +19,12 @@ public class BookController {
     BookMapper bookMapper;
 
     @GetMapping
-    public List<BookDTO> getBooks() {
+    public List<BookDTO> getBooks() throws BookNotFoundException {
         return bookMapper.toDTOList(bookService.getBooks());
     }
 
     @GetMapping("/staled")
-    public List<BookDTO> getStaledBooks() {
+    public List<BookDTO> getStaledBooks() throws BookNotFoundException {
         return bookMapper.toDTOList(bookService.getStaledBooks());
     }
 
@@ -41,17 +42,17 @@ public class BookController {
     }
 
     @DeleteMapping("/{book_name}")
-    public void deleteBook(@PathVariable("book_name") String bookName) {
+    public void deleteBook(@PathVariable("book_name") String bookName) throws BookNotFoundException {
         bookService.deleteBook(bookName);
     }
 
     @PutMapping("/{book_name}/{count}")
-    public void addInStock(@PathVariable("book_name") String bookName, @PathVariable("count") int count) {
+    public void addInStock(@PathVariable("book_name") String bookName, @PathVariable("count") int count) throws BookNotFoundException {
         bookService.addInStock(bookName, count);
     }
 
     @PutMapping("/{book_name}")
-    public void debitFromStock(@PathVariable("book_name") String bookName) {
+    public void debitFromStock(@PathVariable("book_name") String bookName) throws BookNotFoundException {
         bookService.debitFromStock(bookName);
     }
 
@@ -61,7 +62,7 @@ public class BookController {
     }
 
     @GetMapping("/export")
-    public void exportInCSV() throws IOException {
+    public void exportInCSV() throws IOException, BookNotFoundException {
         bookService.exportBooksIntoCSVFile("task_6/src/main/java/com/yourcompany/task_6_1/Books.csv");
     }
 }

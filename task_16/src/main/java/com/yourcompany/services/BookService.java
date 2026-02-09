@@ -4,6 +4,7 @@ import com.yourcompany.comparators.BookIsInStockComparator;
 import com.yourcompany.comparators.BookNameComparator;
 import com.yourcompany.comparators.BookPriceComparator;
 import com.yourcompany.comparators.BookPublishedComparator;
+import com.yourcompany.exceptions.BookNotFoundException;
 import com.yourcompany.mappers.BookMapper;
 import com.yourcompany.models.Book;
 import com.yourcompany.repositories.BookRepository;
@@ -43,19 +44,24 @@ public class BookService {
     }
 
     @Transactional
-    public void deleteBook(String bookName) throws HibernateException {
+    public void deleteBook(String bookName) throws HibernateException, BookNotFoundException {
         logger.info("Удаление книги.");
         try {
-            bookRepository.delete(bookRepository.findByName(bookName));
+            Book book = bookMapper.toModel(bookRepository.findByName(bookName));
+            bookRepository.delete(bookMapper.toEntity(book, false));
             logger.info("Книга успешно удалена.");
         } catch (HibernateException ex) {
             logger.error("Не удалось удалить книгу из БД.");
             throw new HibernateException(ex);
         }
+        catch (BookNotFoundException ex) {
+            logger.error("Не удалось найти запрашиваемую книгу.");
+            throw new BookNotFoundException("Не удалось найти запрашиваемую книгу.");
+        }
     }
 
     @Transactional
-    public List<Book> getBooks() throws HibernateException {
+    public List<Book> getBooks() throws HibernateException, BookNotFoundException {
         logger.info("Получение всех книг.");
         List<Book> books;
         try {
@@ -73,7 +79,7 @@ public class BookService {
     }
 
     @Transactional
-    public List<Book> getStaledBooks() throws HibernateException {
+    public List<Book> getStaledBooks() throws HibernateException, BookNotFoundException {
         logger.info("Получение залежавшихся книг.");
         List<Book> staledBooks;
 
@@ -92,7 +98,7 @@ public class BookService {
     }
 
     @Transactional
-    public void addInStock(String bookName, int count) throws HibernateException {
+    public void addInStock(String bookName, int count) throws HibernateException, BookNotFoundException {
         logger.info("Добавление книги на склад.");
         try {
             Book book = bookMapper.toModel(bookRepository.findByName(bookName));
@@ -104,10 +110,14 @@ public class BookService {
             System.out.println(ex.getMessage());
             throw new HibernateException(ex);
         }
+        catch (BookNotFoundException ex) {
+            logger.error("Не удалось найти запрашиваемую книгу.");
+            throw new BookNotFoundException("Не удалось найти запрашиваемую книгу.");
+        }
     }
 
     @Transactional
-    public void debitFromStock(String bookName) throws HibernateException {
+    public void debitFromStock(String bookName) throws HibernateException, BookNotFoundException {
         logger.info("Удаление книги со склада.");
         try {
             Book book = bookMapper.toModel(bookRepository.findByName(bookName));
@@ -119,6 +129,10 @@ public class BookService {
             System.out.println(ex.getMessage());
             logger.error("Не удалось удалить книгу со склада.");
             throw new HibernateException(ex);
+        }
+        catch (BookNotFoundException ex) {
+            logger.error("Не удалось найти запрашиваемую книгу.");
+            throw new BookNotFoundException("Не удалось найти запрашиваемую книгу.");
         }
     }
 
@@ -139,7 +153,7 @@ public class BookService {
     }
 
     @Transactional
-    public void exportBooksIntoCSVFile(String filename) throws IOException, HibernateException {
+    public void exportBooksIntoCSVFile(String filename) throws IOException, HibernateException, BookNotFoundException {
         logger.info("Экспорт книг.");
         try {
             fileManager.exportBooksIntoCSVFile(filename, bookMapper.toModelsList(bookRepository.findAll()));

@@ -2,6 +2,7 @@ package com.yourcompany.mappers;
 
 import com.yourcompany.DTO.ClientDTO;
 import com.yourcompany.entities.ClientEntity;
+import com.yourcompany.exceptions.ClientNotFoundException;
 import com.yourcompany.models.Client;
 import org.springframework.stereotype.Service;
 
@@ -12,12 +13,16 @@ import java.util.List;
 public class ClientMapper implements IMapper<ClientDTO, Client, ClientEntity> {
 
     @Override
-    public Client toModel(ClientEntity entity) {
-        return new Client(
-                entity.getId(),
-                entity.getName(),
-                entity.getAge()
-        );
+    public Client toModel(ClientEntity entity) throws ClientNotFoundException {
+        try {
+            return new Client(
+                    entity.getId(),
+                    entity.getName(),
+                    entity.getAge()
+            );
+        } catch (NullPointerException ex) {
+            throw new ClientNotFoundException("Не удалось найти запрашиваемого клиента.");
+        }
     }
 
     @Override
@@ -36,7 +41,7 @@ public class ClientMapper implements IMapper<ClientDTO, Client, ClientEntity> {
     }
 
     @Override
-    public List<Client> toModelsList(List<ClientEntity> entities) {
+    public List<Client> toModelsList(List<ClientEntity> entities) throws ClientNotFoundException {
         List<Client> clients = new ArrayList<>();
         for (ClientEntity clientEntity : entities) {
             clients.add(toModel(clientEntity));

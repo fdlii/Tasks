@@ -2,6 +2,9 @@ package com.yourcompany.mappers;
 
 import com.yourcompany.DTO.OrderDTO;
 import com.yourcompany.entities.OrderEntity;
+import com.yourcompany.exceptions.BookNotFoundException;
+import com.yourcompany.exceptions.ClientNotFoundException;
+import com.yourcompany.exceptions.OrderNotFoundException;
 import com.yourcompany.models.Book;
 import com.yourcompany.models.Order;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,17 +23,21 @@ public class OrderMapper implements IMapper<OrderDTO, Order, OrderEntity> {
     BookMapper bookMapper;
 
     @Override
-    public Order toModel(OrderEntity entity) {
-        Order order = new Order(
-                entity.getId(),
-                clientMapper.toModel(entity.getClient()),
-                entity.getDiscount(),
-                entity.getFinalPrice(),
-                Date.from(entity.getExecutionDate().atZone(ZoneId.systemDefault()).toInstant()),
-                entity.getOrderStatus()
-        );
-        order.setBooks(bookMapper.toModelsList(entity.getBooks()));
-        return order;
+    public Order toModel(OrderEntity entity) throws OrderNotFoundException {
+        try {
+            Order order = new Order(
+                    entity.getId(),
+                    clientMapper.toModel(entity.getClient()),
+                    entity.getDiscount(),
+                    entity.getFinalPrice(),
+                    Date.from(entity.getExecutionDate().atZone(ZoneId.systemDefault()).toInstant()),
+                    entity.getOrderStatus()
+            );
+            order.setBooks(bookMapper.toModelsList(entity.getBooks()));
+            return order;
+        } catch (NullPointerException | ClientNotFoundException | BookNotFoundException ex) {
+            throw new OrderNotFoundException("Не удалось найти запрашиваемый заказ.");
+        }
     }
 
     @Override
@@ -59,7 +66,7 @@ public class OrderMapper implements IMapper<OrderDTO, Order, OrderEntity> {
     }
 
     @Override
-    public List<Order> toModelsList(List<OrderEntity> entities) {
+    public List<Order> toModelsList(List<OrderEntity> entities) throws OrderNotFoundException {
         List<Order> orders = new ArrayList<>();
         for (OrderEntity entity : entities) {
             orders.add(toModel(entity));

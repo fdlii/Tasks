@@ -3,7 +3,10 @@ package com.yourcompany.services;
 import com.yourcompany.comparators.OrderExecutionDateComparator;
 import com.yourcompany.comparators.OrderFinalPriceComparator;
 import com.yourcompany.comparators.OrderStatusComparator;
+import com.yourcompany.exceptions.BookNotFoundException;
+import com.yourcompany.exceptions.ClientNotFoundException;
 import com.yourcompany.exceptions.OrderException;
+import com.yourcompany.exceptions.OrderNotFoundException;
 import com.yourcompany.mappers.BookMapper;
 import com.yourcompany.mappers.ClientMapper;
 import com.yourcompany.mappers.OrderMapper;
@@ -26,6 +29,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrderService {
@@ -50,7 +54,7 @@ public class OrderService {
     FileManager fileManager;
 
     @Transactional
-    public List<Order> getOrders() throws HibernateException {
+    public List<Order> getOrders() throws HibernateException, OrderNotFoundException {
         logger.info("Получение всех заказов.");
         List<Order> orders;
         try {
@@ -68,7 +72,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Order getOrderById(long id) throws HibernateException {
+    public Order getOrderById(long id) throws HibernateException, OrderNotFoundException {
         try {
             logger.info("Получение заказа по id.");
             Order order = orderMapper.toModel(orderRepository.findById(id).get());
@@ -78,6 +82,10 @@ public class OrderService {
         catch (HibernateException ex) {
             logger.error("Не удалось получить заказ по id.");
             throw new HibernateException(ex.getMessage());
+        }
+        catch (OrderNotFoundException ex) {
+            logger.error("Не удалось найти запрашиваемый заказ.");
+            throw new OrderNotFoundException("Не удалось найти запрашиваемый заказ.");
         }
     }
 
@@ -116,7 +124,7 @@ public class OrderService {
     }
 
     @Transactional
-    public List<Order> getCompletedOrdersForTimeSpan(Date from, Date to) throws HibernateException {
+    public List<Order> getCompletedOrdersForTimeSpan(Date from, Date to) throws HibernateException, OrderNotFoundException {
         LocalDateTime fromL = from.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         LocalDateTime toL = to.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
@@ -133,7 +141,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Order createOrder(double discount, Date executionDate, String clientName, List<String> bookNames) throws HibernateException {
+    public Order createOrder(double discount, Date executionDate, String clientName, List<String> bookNames) throws HibernateException, BookNotFoundException, ClientNotFoundException {
         logger.info("Создание заказа.");
         try {
             List<Client> clients = clientMapper.toModelsList(clientRepository.findAll());
@@ -147,12 +155,15 @@ public class OrderService {
                     break;
                 }
             }
-            if (!flag)
-                return null;
+            if (!flag) {
+                logger.error("Не удалось найти запрашиваемого клиента.");
+                throw new ClientNotFoundException("Не удалось найти запрашиваемого клиента.");
+            }
 
             List<Book> books = bookMapper.toModelsList(bookRepository.findAll());
 
             for (String bookName : bookNames) {
+                flag = false;
                 for (Book book : books) {
                     if (book.getName().equals(bookName)) {
                         order.addBook(book);
@@ -162,6 +173,10 @@ public class OrderService {
                             requestRepository.save(requestMapper.toEntity(request, true));
                         }
                     }
+                }
+                if (!flag) {
+                    logger.error("Не удалось найти запрашиваемую книгу.");
+                    throw new BookNotFoundException("Не удалось найти запрашиваемую книгу.");
                 }
             }
             orderRepository.save(orderMapper.toEntity(order, true));
@@ -174,16 +189,21 @@ public class OrderService {
     }
 
     @Transactional
-    public void updateOrder(long orderId, OrderStatus orderStatus) throws OrderException, HibernateException {
+    public void updateOrder(long orderId, OrderStatus orderStatus) throws OrderException, HibernateException, OrderNotFoundException {
         logger.info("Отмена заказа.");
         try {
+            boolean flag = false;
             for (Order order : orderMapper.toModelsList(orderRepository.findAll())) {
                 if (order.getId() == orderId) {
+                    flag = true;
                     order.changeStatus(orderStatus);
                     orderRepository.save(orderMapper.toEntity(order, false));
                     logger.info("Заказ успешно изменён.");
-                    return;
                 }
+            }
+            if (!flag) {
+                logger.error("Не удалось найти запрашиваемый заказ.");
+                throw new OrderNotFoundException("Не удалось найти запрашиваемый заказ.");
             }
         } catch (HibernateException ex) {
             logger.error("Не удалось обновить заказ в БД.");
@@ -192,7 +212,7 @@ public class OrderService {
     }
 
     @Transactional
-    public void importOrdersFromCSVFile(String filename) throws IOException, HibernateException {
+    public void importOrdersFromCSVFile(String filename) throws IOException, HibernateException, BookNotFoundException, ClientNotFoundException {
         logger.info("Импорт заказов.");
         try {
             List<Book> books = bookMapper.toModelsList(bookRepository.findAll());
@@ -210,7 +230,7 @@ public class OrderService {
     }
 
     @Transactional
-    public void exportOrdersIntoCSVFile(String filename) throws IOException, HibernateException {
+    public void exportOrdersIntoCSVFile(String filename) throws IOException, HibernateException, OrderNotFoundException {
         logger.info("Экспорт заказов.");
         try {
             fileManager.exportOrdersIntoCSVFile(filename, orderMapper.toModelsList(orderRepository.findAll()));
