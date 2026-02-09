@@ -87,7 +87,7 @@ public class OrderService {
         LocalDateTime toL = to.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
         logger.info("Получение суммы заработка за период времени.");
-        double funds = 0;
+        Double funds;
         try {
             funds = orderRepository.getEarnedFundsForTimeSpan(fromL, toL);
             logger.info("Сумма получена успешно.");
@@ -95,7 +95,7 @@ public class OrderService {
             logger.error("Не удалось получить сумму заработка.");
             throw new HibernateException(ex);
         }
-        return funds;
+        return funds == null ? 0 : funds;
     }
 
     @Transactional
@@ -104,7 +104,7 @@ public class OrderService {
         LocalDateTime toL = to.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
         logger.info("Получение числа заказов за период времени.");
-        long count = 0;
+        Integer count;
         try {
             count = orderRepository.getCompletedOrdersCountForTimeSpan(fromL, toL);
             logger.info("Число заказов получено успешно.");
@@ -112,7 +112,7 @@ public class OrderService {
             logger.error("Не удалось получить число заказов.");
             throw new HibernateException(ex);
         }
-        return count;
+        return count == null ? 0 : count;
     }
 
     @Transactional
@@ -133,7 +133,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Order createOrder(double discount, Date executionDate, String clientName, String... bookNames) throws HibernateException {
+    public Order createOrder(double discount, Date executionDate, String clientName, List<String> bookNames) throws HibernateException {
         logger.info("Создание заказа.");
         try {
             List<Client> clients = clientMapper.toModelsList(clientRepository.findAll());
@@ -174,14 +174,14 @@ public class OrderService {
     }
 
     @Transactional
-    public void cancelOrder(long orderId) throws OrderException, HibernateException {
+    public void updateOrder(long orderId, OrderStatus orderStatus) throws OrderException, HibernateException {
         logger.info("Отмена заказа.");
         try {
             for (Order order : orderMapper.toModelsList(orderRepository.findAll())) {
                 if (order.getId() == orderId) {
-                    order.changeStatus(OrderStatus.CANCELLED);
+                    order.changeStatus(orderStatus);
                     orderRepository.save(orderMapper.toEntity(order, false));
-                    logger.info("Заказ успешно отменён.");
+                    logger.info("Заказ успешно изменён.");
                     return;
                 }
             }
@@ -192,51 +192,32 @@ public class OrderService {
     }
 
     @Transactional
-    public boolean completeOrder(long orderId) throws OrderException, HibernateException {
-        logger.info("Выполнение заказа.");
+    public void importOrdersFromCSVFile(String filename) throws IOException, HibernateException {
+        logger.info("Импорт заказов.");
         try {
-            for (Order order : orderMapper.toModelsList(orderRepository.findAll())) {
-                if (order.getId() == orderId) {
-                    order.changeStatus(OrderStatus.COMPLETED);
-                    orderRepository.save(orderMapper.toEntity(order, false));
-                    logger.info("Заказ успешно выполнен.");
-                    return true;
-                }
+            List<Book> books = bookMapper.toModelsList(bookRepository.findAll());
+            List<Client> clients = clientMapper.toModelsList(clientRepository.findAll());
+            List<Order> orders = new ArrayList<>();
+            fileManager.importOrdersFromCSVFile(filename, orders, clients, books);
+            for (Order order : orders) {
+                orderRepository.save(orderMapper.toEntity(order, true));
             }
+            logger.info("Заказы успешно импортированы.");
         } catch (HibernateException ex) {
-            logger.error("Не удалось выполнить заказ в БД.");
+            logger.error("Не удалось импортировать заказы.");
             throw new HibernateException(ex);
         }
-        return false;
     }
 
-//    @Transactional
-//    public void importOrdersFromCSVFile(String filename) throws IOException, HibernateException {
-//        logger.info("Импорт заказов.");
-//        try {
-//            List<Book> books = bookMapper.toModelsList(bookDAO.findAll());
-//            List<Client> clients = clientMapper.toModelsList(clientDAO.findAll());
-//            List<Order> orders = new ArrayList<>();
-//            fileManager.importOrdersFromCSVFile(filename, orders, clients, books);
-//            for (Order order : orders) {
-//                orderDAO.save(orderMapper.toEntity(order, true));
-//            }
-//            logger.info("Заказы успешно импортированы.");
-//        } catch (HibernateException ex) {
-//            logger.error("Не удалось импортировать заказы.");
-//            throw new HibernateException(ex);
-//        }
-//    }
-//
-//    @Transactional
-//    public void exportOrdersIntoCSVFile(String filename) throws IOException, HibernateException {
-//        logger.info("Экспорт заказов.");
-//        try {
-//            fileManager.exportOrdersIntoCSVFile(filename, orderMapper.toModelsList(orderDAO.findAll()));
-//            logger.info("Заказы успешно экспортированы.");
-//        } catch (HibernateException ex) {
-//            logger.error("Не удалось экспортировать заказы.");
-//            throw new HibernateException(ex);
-//        }
-//    }
+    @Transactional
+    public void exportOrdersIntoCSVFile(String filename) throws IOException, HibernateException {
+        logger.info("Экспорт заказов.");
+        try {
+            fileManager.exportOrdersIntoCSVFile(filename, orderMapper.toModelsList(orderRepository.findAll()));
+            logger.info("Заказы успешно экспортированы.");
+        } catch (HibernateException ex) {
+            logger.error("Не удалось экспортировать заказы.");
+            throw new HibernateException(ex);
+        }
+    }
 }

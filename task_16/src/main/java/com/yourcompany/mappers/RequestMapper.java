@@ -3,6 +3,7 @@ package com.yourcompany.mappers;
 import com.yourcompany.DTO.RequestDTO;
 import com.yourcompany.entities.RequestEntity;
 import com.yourcompany.models.Request;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,20 +52,10 @@ public class RequestMapper implements IMapper<RequestDTO, Request, RequestEntity
     }
 
     @Override
-    public Request fromDTOtoModel(RequestDTO DTO) {
-        return new Request(
-                DTO.getId(),
-                bookMapper.fromDTOtoModel(DTO.getBook()),
-                DTO.getCount(),
-                DTO.isOpen()
-        );
-    }
-
-    @Override
     public RequestDTO fromModelToDTO(Request model) {
         return new RequestDTO(
                 model.getId(),
-                bookMapper.fromModelToDTO(model.getBook()),
+                model.getBook().getName(),
                 model.getCount(),
                 model.isOpen()
         );

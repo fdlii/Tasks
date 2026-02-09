@@ -59,18 +59,6 @@ public class BookMapper implements IMapper<BookDTO, Book, BookEntity> {
         return books;
     }
 
-    @Override
-    public Book fromDTOtoModel(BookDTO DTO) {
-        return new Book(
-                DTO.getId(),
-                DTO.getName(),
-                DTO.getAuthor(),
-                DTO.getDescription(),
-                DTO.getPublished(),
-                DTO.getCountInStock(),
-                DTO.getPrice()
-        );
-    }
 
     @Override
     public BookDTO fromModelToDTO(Book model) {
@@ -93,5 +81,13 @@ public class BookMapper implements IMapper<BookDTO, Book, BookEntity> {
             bookDTOList.add(fromModelToDTO(book));
         }
         return bookDTOList;
+    }
+
+    public List<BookEntity> toEntityList(List<Book> models) {
+        List<BookEntity> entities = new ArrayList<>();
+        for (Book book : models) {
+            entities.add(toEntity(book, false));
+        }
+        return entities;
     }
 }

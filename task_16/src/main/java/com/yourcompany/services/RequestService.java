@@ -80,32 +80,32 @@ public class RequestService {
         return requests;
     }
 
-//    @Transactional
-//    public void importRequestsFromCSVFile(String filename) throws IOException, HibernateException {
-//        logger.info("Импорт запросов.");
-//        try {
-//            List<Book> books = bookMapper.toModelsList(bookDAO.findAll());
-//            List<Request> requests = new ArrayList<>();
-//            fileManager.importRequestsFromCSVFile(filename, requests, books);
-//            for (Request request : requests) {
-//                requestDAO.save(requestMapper.toEntity(request, true));
-//            }
-//            logger.info("Запросы успешно импортированы.");
-//        } catch (HibernateException ex) {
-//            logger.error("Не удалось импортировать запросы.");
-//            throw new HibernateException(ex);
-//        }
-//    }
-//
-//    @Transactional
-//    public void exportRequestsIntoCSVFile(String filename) throws IOException, HibernateException {
-//        logger.info("Экспорт запросов.");
-//        try {
-//            fileManager.exportRequestsIntoCSVFile(filename, requestMapper.toModelsList(requestDAO.findAll()));
-//            logger.info("Запросы успешно экспортированы.");
-//        } catch (HibernateException ex) {
-//            logger.error("Не удалось экспортировать запросы.");
-//            throw new HibernateException(ex);
-//        }
-//    }
+    @Transactional
+    public void importRequestsFromCSVFile(String filename) throws IOException, HibernateException {
+        logger.info("Импорт запросов.");
+        try {
+            List<Book> books = bookMapper.toModelsList(bookRepository.findAll());
+            List<Request> requests = new ArrayList<>();
+            fileManager.importRequestsFromCSVFile(filename, requests, books);
+            for (Request request : requests) {
+                requestRepository.save(requestMapper.toEntity(request, true));
+            }
+            logger.info("Запросы успешно импортированы.");
+        } catch (HibernateException ex) {
+            logger.error("Не удалось импортировать запросы.");
+            throw new HibernateException(ex);
+        }
+    }
+
+    @Transactional
+    public void exportRequestsIntoCSVFile(String filename) throws IOException, HibernateException {
+        logger.info("Экспорт запросов.");
+        try {
+            fileManager.exportRequestsIntoCSVFile(filename, requestMapper.toModelsList(requestRepository.findAll()));
+            logger.info("Запросы успешно экспортированы.");
+        } catch (HibernateException ex) {
+            logger.error("Не удалось экспортировать запросы.");
+            throw new HibernateException(ex);
+        }
+    }
 }

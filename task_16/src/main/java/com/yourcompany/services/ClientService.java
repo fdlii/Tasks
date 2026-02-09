@@ -51,31 +51,31 @@ public class ClientService {
         }
     }
 
-//    @Transactional
-//    public void importClientsFromCSVFile(String filename) throws IOException, HibernateException {
-//        logger.info("Импорт клиентов.");
-//        List<Client> clients = new ArrayList<>();
-//        fileManager.importClientsFromCSVFile(filename, clients);
-//        try {
-//            for (Client client : clients) {
-//                clientDAO.save(clientMapper.toEntity(client, true));
-//            }
-//            logger.info("Клиенты успешно импортированы.");
-//        } catch (HibernateException ex) {
-//            logger.error("Не удалось импортировать клиентов.");
-//            throw new HibernateException(ex);
-//        }
-//    }
-//
-//    @Transactional
-//    public void exportClientsIntoCSVFile(String filename) throws IOException, HibernateException {
-//        logger.info("Экспорт клиентов.");
-//        try {
-//            fileManager.exportClientsIntoCSVFile(filename, clientMapper.toModelsList(clientDAO.findAll()));
-//            logger.info("Клиенты успешно экспортированы.");
-//        } catch (HibernateException ex) {
-//            logger.error("Не удалось экспортировать клиентов.");
-//            throw new HibernateException(ex);
-//        }
-//    }
+    @Transactional
+    public void importClientsFromCSVFile(String filename) throws IOException, HibernateException {
+        logger.info("Импорт клиентов.");
+        List<Client> clients = new ArrayList<>();
+        fileManager.importClientsFromCSVFile(filename, clients);
+        try {
+            for (Client client : clients) {
+                clientRepository.save(clientMapper.toEntity(client, true));
+            }
+            logger.info("Клиенты успешно импортированы.");
+        } catch (HibernateException ex) {
+            logger.error("Не удалось импортировать клиентов.");
+            throw new HibernateException(ex);
+        }
+    }
+
+    @Transactional
+    public void exportClientsIntoCSVFile(String filename) throws IOException, HibernateException {
+        logger.info("Экспорт клиентов.");
+        try {
+            fileManager.exportClientsIntoCSVFile(filename, clientMapper.toModelsList(clientRepository.findAll()));
+            logger.info("Клиенты успешно экспортированы.");
+        } catch (HibernateException ex) {
+            logger.error("Не удалось экспортировать клиентов.");
+            throw new HibernateException(ex);
+        }
+    }
 }

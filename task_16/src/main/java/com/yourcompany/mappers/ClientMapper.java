@@ -45,15 +45,6 @@ public class ClientMapper implements IMapper<ClientDTO, Client, ClientEntity> {
     }
 
     @Override
-    public Client fromDTOtoModel(ClientDTO DTO) {
-        return new Client(
-            DTO.getId(),
-            DTO.getName(),
-            DTO.getAge()
-        );
-    }
-
-    @Override
     public ClientDTO fromModelToDTO(Client model) {
         return new ClientDTO(
                 model.getId(),

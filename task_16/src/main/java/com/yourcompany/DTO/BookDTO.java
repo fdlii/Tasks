@@ -1,18 +1,20 @@
 package com.yourcompany.DTO;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+@NoArgsConstructor
 @AllArgsConstructor
 public class BookDTO {
-    private final long id;
-    private final String name;
-    private final String author;
-    private final String description;
-    private final Date published;
-    private final boolean inStock;
-    private final int countInStock;
-    private final double price;
+    private long id;
+    private String name;
+    private String author;
+    private String description;
+    private Date published;
+    private boolean inStock;
+    private int countInStock;
+    private double price;
 
     public long getId() {
         return id;

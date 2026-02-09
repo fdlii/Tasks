@@ -2,6 +2,7 @@ package com.yourcompany.mappers;
 
 import com.yourcompany.DTO.OrderDTO;
 import com.yourcompany.entities.OrderEntity;
+import com.yourcompany.models.Book;
 import com.yourcompany.models.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,10 +16,12 @@ import java.util.List;
 public class OrderMapper implements IMapper<OrderDTO, Order, OrderEntity> {
     @Autowired
     ClientMapper clientMapper;
+    @Autowired
+    BookMapper bookMapper;
 
     @Override
     public Order toModel(OrderEntity entity) {
-        return new Order(
+        Order order = new Order(
                 entity.getId(),
                 clientMapper.toModel(entity.getClient()),
                 entity.getDiscount(),
@@ -26,20 +29,24 @@ public class OrderMapper implements IMapper<OrderDTO, Order, OrderEntity> {
                 Date.from(entity.getExecutionDate().atZone(ZoneId.systemDefault()).toInstant()),
                 entity.getOrderStatus()
         );
+        order.setBooks(bookMapper.toModelsList(entity.getBooks()));
+        return order;
     }
 
     @Override
     public OrderEntity toEntity(Order model, boolean ignoreId) {
         if (ignoreId) {
-            return new OrderEntity(
+            OrderEntity orderEntity = new OrderEntity(
                     clientMapper.toEntity(model.getClient(), false),
                     model.getDiscount(),
                     model.getFinalPrice(),
                     model.getExecutionDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
                     model.getOrderStatus()
             );
+            orderEntity.setBooks(bookMapper.toEntityList(model.getBooks()));
+            return orderEntity;
         }
-        return new OrderEntity(
+        OrderEntity orderEntity = new OrderEntity(
                 model.getId(),
                 clientMapper.toEntity(model.getClient(), false),
                 model.getDiscount(),
@@ -47,6 +54,8 @@ public class OrderMapper implements IMapper<OrderDTO, Order, OrderEntity> {
                 model.getExecutionDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
                 model.getOrderStatus()
         );
+        orderEntity.setBooks(bookMapper.toEntityList(model.getBooks()));
+        return orderEntity;
     }
 
     @Override
@@ -59,27 +68,20 @@ public class OrderMapper implements IMapper<OrderDTO, Order, OrderEntity> {
     }
 
     @Override
-    public Order fromDTOtoModel(OrderDTO DTO) {
-        return new Order(
-                DTO.getId(),
-                clientMapper.fromDTOtoModel(DTO.getClient()),
-                DTO.getDiscount(),
-                DTO.getFinalPrice(),
-                DTO.getExecutionDate(),
-                DTO.getOrderStatus()
-        );
-    }
-
-    @Override
     public OrderDTO fromModelToDTO(Order model) {
-        return new OrderDTO(
+        OrderDTO orderDTO = new OrderDTO(
                 model.getId(),
-                clientMapper.fromModelToDTO(model.getClient()),
+                model.getClient().getName(),
                 model.getDiscount(),
                 model.getFinalPrice(),
                 model.getExecutionDate(),
-                model.getOrderStatus()
+                model.getOrderStatus(),
+                new ArrayList<>()
         );
+        for (Book book : model.getBooks()) {
+            orderDTO.bookNames.add(book.getName());
+        }
+        return orderDTO;
     }
 
     @Override

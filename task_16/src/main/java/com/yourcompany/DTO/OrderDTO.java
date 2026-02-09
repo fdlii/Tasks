@@ -2,24 +2,29 @@ package com.yourcompany.DTO;
 
 import com.yourcompany.models.OrderStatus;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+@NoArgsConstructor
 @AllArgsConstructor
 public class OrderDTO {
-    private final long id;
-    private final ClientDTO client;
-    private final double discount;
-    private final double finalPrice;
-    private final Date executionDate;
-    private final OrderStatus orderStatus;
+    private long id;
+    private String clientName;
+    private double discount;
+    private double finalPrice;
+    private Date executionDate;
+    private OrderStatus orderStatus;
+    public List<String> bookNames;
 
     public long getId() {
         return id;
     }
 
-    public ClientDTO getClient() {
-        return client;
+    public String getClientName() {
+        return clientName;
     }
 
     public double getDiscount() {
@@ -36,5 +41,9 @@ public class OrderDTO {
 
     public OrderStatus getOrderStatus() {
         return orderStatus;
+    }
+
+    public List<String> getBookNames() {
+        return bookNames;
     }
 }

@@ -1,20 +1,22 @@
 package com.yourcompany.DTO;
 
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 @AllArgsConstructor
 public class RequestDTO {
-    private final long id;
-    private final BookDTO book;
-    private final int count;
-    private final boolean isOpen;
+    private long id;
+    private String bookName;
+    private int count;
+    private boolean isOpen;
 
     public long getId() {
         return id;
     }
 
-    public BookDTO getBook() {
-        return book;
+    public String getBookName() {
+        return bookName;
     }
 
     public int getCount() {

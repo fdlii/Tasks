@@ -14,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -120,31 +122,31 @@ public class BookService {
         }
     }
 
-//    @Transactional
-//    public void importBooksFromCSVFile(String filename) throws IOException, HibernateException {
-//        logger.info("Импорт книг.");
-//        try {
-//            List<Book> books = new ArrayList<>();
-//            fileManager.importBooksFromCSVFile(filename, books);
-//            for (Book book : books) {
-//                bookDAO.save(bookMapper.toEntity(book, true));
-//            }
-//            logger.info("Книги успешно импортированы.");
-//        } catch (HibernateException ex) {
-//            logger.error("Не удалось импортировать книги.");
-//            throw new HibernateException(ex);
-//        }
-//    }
-//
-//    @Transactional
-//    public void exportBooksIntoCSVFile(String filename) throws IOException, HibernateException {
-//        logger.info("Экспорт книг.");
-//        try {
-//            fileManager.exportBooksIntoCSVFile(filename, bookMapper.toModelsList(bookDAO.findAll()));
-//            logger.info("Книги успешно экспортированы.");
-//        } catch (HibernateException ex) {
-//            logger.error("Не удалось экспортировать книги.");
-//            throw new HibernateException(ex);
-//        }
-//    }
+    @Transactional
+    public void importBooksFromCSVFile(String filename) throws IOException, HibernateException {
+        logger.info("Импорт книг.");
+        try {
+            List<Book> books = new ArrayList<>();
+            fileManager.importBooksFromCSVFile(filename, books);
+            for (Book book : books) {
+                bookRepository.save(bookMapper.toEntity(book, true));
+            }
+            logger.info("Книги успешно импортированы.");
+        } catch (HibernateException ex) {
+            logger.error("Не удалось импортировать книги.");
+            throw new HibernateException(ex);
+        }
+    }
+
+    @Transactional
+    public void exportBooksIntoCSVFile(String filename) throws IOException, HibernateException {
+        logger.info("Экспорт книг.");
+        try {
+            fileManager.exportBooksIntoCSVFile(filename, bookMapper.toModelsList(bookRepository.findAll()));
+            logger.info("Книги успешно экспортированы.");
+        } catch (HibernateException ex) {
+            logger.error("Не удалось экспортировать книги.");
+            throw new HibernateException(ex);
+        }
+    }
 }
