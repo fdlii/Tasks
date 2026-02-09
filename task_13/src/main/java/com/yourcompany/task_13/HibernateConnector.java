@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class HibernateConnector {
     private static final Logger logger = LoggerFactory.getLogger(HibernateConnector.class);
+    @Autowired
     private final SessionFactory sessionFactory;
 
-    @Autowired
     public HibernateConnector(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
         logger.info("HibernateConnector инициализирован с SessionFactory");
