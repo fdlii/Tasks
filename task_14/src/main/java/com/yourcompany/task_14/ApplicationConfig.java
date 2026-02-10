@@ -14,6 +14,7 @@ import com.yourcompany.task_3_4.mappers.OrderMapper;
 import com.yourcompany.task_3_4.mappers.RequestMapper;
 import com.yourcompany.task_5_1.MenuController;
 import com.yourcompany.task_5_1.interfaces.IMenuController;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -46,6 +47,9 @@ public class ApplicationConfig {
 
     @Value("${hibernate.dialect}")
     private String dialect;
+
+    @Autowired
+    private DataSource dataSource;
 
     @Bean
     public IMenuController menuController() {
