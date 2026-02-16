@@ -10,6 +10,7 @@
     <modules>
         <module>Producer</module>
         <module>Consumer</module>
+        <module>Core</module>
     </modules>
 
     <properties>

@@ -35,10 +35,17 @@ public class TransferService {
             accountRepository.save(withdrawalAccount.get());
             accountRepository.save(transferAccount.get());
             transferRepository.save(entity);
+            logger.info("Сообщение успешно обработано.");
         }
-        catch (Exception ex) {
+        catch (ArithmeticException | EntityNotFoundException ex) {
             logger.error(ex.getMessage());
             entity.setStatus(TransferStatus.ERROR);
+        }
+        catch (Exception ex) {
+            logger.error("Ошибка при обработке транзакции.");
+            entity.setStatus(TransferStatus.ERROR);
+        }
+        finally {
             transferRepository.save(entity);
         }
     }

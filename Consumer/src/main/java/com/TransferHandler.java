@@ -18,6 +18,7 @@ public class TransferHandler {
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void handle(TransferEntity entity) {
+        logger.info("Обработка присланного сообщения.");
         transferService.saveTransfer(entity);
     }
 }

@@ -1,6 +1,8 @@
 package com;
 
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -8,9 +10,11 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 @Service
 public class Producer {
+    Logger logger = LoggerFactory.getLogger(Producer.class);
     private KafkaTemplate<String, TransferEntity> kafkaTemplate;
     private AccountRepository accountRepository;
     private Random random = new Random();
@@ -53,8 +57,12 @@ public class Producer {
         double sum = random.nextDouble() * 1000;
         TransferEntity transfer = new TransferEntity(withdrawalAccount, transferAccount, sum);
 
-        kafkaTemplate.send("transfer-created-events-topic",
-                String.valueOf(transfer.getId()),
-                transfer);
+        String key = transfer.getId() + "-" + UUID.randomUUID().toString().substring(0, 8);
+        logger.info("Сообщение отправляется в брокер.");
+
+        kafkaTemplate.executeInTransaction(ops -> {
+            ops.send("transfer-created-events-topic", key, transfer);
+            return null;
+        });
     }
 }
