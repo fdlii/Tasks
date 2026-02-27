@@ -1,0 +1,3 @@
+databaseChangeLog:
+  - include:
+      file: "classpath:db/migration/V0-initDataBase.sql"
