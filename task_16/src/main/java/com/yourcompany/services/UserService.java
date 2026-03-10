@@ -6,8 +6,14 @@ import com.yourcompany.entities.UserEntity;
 import com.yourcompany.repositories.RoleRepository;
 import com.yourcompany.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.Optional;
 
 @Service
@@ -16,6 +22,12 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    private UserDetailsService userDetailsService;
+    @Autowired
+    private JwtService jwtService;
 
     public void registerUser(UserDTO userDTO) {
         UserEntity userEntity = new UserEntity();
@@ -33,7 +45,16 @@ public class UserService {
         userRepository.save(userEntity);
     }
 
-    public void verifyUser(UserDTO userDTO) {
-
+    public String verifyUser(UserDTO userDTO) throws UserPrincipalNotFoundException {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        userDTO.getUsername(),
+                        userDTO.getPassword()
+                ));
+        if (authentication.isAuthenticated()) {
+            UserDetails user = userRepository.findByUsername(userDTO.getUsername()).get();
+            return jwtService.generateToken(user.getUsername(), user.getAuthorities());
+        }
+        throw new UserPrincipalNotFoundException("Неверное имя пользователя или пароль.");
     }
 }
