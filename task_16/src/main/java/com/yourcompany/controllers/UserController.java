@@ -3,6 +3,7 @@ package com.yourcompany.controllers;
 import com.yourcompany.DTO.UserDTO;
 import com.yourcompany.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,8 +24,14 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String loginUser(@RequestBody UserDTO userDTO) throws UserPrincipalNotFoundException {
-        String token = userService.verifyUser(userDTO);
-        return token;
+    public ResponseEntity<String> loginUser(@RequestBody UserDTO userDTO) throws UserPrincipalNotFoundException {
+        String token = "";
+        try {
+            token = userService.verifyUser(userDTO);
+        }
+        catch (UserPrincipalNotFoundException ex) {
+            return ResponseEntity.status(401).body(ex.getMessage());
+        }
+        return ResponseEntity.ok(token);
     }
 }

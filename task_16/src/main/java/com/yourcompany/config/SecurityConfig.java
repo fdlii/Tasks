@@ -30,7 +30,9 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(request ->
-                        request.requestMatchers("/user/register", "/user/login").permitAll())
+                        request.requestMatchers("/user/register", "/user/login").permitAll()
+                                .requestMatchers("/client/**", "/request/**").hasAnyAuthority("ADMIN")
+                                .requestMatchers("/order/**", "/book/**").hasAnyAuthority("ADMIN", "USER"))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();

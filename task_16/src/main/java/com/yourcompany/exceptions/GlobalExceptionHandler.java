@@ -6,8 +6,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.nio.file.attribute.UserPrincipalNotFoundException;
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(UserPrincipalNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFound(UserPrincipalNotFoundException ex) {
+        return buildResponseBody(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+
     @ExceptionHandler(ClientNotFoundException.class)
     public ResponseEntity<ErrorResponse> clientNotFoundHandler(ClientNotFoundException ex) {
         return buildResponseBody(HttpStatus.NOT_FOUND, ex.getMessage());
