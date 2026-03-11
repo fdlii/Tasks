@@ -2,6 +2,7 @@ package com.yourcompany.config;
 
 import com.yourcompany.services.JwtFilter;
 import com.yourcompany.services.MyUserDetailsService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -28,11 +29,42 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) {
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
+                .anonymous(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(request ->
                         request.requestMatchers("/user/register", "/user/login").permitAll()
                                 .requestMatchers("/client/**", "/request/**").hasAnyAuthority("ADMIN")
                                 .requestMatchers("/order/**", "/book/**").hasAnyAuthority("ADMIN", "USER"))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("""
+                    {
+                      "status": 401,
+                      "error": "Unauthorized",
+                      "message": "%s",
+                      "path": "%s"
+                    }
+                    """.formatted(
+                                    authException.getMessage(),
+                                    request.getRequestURI()
+                            ));
+                        })
+
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("""
+                    {
+                      "status": 403,
+                      "error": "Forbidden",
+                      "message": "Доступ запрещён: недостаточно прав",
+                      "path": "%s"
+                    }
+                    """.formatted(request.getRequestURI()));
+                        })
+                )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();

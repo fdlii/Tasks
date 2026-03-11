@@ -24,14 +24,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody UserDTO userDTO) throws UserPrincipalNotFoundException {
-        String token = "";
-        try {
-            token = userService.verifyUser(userDTO);
-        }
-        catch (UserPrincipalNotFoundException ex) {
-            return ResponseEntity.status(401).body(ex.getMessage());
-        }
-        return ResponseEntity.ok(token);
+    public String loginUser(@RequestBody UserDTO userDTO) throws UserPrincipalNotFoundException {
+        String token = userService.verifyUser(userDTO);
+        return token;
     }
 }
