@@ -1,6 +1,7 @@
 package com.yourcompany.controllers;
 
 import com.yourcompany.DTO.BookDTO;
+import com.yourcompany.exceptions.BookException;
 import com.yourcompany.exceptions.BookNotFoundException;
 import com.yourcompany.mappers.BookMapper;
 import com.yourcompany.services.BookService;
@@ -19,17 +20,17 @@ public class BookController {
     BookMapper bookMapper;
 
     @GetMapping
-    public List<BookDTO> getBooks() throws BookNotFoundException {
+    public List<BookDTO> getBooks() {
         return bookMapper.toDTOList(bookService.getBooks());
     }
 
     @GetMapping("/staled")
-    public List<BookDTO> getStaledBooks() throws BookNotFoundException {
+    public List<BookDTO> getStaledBooks() {
         return bookMapper.toDTOList(bookService.getStaledBooks());
     }
 
     @PostMapping
-    public BookDTO addBook(@RequestBody BookDTO bookDTO) {
+    public BookDTO addBook(@RequestBody BookDTO bookDTO) throws BookException {
         bookService.addBook(
                 bookDTO.getName(),
                 bookDTO.getAuthor(),
@@ -62,7 +63,7 @@ public class BookController {
     }
 
     @GetMapping("/export")
-    public void exportInCSV() throws IOException, BookNotFoundException {
+    public void exportInCSV() throws IOException {
         bookService.exportBooksIntoCSVFile("task_6/src/main/java/com/yourcompany/task_6_1/Books.csv");
     }
 }

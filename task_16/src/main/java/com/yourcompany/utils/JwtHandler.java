@@ -1,4 +1,4 @@
-package com.yourcompany.services;
+package com.yourcompany.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -15,7 +15,7 @@ import java.util.Date;
 import java.util.function.Function;
 
 @Service
-public class JwtService {
+public class JwtHandler {
     @Value("${jwt.secret}")
     private String secret;
 

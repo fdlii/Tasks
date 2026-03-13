@@ -17,17 +17,13 @@ public class RequestMapper implements IMapper<RequestDTO, Request, RequestEntity
     BookMapper bookMapper;
 
     @Override
-    public Request toModel(RequestEntity entity) throws RequestNotFoundException {
-        try {
-            return new Request(
-                    entity.getId(),
-                    bookMapper.toModel(entity.getBook()),
-                    entity.getCount(),
-                    entity.isOpen()
-            );
-        } catch (NullPointerException | BookNotFoundException ex) {
-            throw new RequestNotFoundException("Не удалось найти запрашиваемый запрос.");
-        }
+    public Request toModel(RequestEntity entity) {
+        return new Request(
+                entity.getId(),
+                bookMapper.toModel(entity.getBook()),
+                entity.getCount(),
+                entity.isOpen()
+        );
     }
 
     @Override
@@ -48,7 +44,7 @@ public class RequestMapper implements IMapper<RequestDTO, Request, RequestEntity
     }
 
     @Override
-    public List<Request> toModelsList(List<RequestEntity> entities) throws RequestNotFoundException {
+    public List<Request> toModelsList(List<RequestEntity> entities) {
         List<Request> requests = new ArrayList<>();
         for (RequestEntity requestEntity : entities) {
             requests.add(toModel(requestEntity));

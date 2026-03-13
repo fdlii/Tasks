@@ -5,6 +5,7 @@ import com.yourcompany.entities.RoleEntity;
 import com.yourcompany.entities.UserEntity;
 import com.yourcompany.repositories.RoleRepository;
 import com.yourcompany.repositories.UserRepository;
+import com.yourcompany.utils.JwtHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,7 +28,7 @@ public class UserService {
     @Autowired
     private UserDetailsService userDetailsService;
     @Autowired
-    private JwtService jwtService;
+    private JwtHandler jwtHandler;
 
     public void registerUser(UserDTO userDTO) {
         UserEntity userEntity = new UserEntity();
@@ -53,7 +54,7 @@ public class UserService {
                 ));
         if (authentication.isAuthenticated()) {
             UserDetails user = userRepository.findByUsername(userDTO.getUsername()).get();
-            return jwtService.generateToken(user.getUsername(), user.getAuthorities());
+            return jwtHandler.generateToken(user.getUsername(), user.getAuthorities());
         }
         throw new UserPrincipalNotFoundException("Неверное имя пользователя или пароль.");
     }

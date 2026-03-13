@@ -3,7 +3,6 @@ package com.yourcompany.controllers;
 import com.yourcompany.DTO.UserDTO;
 import com.yourcompany.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +17,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public UserDTO registerUser(@RequestBody UserDTO userDTO) {
+    public UserDTO registerUser(@RequestBody UserDTO userDTO) throws IllegalArgumentException {
         userService.registerUser(userDTO);
         return userDTO;
     }

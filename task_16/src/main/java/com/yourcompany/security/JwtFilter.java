@@ -1,5 +1,6 @@
-package com.yourcompany.services;
+package com.yourcompany.security;
 
+import com.yourcompany.utils.JwtHandler;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,7 +10,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -18,7 +18,7 @@ import java.io.IOException;
 @Service
 public class JwtFilter extends OncePerRequestFilter {
     @Autowired
-    private JwtService jwtService;
+    private JwtHandler jwtHandler;
     @Autowired
     private MyUserDetailsService userDetailsService;
 
@@ -32,12 +32,12 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         final String jwt = authToken.substring(7);
-        final String username = jwtService.extractUsername(jwt);
+        final String username = jwtHandler.extractUsername(jwt);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
-            if (jwtService.isTokenValid(jwt, userDetails)) {
+            if (jwtHandler.isTokenValid(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,

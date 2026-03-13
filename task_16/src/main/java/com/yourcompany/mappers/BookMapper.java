@@ -14,7 +14,7 @@ import java.util.List;
 @Service
 public class BookMapper implements IMapper<BookDTO, Book, BookEntity> {
     @Override
-    public Book toModel(BookEntity entity) throws BookNotFoundException {
+    public Book toModel(BookEntity entity) {
         try {
             return new Book(
                     entity.getId(),
@@ -27,7 +27,7 @@ public class BookMapper implements IMapper<BookDTO, Book, BookEntity> {
             );
         }
         catch (NullPointerException ex) {
-            throw new BookNotFoundException("Не удалось найти запрашиваемую книгу.");
+            throw new NullPointerException("Не удалось найти запрашиваемую книгу.");
         }
     }
 
@@ -57,7 +57,7 @@ public class BookMapper implements IMapper<BookDTO, Book, BookEntity> {
     }
 
     @Override
-    public List<Book> toModelsList(List<BookEntity> entities) throws BookNotFoundException {
+    public List<Book> toModelsList(List<BookEntity> entities) {
         List<Book> books = new ArrayList<>();
         for (BookEntity entity : entities) {
             books.add(toModel(entity));

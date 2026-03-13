@@ -1,9 +1,8 @@
 package com.yourcompany.config;
 
-import com.yourcompany.services.JwtFilter;
-import com.yourcompany.services.MyUserDetailsService;
+import com.yourcompany.security.JwtFilter;
+import com.yourcompany.security.MyUserDetailsService;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

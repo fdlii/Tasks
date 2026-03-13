@@ -1,4 +1,4 @@
-package com.yourcompany.services;
+package com.yourcompany.security;
 
 import com.yourcompany.entities.UserEntity;
 import com.yourcompany.repositories.UserRepository;

@@ -8,9 +8,9 @@ import com.yourcompany.exceptions.RequestNotFoundException;
 import java.util.List;
 
 public interface IMapper<D, M, E> {
-    M toModel(E entity) throws BookNotFoundException, ClientNotFoundException, OrderNotFoundException, RequestNotFoundException;
+    M toModel(E entity);
     E toEntity(M model, boolean ignoreId);
-    List<M> toModelsList(List<E> entities) throws BookNotFoundException, ClientNotFoundException, RequestNotFoundException, OrderNotFoundException;
+    List<M> toModelsList(List<E> entities);
     D fromModelToDTO(M model);
     List<D> toDTOList(List<M> models);
 }

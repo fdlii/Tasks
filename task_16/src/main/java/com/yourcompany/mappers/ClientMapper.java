@@ -13,15 +13,16 @@ import java.util.List;
 public class ClientMapper implements IMapper<ClientDTO, Client, ClientEntity> {
 
     @Override
-    public Client toModel(ClientEntity entity) throws ClientNotFoundException {
+    public Client toModel(ClientEntity entity) {
         try {
             return new Client(
                     entity.getId(),
                     entity.getName(),
                     entity.getAge()
             );
-        } catch (NullPointerException ex) {
-            throw new ClientNotFoundException("Не удалось найти запрашиваемого клиента.");
+        }
+        catch (NullPointerException ex) {
+            throw new NullPointerException("Не удалось найти запрашиваемого клиента.");
         }
     }
 
@@ -41,7 +42,7 @@ public class ClientMapper implements IMapper<ClientDTO, Client, ClientEntity> {
     }
 
     @Override
-    public List<Client> toModelsList(List<ClientEntity> entities) throws ClientNotFoundException {
+    public List<Client> toModelsList(List<ClientEntity> entities) {
         List<Client> clients = new ArrayList<>();
         for (ClientEntity clientEntity : entities) {
             clients.add(toModel(clientEntity));

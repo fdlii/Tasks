@@ -4,10 +4,12 @@ import com.yourcompany.comparators.BookIsInStockComparator;
 import com.yourcompany.comparators.BookNameComparator;
 import com.yourcompany.comparators.BookPriceComparator;
 import com.yourcompany.comparators.BookPublishedComparator;
+import com.yourcompany.exceptions.BookException;
 import com.yourcompany.exceptions.BookNotFoundException;
 import com.yourcompany.mappers.BookMapper;
 import com.yourcompany.models.Book;
 import com.yourcompany.repositories.BookRepository;
+import com.yourcompany.utils.FileManager;
 import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,45 +34,36 @@ public class BookService {
     FileManager fileManager;
 
     @Transactional
-    public void addBook(String name, String author, String description, Date published, double price, int countInStock) throws HibernateException {
+    public void addBook(String name, String author, String description, Date published, double price, int countInStock) throws BookException {
         logger.info("Добавление книги.");
-        try {
-            bookRepository.save(bookMapper.toEntity(new Book(name, author, description, published, price, countInStock), true));
-            logger.info("Книга успешно добавлена.");
-        } catch (HibernateException ex) {
-            logger.error("Не удалось добавить книгу в БД.");
-            throw new HibernateException(ex);
+        if (name == null || name.isEmpty() || price <= 0 || countInStock < 0) {
+            logger.error("Некорректные параметры книги.");
+            throw new BookException("Некорректные параметры книги для добавления.");
         }
+        bookRepository.save(bookMapper.toEntity(new Book(name, author, description, published, price, countInStock), true));
+        logger.info("Книга успешно добавлена.");
     }
 
     @Transactional
-    public void deleteBook(String bookName) throws HibernateException, BookNotFoundException {
+    public void deleteBook(String bookName) throws BookNotFoundException {
         logger.info("Удаление книги.");
         try {
             Book book = bookMapper.toModel(bookRepository.findByName(bookName));
             bookRepository.delete(bookMapper.toEntity(book, false));
             logger.info("Книга успешно удалена.");
-        } catch (HibernateException ex) {
-            logger.error("Не удалось удалить книгу из БД.");
-            throw new HibernateException(ex);
         }
-        catch (BookNotFoundException ex) {
-            logger.error("Не удалось найти запрашиваемую книгу.");
-            throw new BookNotFoundException("Не удалось найти запрашиваемую книгу.");
+        catch (NullPointerException ex) {
+            logger.error(ex.getMessage());
+            throw new BookNotFoundException(ex.getMessage());
         }
     }
 
     @Transactional
-    public List<Book> getBooks() throws HibernateException, BookNotFoundException {
+    public List<Book> getBooks() {
         logger.info("Получение всех книг.");
-        List<Book> books;
-        try {
-            books = bookMapper.toModelsList(bookRepository.findAll());
-            logger.info("Книги успешно получены.");
-        } catch (HibernateException ex) {
-            logger.error("Ошибка при получении книг из БД.");
-            throw new HibernateException(ex);
-        }
+        List<Book> books = bookMapper.toModelsList(bookRepository.findAll());
+        logger.info("Книги успешно получены.");
+
         books.sort(new BookNameComparator()
                 .thenComparing(new BookPublishedComparator()
                         .thenComparing(new BookPriceComparator()
@@ -79,45 +72,35 @@ public class BookService {
     }
 
     @Transactional
-    public List<Book> getStaledBooks() throws HibernateException, BookNotFoundException {
+    public List<Book> getStaledBooks() throws HibernateException {
         logger.info("Получение залежавшихся книг.");
-        List<Book> staledBooks;
-
         LocalDateTime threshold = LocalDateTime.now().minusMonths(6);
 
-        try {
-            staledBooks = bookMapper.toModelsList(bookRepository.getStaledBooks(threshold));
-            logger.info("Книги успешно получены.");
-        } catch (HibernateException ex) {
-            logger.error("Ошибка при получении книг из БД.");
-            throw new HibernateException(ex);
-        }
+        List<Book> staledBooks = bookMapper.toModelsList(bookRepository.getStaledBooks(threshold));
+        logger.info("Книги успешно получены.");
+
         staledBooks.sort(new BookPublishedComparator()
                 .thenComparing(new BookPriceComparator()));
         return staledBooks;
     }
 
     @Transactional
-    public void addInStock(String bookName, int count) throws HibernateException, BookNotFoundException {
+    public void addInStock(String bookName, int count) throws BookNotFoundException {
         logger.info("Добавление книги на склад.");
         try {
             Book book = bookMapper.toModel(bookRepository.findByName(bookName));
             book.setCountInStock(book.getCountInStock() + count);
             bookRepository.save(bookMapper.toEntity(book, false));
             logger.info("Книга успешно добавлена на склад.");
-        } catch (HibernateException ex) {
-            logger.error("Не удалось добавить книгу на склад.");
-            System.out.println(ex.getMessage());
-            throw new HibernateException(ex);
         }
-        catch (BookNotFoundException ex) {
-            logger.error("Не удалось найти запрашиваемую книгу.");
-            throw new BookNotFoundException("Не удалось найти запрашиваемую книгу.");
+        catch (NullPointerException ex) {
+            logger.error(ex.getMessage());
+            throw new BookNotFoundException(ex.getMessage());
         }
     }
 
     @Transactional
-    public void debitFromStock(String bookName) throws HibernateException, BookNotFoundException {
+    public void debitFromStock(String bookName) throws BookNotFoundException {
         logger.info("Удаление книги со склада.");
         try {
             Book book = bookMapper.toModel(bookRepository.findByName(bookName));
@@ -125,42 +108,28 @@ public class BookService {
             book.setInStock(false);
             bookRepository.save(bookMapper.toEntity(book, false));
             logger.info("Книга успешно удалена со склада.");
-        } catch (HibernateException ex) {
-            System.out.println(ex.getMessage());
-            logger.error("Не удалось удалить книгу со склада.");
-            throw new HibernateException(ex);
         }
-        catch (BookNotFoundException ex) {
-            logger.error("Не удалось найти запрашиваемую книгу.");
-            throw new BookNotFoundException("Не удалось найти запрашиваемую книгу.");
+        catch (NullPointerException ex) {
+            logger.error(ex.getMessage());
+            throw new BookNotFoundException(ex.getMessage());
         }
     }
 
     @Transactional
-    public void importBooksFromCSVFile(String filename) throws IOException, HibernateException {
+    public void importBooksFromCSVFile(String filename) throws IOException {
         logger.info("Импорт книг.");
-        try {
-            List<Book> books = new ArrayList<>();
-            fileManager.importBooksFromCSVFile(filename, books);
-            for (Book book : books) {
-                bookRepository.save(bookMapper.toEntity(book, true));
-            }
-            logger.info("Книги успешно импортированы.");
-        } catch (HibernateException ex) {
-            logger.error("Не удалось импортировать книги.");
-            throw new HibernateException(ex);
+        List<Book> books = new ArrayList<>();
+        fileManager.importBooksFromCSVFile(filename, books);
+        for (Book book : books) {
+            bookRepository.save(bookMapper.toEntity(book, true));
         }
+        logger.info("Книги успешно импортированы.");
     }
 
     @Transactional
-    public void exportBooksIntoCSVFile(String filename) throws IOException, HibernateException, BookNotFoundException {
+    public void exportBooksIntoCSVFile(String filename) throws IOException {
         logger.info("Экспорт книг.");
-        try {
-            fileManager.exportBooksIntoCSVFile(filename, bookMapper.toModelsList(bookRepository.findAll()));
-            logger.info("Книги успешно экспортированы.");
-        } catch (HibernateException ex) {
-            logger.error("Не удалось экспортировать книги.");
-            throw new HibernateException(ex);
-        }
+        fileManager.exportBooksIntoCSVFile(filename, bookMapper.toModelsList(bookRepository.findAll()));
+        logger.info("Книги успешно экспортированы.");
     }
 }

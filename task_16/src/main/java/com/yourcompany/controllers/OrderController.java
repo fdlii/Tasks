@@ -8,6 +8,7 @@ import com.yourcompany.exceptions.OrderNotFoundException;
 import com.yourcompany.mappers.OrderMapper;
 import com.yourcompany.models.OrderStatus;
 import com.yourcompany.services.OrderService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
@@ -27,7 +29,7 @@ public class OrderController {
     OrderMapper orderMapper;
 
     @GetMapping
-    public List<OrderDTO> getOrders() throws OrderNotFoundException {
+    public List<OrderDTO> getOrders() {
         return orderMapper.toDTOList(orderService.getOrders());
     }
 
@@ -38,35 +40,72 @@ public class OrderController {
 
     @GetMapping("/get_funds")
     public double getEarnedFundsForTimeSpan(
-            @RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam("to")   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to
-    ) {
-        Date fromD = Date.from(from.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        Date toD = Date.from(to.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            @RequestParam("from") String from,
+            @RequestParam("to")   String to
+    )
+    {
+        Date fromD = null;
+        Date toD   = null;
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+            LocalDate fromDate = LocalDate.parse(from, formatter);
+            LocalDate toDate   = LocalDate.parse(to,   formatter);
+
+            fromD = Date.from(fromDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            toD = Date.from(toDate  .atStartOfDay(ZoneId.systemDefault()).toInstant());
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Не удалось преобразовать переданные даты.");
+        }
         return orderService.getEarnedFundsForTimeSpan(fromD, toD);
     }
 
     @GetMapping("/get_orders_count")
     public long getCompletedOrdersCountForTimeSpan(
-            @RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam("to")   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to)
+            @RequestParam("from") String from,
+            @RequestParam("to")   String to
+    )
     {
-        Date fromD = Date.from(from.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        Date toD = Date.from(to.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date fromD = null;
+        Date toD   = null;
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+            LocalDate fromDate = LocalDate.parse(from, formatter);
+            LocalDate toDate   = LocalDate.parse(to,   formatter);
+
+            fromD = Date.from(fromDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            toD = Date.from(toDate  .atStartOfDay(ZoneId.systemDefault()).toInstant());
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Не удалось преобразовать переданные даты.");
+        }
         return orderService.getCompletedOrdersCountForTimeSpan(fromD, toD);
     }
 
     @GetMapping("/get_orders")
     public List<OrderDTO> getCompletedOrdersForTimeSpan(
-            @RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam("to")   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) throws OrderNotFoundException {
-        Date fromD = Date.from(from.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        Date toD = Date.from(to.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            @RequestParam("from") String from,
+            @RequestParam("to")   String to
+    )
+    {
+        Date fromD = null;
+        Date toD   = null;
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+            LocalDate fromDate = LocalDate.parse(from, formatter);
+            LocalDate toDate   = LocalDate.parse(to,   formatter);
+
+            fromD = Date.from(fromDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            toD = Date.from(toDate  .atStartOfDay(ZoneId.systemDefault()).toInstant());
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Не удалось преобразовать переданные даты.");
+        }
         return orderMapper.toDTOList(orderService.getCompletedOrdersForTimeSpan(fromD, toD));
     }
 
     @PostMapping
-    public void createOrder(@RequestBody OrderDTO orderDTO) throws ClientNotFoundException, BookNotFoundException {
+    public void createOrder(@RequestBody OrderDTO orderDTO) throws OrderException, EntityNotFoundException {
         orderService.createOrder(
                 orderDTO.getDiscount(),
                 orderDTO.getExecutionDate(),
@@ -81,12 +120,12 @@ public class OrderController {
     }
 
     @GetMapping("/import")
-    public void importFromCSV() throws IOException, ClientNotFoundException, BookNotFoundException {
+    public void importFromCSV() throws IOException {
         orderService.importOrdersFromCSVFile("task_6/src/main/java/com/yourcompany/task_6_1/Orders.csv");
     }
 
     @GetMapping("/export")
-    public void exportInCSV() throws IOException, OrderNotFoundException {
+    public void exportInCSV() throws IOException {
         orderService.exportOrdersIntoCSVFile("task_6/src/main/java/com/yourcompany/task_6_1/Orders.csv");
     }
 }

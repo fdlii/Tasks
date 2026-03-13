@@ -1,4 +1,4 @@
-package com.yourcompany.services;
+package com.yourcompany.utils;
 
 import com.yourcompany.models.Book;
 import com.yourcompany.models.Client;
