@@ -34,15 +34,15 @@ public class ClientService {
     }
 
     @Transactional
-    public void addClient(String name, int age) throws ClientException {
+    public Client addClient(String name, int age) throws ClientException {
         logger.info("Добавление клиента.");
         if (name == null || name.isEmpty() || age < 1 || age > 110) {
             logger.error("Некорректные параметры клиента.");
             throw new ClientException("Некорректные параметры клиента.");
         }
-        clientRepository.save(clientMapper.toEntity(new Client(name, age), true));
+        Client client = clientMapper.toModel(clientRepository.save(clientMapper.toEntity(new Client(name, age), true)));
         logger.info("Клиент успешно добавлен.");
-
+        return client;
     }
 
     @Transactional

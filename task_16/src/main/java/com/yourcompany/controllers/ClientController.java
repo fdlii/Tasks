@@ -25,8 +25,7 @@ public class ClientController {
 
     @PostMapping
     public ClientDTO addClient(@RequestBody ClientDTO clientDTO) throws ClientException {
-        clientService.addClient(clientDTO.getName(), clientDTO.getAge());
-        return clientDTO;
+        return clientMapper.fromModelToDTO(clientService.addClient(clientDTO.getName(), clientDTO.getAge()));
     }
 
     @GetMapping("/import")
