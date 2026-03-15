@@ -99,7 +99,7 @@ public class ClientServiceTest {
     }
 
     @Nested
-    class importClientsTestClass {
+    class ImportClientsTestClass {
         @Test
         public void importClientsSuccessfullyTest() throws IOException {
             //Given
@@ -141,7 +141,7 @@ public class ClientServiceTest {
     }
 
     @Nested
-    class exportClientsTestClass {
+    class ExportClientsTestClass {
         @Test
         public void exportClientsSuccessfullyTest() throws IOException {
             //Given

@@ -46,7 +46,6 @@ public class RequestService {
         }
     }
 
-    //Проверить что будет при передаче null строки
     @Transactional
     public List<Request> getBookRequests(String bookName) throws BookNotFoundException {
         logger.info("Получение запросов у книги.");

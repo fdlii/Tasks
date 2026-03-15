@@ -85,13 +85,14 @@ public class BookService {
     }
 
     @Transactional
-    public void addInStock(String bookName, int count) throws BookNotFoundException {
+    public Book addInStock(String bookName, int count) throws BookNotFoundException {
         logger.info("Добавление книги на склад.");
         try {
             Book book = bookMapper.toModel(bookRepository.findByName(bookName));
             book.setCountInStock(book.getCountInStock() + count);
             bookRepository.save(bookMapper.toEntity(book, false));
             logger.info("Книга успешно добавлена на склад.");
+            return book;
         }
         catch (NullPointerException ex) {
             logger.error(ex.getMessage());
@@ -100,7 +101,7 @@ public class BookService {
     }
 
     @Transactional
-    public void debitFromStock(String bookName) throws BookNotFoundException {
+    public Book debitFromStock(String bookName) throws BookNotFoundException {
         logger.info("Удаление книги со склада.");
         try {
             Book book = bookMapper.toModel(bookRepository.findByName(bookName));
@@ -108,6 +109,7 @@ public class BookService {
             book.setInStock(false);
             bookRepository.save(bookMapper.toEntity(book, false));
             logger.info("Книга успешно удалена со склада.");
+            return book;
         }
         catch (NullPointerException ex) {
             logger.error(ex.getMessage());
