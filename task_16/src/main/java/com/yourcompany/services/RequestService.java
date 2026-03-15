@@ -1,6 +1,7 @@
 package com.yourcompany.services;
 
 import com.yourcompany.exceptions.BookNotFoundException;
+import com.yourcompany.exceptions.RequestException;
 import com.yourcompany.mappers.BookMapper;
 import com.yourcompany.mappers.RequestMapper;
 import com.yourcompany.models.Book;
@@ -33,13 +34,17 @@ public class RequestService {
     FileManager fileManager;
 
     @Transactional
-    public void makeRequest(String bookName, int count) throws BookNotFoundException {
+    public Request makeRequest(String bookName, int count) throws BookNotFoundException, RequestException {
         logger.info("Создание запроса.");
+        if (bookName == null || count < 1) {
+            throw new RequestException("Некорректные параметры запроса.");
+        }
         try {
             Book book = bookMapper.toModel(bookRepository.findByName(bookName));
             Request request = new Request(book, count);
             requestRepository.save(requestMapper.toEntity(request, true));
             logger.info("Запрос успешно создан.");
+            return request;
         } catch (NullPointerException ex) {
             logger.error(ex.getMessage());
             throw new BookNotFoundException(ex.getMessage());

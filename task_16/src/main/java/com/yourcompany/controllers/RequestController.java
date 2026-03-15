@@ -2,6 +2,7 @@ package com.yourcompany.controllers;
 
 import com.yourcompany.DTO.RequestDTO;
 import com.yourcompany.exceptions.BookNotFoundException;
+import com.yourcompany.exceptions.RequestException;
 import com.yourcompany.exceptions.RequestNotFoundException;
 import com.yourcompany.mappers.RequestMapper;
 import com.yourcompany.services.RequestService;
@@ -30,7 +31,7 @@ public class RequestController {
     }
 
     @PostMapping
-    public RequestDTO makeRequest(@RequestBody RequestDTO requestDTO) throws BookNotFoundException {
+    public RequestDTO makeRequest(@RequestBody RequestDTO requestDTO) throws BookNotFoundException, RequestException {
         requestService.makeRequest(requestDTO.getBookName(), requestDTO.getCount());
         return requestDTO;
     }

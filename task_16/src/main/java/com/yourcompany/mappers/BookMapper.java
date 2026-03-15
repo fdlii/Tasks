@@ -2,7 +2,6 @@ package com.yourcompany.mappers;
 
 import com.yourcompany.DTO.BookDTO;
 import com.yourcompany.entities.BookEntity;
-import com.yourcompany.exceptions.BookNotFoundException;
 import com.yourcompany.models.Book;
 import org.springframework.stereotype.Service;
 
