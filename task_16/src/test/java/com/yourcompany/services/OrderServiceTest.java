@@ -16,7 +16,6 @@ import com.yourcompany.repositories.ClientRepository;
 import com.yourcompany.repositories.OrderRepository;
 import com.yourcompany.repositories.RequestRepository;
 import com.yourcompany.utils.FileManager;
-import net.bytebuddy.dynamic.DynamicType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,13 +25,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -50,15 +49,11 @@ class OrderServiceTest {
     @Mock
     private ClientRepository clientRepository;
     @Mock
-    private RequestRepository requestRepository;
-    @Mock
     private BookMapper bookMapper;
     @Mock
     private OrderMapper orderMapper;
     @Mock
     private ClientMapper clientMapper;
-    @Mock
-    private RequestMapper requestMapper;
     @Mock
     FileManager fileManager;
     @InjectMocks
@@ -75,8 +70,8 @@ class OrderServiceTest {
     RequestEntity requestEntity;
     OrderEntity orderEntity;
     Order order;
-    List<Order> orders;
-    List<OrderEntity> orderEntities;
+    List<Order> orders = new ArrayList<>();
+    List<OrderEntity> orderEntities = new ArrayList<>();
     Date from;
     Date to;
 
@@ -255,8 +250,8 @@ class OrderServiceTest {
                     clientName,
                     List.of(bookName)
             );
-            assertEquals(order.getId(), returned.getId());
-            assertEquals(order.getExecutionDate(), returned.getExecutionDate());
+            assertEquals(clientName, returned.getClient().getName());
+            assertEquals(bookName, returned.getBooks().get(0).getName());
             verify(clientRepository, times(1)).findByName(any(String.class));
             verify(bookRepository, times(1)).findByName(any(String.class));
         }
@@ -320,6 +315,108 @@ class OrderServiceTest {
                 Order returned = orderService.updateOrder(orderId, null);
             });
             assertEquals("Статус заказа не входит в перечисление.", exception.getMessage());
+        }
+    }
+
+    @Nested
+    class ImportOrdersTestClass {
+        @Test
+        public void importOrdersSuccessfullyTest() throws IOException {
+            //Given
+            String filename = "task_6/src/main/java/com/yourcompany/task_6_1/Orders.csv";
+            List<ClientEntity> clientEntities = List.of(clientEntity);
+            List<BookEntity> bookEntities = List.of(bookEntity);
+            List<Book> books = List.of(book);
+            List<Client> clients = List.of(client);
+
+            //When
+            when(bookRepository.findAll()).thenReturn(bookEntities);
+            when(bookMapper.toModelsList(bookEntities)).thenReturn(books);
+            when(clientRepository.findAll()).thenReturn(clientEntities);
+            when(clientMapper.toModelsList(clientEntities)).thenReturn(clients);
+            doNothing()
+                    .when(fileManager)
+                    .importOrdersFromCSVFile(filename, orders, clients, books);
+            when(orderMapper.toEntity(any(Order.class), eq(true)))
+                    .thenReturn(orderEntity);
+            when(orderRepository.save(orderEntity))
+                    .thenReturn(orderEntity);
+
+            //Then
+            assertDoesNotThrow(() -> {
+                orderService.importOrdersFromCSVFile(filename);
+            });
+        }
+
+        @Test
+        public void importOrdersExceptionTest() throws IOException {
+            //Given
+            String filename = "";
+            List<ClientEntity> clientEntities = List.of(clientEntity);
+            List<BookEntity> bookEntities = List.of(bookEntity);
+            List<Book> books = List.of(book);
+            List<Client> clients = List.of(client);
+            List<Order> orders1 = new ArrayList<>();
+
+            //When
+            when(bookRepository.findAll()).thenReturn(bookEntities);
+            when(bookMapper.toModelsList(bookEntities)).thenReturn(books);
+            when(clientRepository.findAll()).thenReturn(clientEntities);
+            when(clientMapper.toModelsList(clientEntities)).thenReturn(clients);
+            doThrow(new IOException("Не удалось прочитать файл."))
+                    .when(fileManager)
+                    .importOrdersFromCSVFile(filename, orders1, clients, books);
+
+            //Then
+            IOException exception = assertThrows(IOException.class, () -> {
+                orderService.importOrdersFromCSVFile(filename);
+            });
+            assertEquals("Не удалось прочитать файл.", exception.getMessage());
+        }
+    }
+
+    @Nested
+    class ExportOrdersTestClass {
+        @Test
+        public void exportOrdersSuccessfullyTest() throws IOException {
+            //Given
+            String filename = "task_6/src/main/java/com/yourcompany/task_6_1/Orders.csv";
+
+            //When
+            doNothing()
+                    .when(fileManager)
+                    .exportOrdersIntoCSVFile(filename, orders);
+            when(orderMapper.toModelsList(any(List.class)))
+                    .thenReturn(orders);
+            when(orderRepository.findAll())
+                    .thenReturn(new ArrayList<OrderEntity>());
+
+            //Then
+            assertDoesNotThrow(() -> {
+                orderService.exportOrdersIntoCSVFile(filename);
+            });
+            verify(orderRepository, times(1)).findAll();
+        }
+
+        @Test
+        public void exportOrdersExceptionTest() throws IOException {
+            //Given
+            String filename = "";
+
+            //When
+            doThrow(new IOException("Не удалось прочитать файл."))
+                    .when(fileManager)
+                    .exportOrdersIntoCSVFile(filename, orders);
+            when(orderMapper.toModelsList(any(List.class)))
+                    .thenReturn(orders);
+            when(orderRepository.findAll())
+                    .thenReturn(new ArrayList<OrderEntity>());
+
+            //Then
+            IOException exception = assertThrows(IOException.class, () -> {
+                orderService.exportOrdersIntoCSVFile(filename);
+            });
+            assertEquals("Не удалось прочитать файл.", exception.getMessage());
         }
     }
 }

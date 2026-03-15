@@ -106,6 +106,9 @@ public class Order {
     }
 
     public void changeStatus(OrderStatus orderStatus) throws OrderException {
+        if (orderStatus == OrderStatus.NEW) {
+            this.orderStatus = orderStatus;
+        }
         if (orderStatus == OrderStatus.COMPLETED) {
             for (Book book : books) {
                 for (Request request : book.getRequests()) {
