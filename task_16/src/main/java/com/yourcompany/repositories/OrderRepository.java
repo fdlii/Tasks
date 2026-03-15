@@ -15,7 +15,7 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
                WHERE o.executionDate BETWEEN :fromDate AND :toDate
                AND o.orderStatus = 1
            """)
-    Integer getCompletedOrdersCountForTimeSpan(@Param("fromDate") LocalDateTime fromDate, @Param("toDate") LocalDateTime toDate);
+    Long getCompletedOrdersCountForTimeSpan(@Param("fromDate") LocalDateTime fromDate, @Param("toDate") LocalDateTime toDate);
 
     @Query("""
                 SELECT o

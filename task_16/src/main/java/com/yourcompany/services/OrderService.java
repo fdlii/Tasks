@@ -99,7 +99,7 @@ public class OrderService {
         LocalDateTime toL = to.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
         logger.info("Получение числа заказов за период времени.");
-        Integer count = orderRepository.getCompletedOrdersCountForTimeSpan(fromL, toL);
+        Long count = orderRepository.getCompletedOrdersCountForTimeSpan(fromL, toL);
         logger.info("Число заказов получено успешно.");
 
         return count == null ? 0 : count;
@@ -155,7 +155,7 @@ public class OrderService {
     }
 
     @Transactional
-    public void updateOrder(long orderId, OrderStatus orderStatus) throws OrderException, OrderNotFoundException {
+    public Order updateOrder(long orderId, OrderStatus orderStatus) throws OrderException, OrderNotFoundException {
         logger.info("Отмена заказа.");
         try {
             if (orderStatus == null) {
@@ -168,6 +168,7 @@ public class OrderService {
             order.changeStatus(orderStatus);
             orderRepository.save(orderMapper.toEntity(order, false));
             logger.info("Заказ успешно изменён.");
+            return order;
         }
         catch (OrderException ex) {
             logger.error(ex.getMessage());
