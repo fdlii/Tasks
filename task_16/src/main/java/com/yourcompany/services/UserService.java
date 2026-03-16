@@ -26,11 +26,9 @@ public class UserService {
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
-    private UserDetailsService userDetailsService;
-    @Autowired
     private JwtHandler jwtHandler;
 
-    public void registerUser(UserDTO userDTO) {
+    public UserDTO registerUser(UserDTO userDTO) {
         UserEntity userEntity = new UserEntity();
         userEntity.setUsername(userDTO.getUsername());
         userEntity.setPassword(userDTO.getPassword());
@@ -44,6 +42,7 @@ public class UserService {
         }
 
         userRepository.save(userEntity);
+        return userDTO;
     }
 
     public String verifyUser(UserDTO userDTO) throws UserPrincipalNotFoundException {

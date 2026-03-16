@@ -18,8 +18,7 @@ public class UserController {
 
     @PostMapping("/register")
     public UserDTO registerUser(@RequestBody UserDTO userDTO) throws IllegalArgumentException {
-        userService.registerUser(userDTO);
-        return userDTO;
+        return userService.registerUser(userDTO);
     }
 
     @PostMapping("/login")
