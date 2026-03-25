@@ -48,8 +48,8 @@ public class BookController {
     }
 
     @PutMapping("/{book_name}/{count}")
-    public void addInStock(@PathVariable("book_name") String bookName, @PathVariable("count") int count) throws BookNotFoundException {
-        bookService.addInStock(bookName, count);
+    public BookDTO addInStock(@PathVariable("book_name") String bookName, @PathVariable("count") int count) throws BookNotFoundException {
+        return bookMapper.fromModelToDTO(bookService.addInStock(bookName, count));
     }
 
     @PutMapping("/{book_name}")

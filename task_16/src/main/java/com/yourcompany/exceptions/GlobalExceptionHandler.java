@@ -60,6 +60,11 @@ public class GlobalExceptionHandler {
         return buildResponseBody(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
+    @ExceptionHandler(RequestException.class)
+    public ResponseEntity<ErrorResponse> requestExceptionHandler(RequestException ex) {
+        return buildResponseBody(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
     private ResponseEntity<ErrorResponse> buildResponseBody(HttpStatus status, String message) {
         ErrorResponse errorResponse = new ErrorResponse(status.value(), message);
         return ResponseEntity.status(status).body(errorResponse);

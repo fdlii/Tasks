@@ -105,18 +105,18 @@ public class OrderController {
     }
 
     @PostMapping
-    public void createOrder(@RequestBody OrderDTO orderDTO) throws OrderException, EntityNotFoundException {
-        orderService.createOrder(
+    public OrderDTO createOrder(@RequestBody OrderDTO orderDTO) throws OrderException, EntityNotFoundException {
+        return orderMapper.fromModelToDTO(orderService.createOrder(
                 orderDTO.getDiscount(),
                 orderDTO.getExecutionDate(),
                 orderDTO.getClientName(),
                 orderDTO.getBookNames()
-        );
+        ));
     }
 
     @PutMapping("{id}/{status}")
-    public void updateOrder(@PathVariable("id") long id, @PathVariable("status") OrderStatus status) throws OrderException, OrderNotFoundException {
-        orderService.updateOrder(id, status);
+    public OrderDTO updateOrder(@PathVariable("id") long id, @PathVariable("status") OrderStatus status) throws OrderException, OrderNotFoundException {
+        return orderMapper.fromModelToDTO(orderService.updateOrder(id, status));
     }
 
     @GetMapping("/import")

@@ -7,6 +7,7 @@ import com.yourcompany.exceptions.RequestNotFoundException;
 import com.yourcompany.mappers.RequestMapper;
 import com.yourcompany.services.RequestService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -30,10 +31,9 @@ public class RequestController {
         return requestMapper.toDTOList(requestService.getBookRequests(bookName));
     }
 
-    @PostMapping
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public RequestDTO makeRequest(@RequestBody RequestDTO requestDTO) throws BookNotFoundException, RequestException {
-        requestService.makeRequest(requestDTO.getBookName(), requestDTO.getCount());
-        return requestDTO;
+        return requestMapper.fromModelToDTO(requestService.makeRequest(requestDTO.getBookName(), requestDTO.getCount()));
     }
 
     @GetMapping("/import")
