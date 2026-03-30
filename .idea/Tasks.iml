@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="AdditionalModuleElements">
+    <content url="file://$MODULE_DIR$" dumb="true">
+      <sourceFolder url="file://$MODULE_DIR$/task_2_1" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/task_2_3" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/task_2_4" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/task_3_1" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/task_3_2" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/task_3_3" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/task_3_4" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/task_4_1" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/task_4_2" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/task_5_1" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/task_6_2" isTestSource="false" />
+    </content>
+  </component>
+</module>
