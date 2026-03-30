@@ -1,0 +1,99 @@
+package com.yourcompany.mappers;
+
+import com.yourcompany.DTO.BookDTO;
+import com.yourcompany.entities.BookEntity;
+import com.yourcompany.exceptions.BookNotFoundException;
+import com.yourcompany.models.Book;
+import org.springframework.stereotype.Service;
+
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+@Service
+public class BookMapper implements IMapper<BookDTO, Book, BookEntity> {
+    @Override
+    public Book toModel(BookEntity entity) throws BookNotFoundException {
+        try {
+            return new Book(
+                    entity.getId(),
+                    entity.getName(),
+                    entity.getAuthor(),
+                    entity.getDescription(),
+                    Date.from(entity.getPublished().atZone(ZoneId.systemDefault()).toInstant()),
+                    entity.getCountInStock(),
+                    entity.getPrice()
+            );
+        }
+        catch (NullPointerException ex) {
+            throw new BookNotFoundException("Не удалось найти запрашиваемую книгу.");
+        }
+    }
+
+    @Override
+    public BookEntity toEntity(Book model, boolean ignoreId) {
+        if (ignoreId) {
+            return new BookEntity(
+                    model.getName(),
+                    model.getAuthor(),
+                    model.getDescription(),
+                    model.getPublished().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
+                    model.isInStock(),
+                    model.getCountInStock(),
+                    model.getPrice()
+            );
+        }
+        return new BookEntity(
+                model.getId(),
+                model.getName(),
+                model.getAuthor(),
+                model.getDescription(),
+                model.getPublished().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
+                model.isInStock(),
+                model.getCountInStock(),
+                model.getPrice()
+        );
+    }
+
+    @Override
+    public List<Book> toModelsList(List<BookEntity> entities) throws BookNotFoundException {
+        List<Book> books = new ArrayList<>();
+        for (BookEntity entity : entities) {
+            books.add(toModel(entity));
+        }
+        return books;
+    }
+
+
+    @Override
+    public BookDTO fromModelToDTO(Book model) {
+        return new BookDTO(
+                model.getId(),
+                model.getName(),
+                model.getAuthor(),
+                model.getDescription(),
+                model.getPublished(),
+                model.isInStock(),
+                model.getCountInStock(),
+                model.getPrice()
+        );
+    }
+
+    @Override
+    public List<BookDTO> toDTOList(List<Book> models) {
+        List<BookDTO> bookDTOList = new ArrayList<>();
+        for (Book book : models) {
+            bookDTOList.add(fromModelToDTO(book));
+        }
+        return bookDTOList;
+    }
+
+    public List<BookEntity> toEntityList(List<Book> models) {
+        List<BookEntity> entities = new ArrayList<>();
+        for (Book book : models) {
+            entities.add(toEntity(book, false));
+        }
+        return entities;
+    }
+}

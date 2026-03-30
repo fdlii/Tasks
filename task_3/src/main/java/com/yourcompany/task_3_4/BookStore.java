@@ -144,7 +144,6 @@ public class BookStore implements IBookStore {
             logger.error("Не удалось получить заказ по id.");
             throw new HibernateException(ex.getMessage());
         }
-
     }
 
     @Override
