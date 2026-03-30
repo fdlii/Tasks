@@ -3,3 +3,7 @@ databaseChangeLog:
       file: db/changelog/V1-initDB.sql
   - include:
       file: db/changelog/V2-delete_client.sql
+  - include:
+      file: db/changelog/V3-create_users_and_roles.sql
+  - include:
+      file: db/changelog/V4-insert_base_roles.sql
