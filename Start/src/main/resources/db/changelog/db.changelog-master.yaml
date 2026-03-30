@@ -1,0 +1,5 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/V1-initDB.sql
+  - include:
+      file: db/changelog/V2-delete_client.sql
