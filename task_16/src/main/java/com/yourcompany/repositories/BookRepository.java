@@ -12,6 +12,7 @@ import java.util.List;
 @Repository
 public interface BookRepository extends JpaRepository<BookEntity, Long> {
     BookEntity findByName(String name);
+
     @Query(value = """
         SELECT b.* 
         FROM books b

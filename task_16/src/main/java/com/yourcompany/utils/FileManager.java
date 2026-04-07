@@ -1,4 +1,4 @@
-package com.yourcompany.services;
+package com.yourcompany.utils;
 
 import com.yourcompany.models.Book;
 import com.yourcompany.models.Client;
@@ -17,6 +17,7 @@ import java.util.List;
 @Service
 public class FileManager {
     public void importBooksFromCSVFile(String filename, List<Book> books) throws IOException {
+
         List<String[]> records = parseCSV(filename);
 
         for (String[] record : records) {
@@ -162,6 +163,9 @@ public class FileManager {
                 writer.append("\n");
             }
         }
+        catch (IOException ex) {
+            throw new IOException("Не удалось прочитать файл.");
+        }
     }
 
     public void exportOrdersIntoCSVFile(String fileName, List<Order> orders) throws IOException {
@@ -182,9 +186,12 @@ public class FileManager {
                 writer.append("\n");
             }
         }
+        catch (IOException ex) {
+            throw new IOException("Не удалось прочитать файл.");
+        }
     }
 
-    public void exportClientsIntoCSVFile(String fileName, List<Client> clients) throws IOException{
+    public void exportClientsIntoCSVFile(String fileName, List<Client> clients) throws IOException {
         try (FileWriter writer = new FileWriter(fileName)) {
             for (Client client : clients) {
                 writer.append(client.getName()).append(",");
@@ -200,6 +207,9 @@ public class FileManager {
                 writer.append("\n");
             }
         }
+        catch (IOException ex) {
+            throw new IOException("Не удалось прочитать файл.");
+        }
     }
 
     public void exportRequestsIntoCSVFile(String fileName, List<Request> requests) throws IOException {
@@ -210,6 +220,8 @@ public class FileManager {
                 writer.append(String.valueOf(request.isOpen())).append(",");
                 writer.append("\n");
             }
+        } catch (IOException ex) {
+            throw new IOException("Не удалось прочитать файл.");
         }
     }
 
@@ -222,6 +234,9 @@ public class FileManager {
                 String[] values = line.split(",");
                 records.add(values);
             }
+        }
+        catch (IOException ex) {
+            throw new IOException("Не удалось прочитать файл.");
         }
         return records;
     }

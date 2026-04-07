@@ -23,21 +23,17 @@ public class OrderMapper implements IMapper<OrderDTO, Order, OrderEntity> {
     BookMapper bookMapper;
 
     @Override
-    public Order toModel(OrderEntity entity) throws OrderNotFoundException {
-        try {
-            Order order = new Order(
-                    entity.getId(),
-                    clientMapper.toModel(entity.getClient()),
-                    entity.getDiscount(),
-                    entity.getFinalPrice(),
-                    Date.from(entity.getExecutionDate().atZone(ZoneId.systemDefault()).toInstant()),
-                    entity.getOrderStatus()
-            );
-            order.setBooks(bookMapper.toModelsList(entity.getBooks()));
-            return order;
-        } catch (NullPointerException | ClientNotFoundException | BookNotFoundException ex) {
-            throw new OrderNotFoundException("Не удалось найти запрашиваемый заказ.");
-        }
+    public Order toModel(OrderEntity entity) {
+        Order order = new Order(
+                entity.getId(),
+                clientMapper.toModel(entity.getClient()),
+                entity.getDiscount(),
+                entity.getFinalPrice(),
+                Date.from(entity.getExecutionDate().atZone(ZoneId.systemDefault()).toInstant()),
+                entity.getOrderStatus()
+        );
+        order.setBooks(bookMapper.toModelsList(entity.getBooks()));
+        return order;
     }
 
     @Override
@@ -66,7 +62,7 @@ public class OrderMapper implements IMapper<OrderDTO, Order, OrderEntity> {
     }
 
     @Override
-    public List<Order> toModelsList(List<OrderEntity> entities) throws OrderNotFoundException {
+    public List<Order> toModelsList(List<OrderEntity> entities) {
         List<Order> orders = new ArrayList<>();
         for (OrderEntity entity : entities) {
             orders.add(toModel(entity));

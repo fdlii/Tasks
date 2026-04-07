@@ -1,7 +1,7 @@
 package com.yourcompany.controllers;
 
 import com.yourcompany.DTO.ClientDTO;
-import com.yourcompany.exceptions.ClientNotFoundException;
+import com.yourcompany.exceptions.ClientException;
 import com.yourcompany.mappers.ClientMapper;
 import com.yourcompany.services.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +19,13 @@ public class ClientController {
     ClientMapper clientMapper;
 
     @GetMapping
-    public List<ClientDTO> getClients() throws ClientNotFoundException {
+    public List<ClientDTO> getClients() {
         return clientMapper.toDTOList(clientService.getClients());
     }
 
     @PostMapping
-    public ClientDTO addClient(@RequestBody ClientDTO clientDTO) {
-        clientService.addClient(clientDTO.getName(), clientDTO.getAge());
-        return clientDTO;
+    public ClientDTO addClient(@RequestBody ClientDTO clientDTO) throws ClientException {
+        return clientMapper.fromModelToDTO(clientService.addClient(clientDTO.getName(), clientDTO.getAge()));
     }
 
     @GetMapping("/import")
@@ -35,7 +34,7 @@ public class ClientController {
     }
 
     @GetMapping("/export")
-    public void exportInCSV() throws IOException, ClientNotFoundException {
+    public void exportInCSV() throws IOException {
         clientService.exportClientsIntoCSVFile("task_6/src/main/java/com/yourcompany/task_6_1/Clients.csv");
     }
 }
